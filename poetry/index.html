@@ -31,7 +31,7 @@
             margin-bottom: 20px;
         }
 
-        /* Navigation Button Styling */
+        /* Navigation Controls */
         .nav-controls {
             margin-bottom: 40px;
             display: flex;
@@ -71,18 +71,17 @@
             margin-bottom: 40px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             border: 1px solid #2d3742;
-            transition: opacity 0.3s ease;
-            position: relative; /* Allows positioning the date inside */
         }
 
-        /* Header block containing Title and Date */
+        /* Header Layout: Title on Left, Context on Right */
         .poem-header {
             display: flex;
             justify-content: space-between;
             align-items: baseline;
             border-bottom: 1px solid #334155;
-            padding-bottom: 6px;
-            margin-bottom: 12px;
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+            gap: 15px;
         }
 
         h2 {
@@ -92,18 +91,21 @@
             color: #f1f5f9;
         }
 
-        .poem-date {
+        /* Context Block for Date & Location */
+        .poem-meta {
             font-size: 0.85rem;
             color: #64748b;
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             letter-spacing: 0.5px;
+            text-align: right;
+            white-space: nowrap;
         }
 
         .poem-text {
             font-size: 1.1rem;
             white-space: pre-line;
             color: #cbd5e1;
-            margin-top: 0; /* Permanently flattens the top gap */
+            margin-top: 0;
             margin-bottom: 25px;
             letter-spacing: 0.5px;
         }
@@ -128,302 +130,14 @@
         <h1>The Collection</h1>
         
         <div class="nav-controls">
-            <button class="nav-btn active" id="btn-all" onclick="showAll()">All Poems (A-Z)</button>
-            <button class="nav-btn" id="btn-latest" onclick="showLatest()">Latest First</button>
-            <button class="nav-btn" id="btn-random" onclick="showRandom()">Random Poem</button>
+            <button class="nav-btn active" id="btn-all" onclick="changeMode('all')">All Poems (A-Z)</button>
+            <button class="nav-btn" id="btn-latest" onclick="changeMode('latest')">Latest First</button>
+            <button class="nav-btn" id="btn-random" onclick="changeMode('random')">Random Poem</button>
         </div>
     </header>
 
     <main id="poetry-container">
-
-        <div class="poem-card" data-title="Out of Bliss" data-date="2023-07-01">
-            <div class="poem-header">
-                <h2>Out of Bliss</h2>
-                <div class="poem-date">Jul 2023</div>
-            </div>
-            <p class="poem-text">birth and evolution
-                mountains rising within Me,
-                death and dissolution
-                and they fall into the sea.
-
-                yet I remain unchanging,
-                I alone exist,
-                these apparent re-arrangings
-                arising out of Bliss.
-
-                You are what always ever is,
-                seek not what is always not,
-                in this way recognize Yourself
-                to get what You’ve always got.</p>
-            <audio controls controlsList="nodownload">
-                <source src="out-of-bliss.mp3" type="audio/mp3">
-                Your browser does not support the audio element.
-            </audio>
-        </div>
-
-        <div class="poem-card" data-title="The Journey" data-date="2022-04-10">
-            <div class="poem-header">
-                <h2>The Journey</h2>
-                <div class="poem-date">Apr 2022</div>
-            </div>
-            <p class="poem-text">There is no need to pack for this journey of ours,
-                no toothbrush, no luggage, no planes, trains or cars
-
-                Dropping the thought that this journey is far
-                we have no need to wait to arrive where we are
-
-                Our birthname forgotten and roles left behind
-                we remove all the traces of how we once were defined
-
-                Closing our eyes we leave our senses alone
-                set aside past and future and return to our home
-
-                The mind may complain and say that it’s bored
-                always wanting an outcome, it seeks a reward
-
-                Let mind say what it will, allow these protests,
-                pay no attention, soon it will rest
-
-                What remains can’t be measured, no shape, color or size
-                nothing to hear or to see with the eyes
-
-                What cannot be removed cannot be denied,
-                re-discovering our Self, in this we abide
-
-                Turning back to the world, we take our stand as the light
-                experience losing its power to alter our sight</p>
-            <audio controls controlsList="nodownload">
-                <source src="the-journey.mp3" type="audio/mp3">
-                Your browser does not support the audio element.
-            </audio>
-        </div>
-
-<div class="poem-card" data-title="Rest Assured" data-date="2026-05-15">
-            <div class="poem-header">
-                <h2>Rest Assured</h2>
-                <div class="poem-date">May 2026</div>
-            </div>
-            <p class="poem-text">we start out sane,
-                but take on the crazy
-                in the midst of the stampeding herd.
-
-                we carry on,
-                and we’re carried along
-                as desire for more is stirred.
-
-                yet if one looks beyond
-                the rear to their front,
-                looking up reveals a bird.
-
-                the bird sees the cliff
-                and the unending charge;
-                from up there, it seems so absurd.
-
-                abandon all seeking
-                to soar freely above,
-                fulfilled and at peace…
-
-                rest assured.</p>
-            <audio controls controlsList="nodownload">
-                <source src="rest-assured.mp3" type="audio/mp3">
-                Your browser does not support the audio element.
-            </audio>
-        </div>
-
-        <div class="poem-card" data-title="One Without a Second" data-date="2026-04-19">
-            <div class="poem-header">
-                <h2>One Without a Second</h2>
-                <div class="poem-date">Apr 2026</div>
-            </div>
-            <p class="poem-text">labels smother,
-                as there is no other.
-
-                no father or mother,
-                sister or brother.
-
-                no friend or foe,
-                no one higher or low.
-
-                don’t bother to name,
-                as all are the same,
-                frame all as One,
-                see this and be done.
-
-                being done with separation,
-                with terms or relation,
-                reveals a quiet elation,
-                regardless of role,
-                each representing
-                a part of the whole...
-
-                a particular perspective,
-                be it joyful or invective,
-                no expression is defective,
-                just what is... here and now.
-
-                with no labels to smother,
-                there can be no other.</p>
-            <audio controls controlsList="nodownload">
-                <source src="one-without-a-second.mp3" type="audio/mp3">
-                Your browser does not support the audio element.
-            </audio>
-        </div>
-
-        <div class="poem-card" data-title="Relative Comfort" data-date="2026-01-25">
-            <div class="poem-header">
-                <h2>Relative Comfort</h2>
-                <div class="poem-date">Jan 2026</div>
-            </div>
-            <p class="poem-text">Of those who find their way,
-                many pitch a tent at the gate,
-                content to wait in relative comfort.
-
-                They may feel this is a 'special' relativity,
-                their arrival seen as an accomplishment
-                to add to their C.V. of “see me.”
-
-                Some regard the opening as far too small
-                as what they carry will not fit through,
-                let alone admit their “who.”
-
-                Even relief, including the fig leaf, must go;
-                all that one believes or knows,
-                surrendered at this gateless gate.
-
-                As for the how, it cannot be said…
-                there is no prescription or instruction
-                to ensure your induction.
-
-                The streetlights have just come on.
-                Hide-and-Seek is over.
-                You're being called home.</p>
-            <audio controls controlsList="nodownload">
-                <source src="relative-comfort.mp3" type="audio/mp3">
-                Your browser does not support the audio element.
-            </audio>
-        </div>
-
-        <div class="poem-card" data-title="No Precedent" data-date="2026-01-11">
-            <div class="poem-header">
-                <h2>No Precedent</h2>
-                <div class="poem-date">Jan 2026</div>
-            </div>
-            <p class="poem-text">It's best to state Truth plainly,
-                but these words are so ungainly,
-                and each time that one tries
-                they find nothing to describe.
-
-                If one did find the words,
-                nouns, adjectives, and verbs,
-                you'd need to use your mind;
-                each must be defined.
-
-                So let's take a different tack,
-                for this really is a knack:
-                to leave the mind alone
-                and see THIS is always known.
-
-                Known prior to any thought,
-                by very silence taught,
-                no precedent exists,
-                for THIS alone subsists.
-
-                There is only now, no do,
-                to reveal what is always True.
-                Prior to busy mind:
-                Remaining undefined.</p>
-            <audio controls controlsList="nodownload">
-                <source src="no-precedent.mp3" type="audio/mp3">
-                Your browser does not support the audio element.
-            </audio>
-        </div>
-
-        <div class="poem-card" data-title="As It Is" data-date="2025-11-22">
-            <div class="poem-header">
-                <h2>As It Is</h2>
-                <div class="poem-date">Nov 2025</div>
-            </div>
-            <p class="poem-text">Held within stillness,
-                alone, undisturbed...
-                nothing to add,
-                at rest, unperturbed.
-                Left as it is,
-                existence unfurls.
-
-                Struck dumb by silence,
-                words lose their meaning.
-                Empty, yet brimming,
-                energy teeming.
-                Left as it is,
-                undiluted light streaming.
-
-                Quietly basking
-                in the suchness of This,
-                a gentle unmasking
-                reveals only bliss.
-                Kissed by this moment...
-                left as it is.</p>
-            <audio controls controlsList="nodownload">
-                <source src="as-it-is.mp3" type="audio/mp3">
-                Your browser does not support the audio element.
-            </audio>
-        </div>
-
-        <div class="poem-card" data-title="Belling the Cat" data-date="2025-11-15">
-            <div class="poem-header">
-                <h2>Belling the Cat</h2>
-                <div class="poem-date">Nov 2025</div>
-            </div>
-            <p class="poem-text">lost in thought, I am caught
-                in this cat-and-mouse game,
-                when mind offers fear
-                I am once again tamed
-                and escape to the known,
-                to the comfort of names.
-
-                yet one voice is heard,
-                which is largely unheeded:
-                “BELL THE CAT,” it intones;
-
-                “BELL THE CAT,” is repeated,
-                as I turn away from the thought
-                feeling lost and defeated.
-
-                the voice comes again:
-                “BELL THE CAT,” it invites...
-                yet does it not know
-                the cat scratches and bites?
-
-                “BELL THE CAT,” once again…
-                dare I take up the fight?
-
-                and now comes the fear!
-
-                “BELL THE CAT,” issues forth
-                from my own very mind;
-                as I turn ’round and find
-                THE CAT looming large,
-                crouched and ready to charge.
-
-                “BELL THE CAT,” in my mind
-                as I step into the fear
-                and find peace at the center:
-                no 'me' or 'cat' here,
-                no bell hung to knell,
-                all is now clear.
-
-                the illusory cat,
-                when kept at a distance,
-                seemed solid and real
-                due to resistance.
-                step into the fear...
-                it has no existence!</p>
-            <audio controls controlsList="nodownload">
-                <source src="belling-the-cat.mp3" type="audio/mp3">
-                Your browser does not support the audio element.
-            </audio>
-        </div>
-        
+        <p style="text-align: center; color: #64748b; font-style: italic;">Gathering verses...</p>
     </main>
 
     <footer>
@@ -431,76 +145,117 @@
     </footer>
 
     <script>
-        // Store cards in memory globally so sorting doesn't destroy the list
-        let initialCards = [];
+        let allPoems = [];
+        let currentMode = 'all';
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const container = document.getElementById("poetry-container");
-            initialCards = Array.from(container.getElementsByClassName("poem-card"));
-            // Default sort to Alphabetical on load
-            showAll();
-        });
+        // Matches naming rule: lowercase, word-word.mp3
+        function cleanSlug(title) {
+            return title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/[\s-]+/g, '-').trim();
+        }
 
-        // 1. Sort and Display Alphabetical (A-Z)
-        function showAll() {
-            setActiveButton("btn-all");
-            const container = document.getElementById("poetry-container");
-            
-            const sorted = [...initialCards].sort((a, b) => {
-                return a.getAttribute("data-title").localeCompare(b.getAttribute("data-title"));
-            });
-            
+        // Standardizes sorting dates
+        function parseSortDate(dateStr) {
+            const d = new Date(dateStr);
+            return isNaN(d.getTime()) ? "2026-01-01" : d.toISOString().split('T')[0];
+        }
+
+        // Cleans up the raw date for standard display: "May 15, 2026" -> "May 2026"
+        function parseHumanDate(dateStr) {
+            const parts = dateStr.replace(',', '').split(' ');
+            if (parts.length >= 3) {
+                return `${parts[0].substring(0, 3)} ${parts[2]}`;
+            }
+            return dateStr;
+        }
+
+        // Reads poem-list.txt on the fly
+        async function loadPoetryData() {
+            try {
+                const response = await fetch('poem-list.txt');
+                if (!response.ok) throw new Error("File not found");
+                const rawText = await response.text();
+                
+                // Split file by 5 dashes
+                const rawBlocks = rawText.split(/-----+/);
+                
+                allPoems = rawBlocks.map(block => {
+                    // Extract non-empty lines
+                    const lines = block.split(/\r?\n/).map(l => l.trim()).filter(l => l !== "");
+                    
+                    // We now need at least 4 lines (Date, Title, Location, and at least 1 line of poem)
+                    if (lines.length < 4) return null;
+
+                    const dateRaw = lines[0];
+                    const title = lines[1];
+                    const location = lines[2];
+                    const bodyLines = lines.slice(3);
+                    
+                    return {
+                        title: title,
+                        location: location,
+                        displayDate: parseHumanDate(dateRaw),
+                        sortDate: parseSortDate(dateRaw),
+                        slug: cleanSlug(title),
+                        text: bodyLines.join('\n')
+                    };
+                }).filter(p => p !== null);
+
+                render();
+            } catch (err) {
+                document.getElementById('poetry-container').innerHTML = 
+                    `<p style="color: #64748b; text-align: center; font-style: italic;">The collection is resting at the moment.</p>`;
+            }
+        }
+
+        // Builds screens based on selected order
+        function render() {
+            const container = document.getElementById('poetry-container');
             container.innerHTML = "";
-            sorted.forEach(card => {
-                card.style.display = "block";
+            
+            let displayList = [...allPoems];
+
+            if (currentMode === 'all') {
+                displayList.sort((a, b) => a.title.localeCompare(b.title));
+            } else if (currentMode === 'latest') {
+                displayList.sort((a, b) => b.sortDate.localeCompare(a.sortDate));
+            } else if (currentMode === 'random') {
+                const randomIndex = Math.floor(Math.random() * displayList.length);
+                displayList = [displayList[randomIndex]];
+            }
+
+            displayList.forEach(poem => {
+                const card = document.createElement('div');
+                card.className = 'poem-card';
+                
+                // Show location next to the date if it's not set to 'Unpublished' or blank
+                let metaText = poem.displayDate;
+                if (poem.location && poem.location.toLowerCase() !== 'unpublished') {
+                    metaText = `${poem.location} • ${poem.displayDate}`;
+                }
+
+                card.innerHTML = `
+                    <div class="poem-header">
+                        <h2>${poem.title}</h2>
+                        <div class="poem-meta">${metaText}</div>
+                    </div>
+                    <p class="poem-text">${poem.text}</p>
+                    <audio controls controlsList="nodownload">
+                        <source src="${poem.slug}.mp3" type="audio/mp3">
+                        Your browser does not support the audio element.
+                    </audio>
+                `;
                 container.appendChild(card);
             });
         }
 
-        // 2. Sort and Display Latest First (Newest to Oldest)
-        function showLatest() {
-            setActiveButton("btn-latest");
-            const container = document.getElementById("poetry-container");
-            
-            const sorted = [...initialCards].sort((a, b) => {
-                return b.getAttribute("data-date").localeCompare(a.getAttribute("data-date"));
-            });
-            
-            container.innerHTML = "";
-            sorted.forEach(card => {
-                card.style.display = "block";
-                container.appendChild(card);
-            });
+        function changeMode(mode) {
+            currentMode = mode;
+            ['btn-all', 'btn-latest', 'btn-random'].forEach(id => document.getElementById(id).classList.remove('active'));
+            document.getElementById(`btn-${mode}`).classList.add('active');
+            render();
         }
 
-        // 3. Pick and display exactly one random poem
-        function showRandom() {
-            setActiveButton("btn-random");
-            const container = document.getElementById("poetry-container");
-            
-            const randomIndex = Math.floor(Math.random() * initialCards.length);
-            
-            initialCards.forEach((card, i) => {
-                if (i === randomIndex) {
-                    card.style.display = "block";
-                } else {
-                    card.style.display = "none";
-                }
-            });
-        }
-
-        // Helper to keep button highlight states clean
-        function setActiveButton(activeId) {
-            const buttons = ["btn-all", "btn-latest", "btn-random"];
-            buttons.forEach(id => {
-                const btn = document.getElementById(id);
-                if (btn) {
-                    if (id === activeId) btn.classList.add("active");
-                    else btn.classList.remove("active");
-                }
-            });
-        }
+        window.addEventListener('DOMContentLoaded', loadPoetryData);
     </script>
-
 </body>
 </html>
