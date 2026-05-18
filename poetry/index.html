@@ -115,7 +115,7 @@
             flex-direction: column;
         }
 
-        /* THE FADE-IN ANIMATION: Smoothly drifts up and scales visibility */
+        /* Fade-in Presence Animation */
         .poem-card {
             background-color: #1e252b;
             padding: 40px;
@@ -403,7 +403,6 @@
                 const card = document.createElement('div');
                 card.className = 'poem-card';
                 
-                // Forces browser layout engine to reset animation sequence on dynamic re-render
                 card.style.animation = 'none';
                 card.offsetHeight; 
                 card.style.animation = '';
@@ -459,10 +458,9 @@
             ['btn-all', 'btn-latest', 'btn-random'].forEach(id => document.getElementById(id).classList.remove('active'));
             document.getElementById(`btn-${mode}`).classList.add('active');
             
-            if (mode === 'random') {
-                document.getElementById('search-box').value = '';
-                searchQuery = '';
-            }
+            // CRITICAL FIX: Clears the input text box and resets search terms on any navigation button click
+            document.getElementById('search-box').value = '';
+            searchQuery = '';
             
             render();
         }
