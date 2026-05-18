@@ -35,7 +35,9 @@
         .nav-controls {
             margin-bottom: 40px;
             display: flex;
-            gap: 15px;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .nav-btn {
@@ -70,32 +72,46 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             border: 1px solid #2d3742;
             transition: opacity 0.3s ease;
+            position: relative; /* Allows positioning the date inside */
+        }
+
+        /* Header block containing Title and Date */
+        .poem-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
         }
 
         h2 {
             font-weight: 400;
             font-size: 1.5rem;
-            margin-top: 0;
-            margin-bottom: 25px;
+            margin: 0;
             color: #f1f5f9;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 10px;
+        }
+
+        .poem-date {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            letter-spacing: 0.5px;
         }
 
         .poem-text {
             font-size: 1.1rem;
             white-space: pre-line;
             color: #cbd5e1;
-            margin-bottom: 30px;
+            margin-top: 0; /* Permanently flattens the top gap */
+            margin-bottom: 25px;
             letter-spacing: 0.5px;
         }
 
-        iframe {
+        audio {
             width: 100%;
-            height: 60px;
-            border: none;
+            margin-top: 0;
             border-radius: 8px;
-            background: transparent;
         }
 
         footer {
@@ -113,72 +129,75 @@
         
         <div class="nav-controls">
             <button class="nav-btn active" id="btn-all" onclick="showAll()">All Poems (A-Z)</button>
+            <button class="nav-btn" id="btn-latest" onclick="showLatest()">Latest First</button>
             <button class="nav-btn" id="btn-random" onclick="showRandom()">Random Poem</button>
         </div>
     </header>
 
     <main id="poetry-container">
 
-   <div class="poem-card" data-title="Out of Bliss">
-   <h2 style="margin-bottom: 10px; padding-bottom: 5px;">Out of Bliss</h2>
-   <p class="poem-text" style="margin-top: 5px; margin-bottom: 20px;">
-        birth and evolution
-        mountains rising within Me,
-        death and dissolution
-        and they fall into the sea.
+        <div class="poem-card" data-title="Out of Bliss" data-date="2026-02-15">
+            <div class="poem-header">
+                <h2>Out of Bliss</h2>
+                <div class="poem-date">Feb 2026</div>
+            </div>
+            <p class="poem-text">birth and evolution
+                mountains rising within Me,
+                death and dissolution
+                and they fall into the sea.
 
-        yet I remain unchanging,
-        I alone exist,
-        these apparent re-arrangings
-        arising out of Bliss.
+                yet I remain unchanging,
+                I alone exist,
+                these apparent re-arrangings
+                arising out of Bliss.
 
-        You are what always ever is,
-        seek not what is always not,
-        in this way recognize Yourself
-        to get what You’ve always got.
-    </p>
-    <audio controls controlsList="nodownload" style="margin-top: 0;">
-        <source src="out-of-bliss.mp3" type="audio/mp3">
-        Your browser does not support the audio element.
-    </audio>
-</div>
+                You are what always ever is,
+                seek not what is always not,
+                in this way recognize Yourself
+                to get what You’ve always got.</p>
+            <audio controls controlsList="nodownload">
+                <source src="out-of-bliss.mp3" type="audio/mp3">
+                Your browser does not support the audio element.
+            </audio>
+        </div>
 
-<div class="poem-card" data-title="Out of Bliss">
-     <h2 style="margin-bottom: 10px; padding-bottom: 5px;">The Journey</h2>
-   <p class="poem-text" style="margin-top: 5px; margin-bottom: 20px;">
-There is no need to pack for this journey of ours,
-no toothbrush, no luggage, no planes, trains or cars
+        <div class="poem-card" data-title="The Journey" data-date="2026-02-20">
+            <div class="poem-header">
+                <h2>The Journey</h2>
+                <div class="poem-date">Feb 2026</div>
+            </div>
+            <p class="poem-text">There is no need to pack for this journey of ours,
+                no toothbrush, no luggage, no planes, trains or cars
 
-Dropping the thought that this journey is far
-we have no need to wait to arrive where we are
+                Dropping the thought that this journey is far
+                we have no need to wait to arrive where we are
 
-Our birthname forgotten and roles left behind
-we remove all the traces of how we once were defined
+                Our birthname forgotten and roles left behind
+                we remove all the traces of how we once were defined
 
-Closing our eyes we leave our senses alone
-set aside past and future and return to our home
+                Closing our eyes we leave our senses alone
+                set aside past and future and return to our home
 
-The mind may complain and say that it’s bored
-always wanting an outcome, it seeks a reward
+                The mind may complain and say that it’s bored
+                always wanting an outcome, it seeks a reward
 
-Let mind say what it will, allow these protests,
-pay no attention, soon it will rest
+                Let mind say what it will, allow these protests,
+                pay no attention, soon it will rest
 
-What remains can’t be measured, no shape, color or size
-nothing to hear or to see with the eyes
+                What remains can’t be measured, no shape, color or size
+                nothing to hear or to see with the eyes
 
-What cannot be removed cannot be denied,
-re-discovering our Self, in this we abide
+                What cannot be removed cannot be denied,
+                re-discovering our Self, in this we abide
 
-Turning back to the world, we take our stand as the light
-experience losing its power to alter our sight
-    </p>
+                Turning back to the world, we take our stand as the light
+                experience losing its power to alter our sight</p>
+            <audio controls controlsList="nodownload">
+                <source src="the-journey.mp3" type="audio/mp3">
+                Your browser does not support the audio element.
+            </audio>
+        </div>
 
-    <audio controls controlsList="nodownload" style="margin-top: 0;">
-        <source src="the-journey.mp3" type="audio/mp3">
-        Your browser does not support the audio element.
-    </audio>
-</div>
     </main>
 
     <footer>
@@ -186,44 +205,74 @@ experience losing its power to alter our sight
     </footer>
 
     <script>
-        // 1. Automatically sort the poems alphabetically on page load
+        // Store cards in memory globally so sorting doesn't destroy the list
+        let initialCards = [];
+
         document.addEventListener("DOMContentLoaded", () => {
             const container = document.getElementById("poetry-container");
-            const cards = Array.from(container.getElementsByClassName("poem-card"));
+            initialCards = Array.from(container.getElementsByClassName("poem-card"));
+            // Default sort to Alphabetical on load
+            showAll();
+        });
+
+        // 1. Sort and Display Alphabetical (A-Z)
+        function showAll() {
+            setActiveButton("btn-all");
+            const container = document.getElementById("poetry-container");
             
-            cards.sort((a, b) => {
+            const sorted = [...initialCards].sort((a, b) => {
                 return a.getAttribute("data-title").localeCompare(b.getAttribute("data-title"));
             });
             
-            cards.forEach(card => container.appendChild(card));
-        });
-
-        // 2. Logic to display all poems
-        function showAll() {
-            document.getElementById("btn-all").classList.add("active");
-            document.getElementById("btn-random").classList.remove("active");
-            
-            const cards = document.getElementsByClassName("poem-card");
-            for (let card of cards) {
+            container.innerHTML = "";
+            sorted.forEach(card => {
                 card.style.display = "block";
-            }
+                container.appendChild(card);
+            });
         }
 
-        // 3. Logic to pick and display exactly one random poem
+        // 2. Sort and Display Latest First (Newest to Oldest)
+        function showLatest() {
+            setActiveButton("btn-latest");
+            const container = document.getElementById("poetry-container");
+            
+            const sorted = [...initialCards].sort((a, b) => {
+                return b.getAttribute("data-date").localeCompare(a.getAttribute("data-date"));
+            });
+            
+            container.innerHTML = "";
+            sorted.forEach(card => {
+                card.style.display = "block";
+                container.appendChild(card);
+            });
+        }
+
+        // 3. Pick and display exactly one random poem
         function showRandom() {
-            document.getElementById("btn-all").classList.remove("active");
-            document.getElementById("btn-random").classList.add("active");
+            setActiveButton("btn-random");
+            const container = document.getElementById("poetry-container");
             
-            const cards = document.getElementsByClassName("poem-card");
-            const randomIndex = Math.floor(Math.random() * cards.length);
+            const randomIndex = Math.floor(Math.random() * initialCards.length);
             
-            for (let i = 0; i < cards.length; i++) {
+            initialCards.forEach((card, i) => {
                 if (i === randomIndex) {
-                    cards[i].style.display = "block";
+                    card.style.display = "block";
                 } else {
-                    cards[i].style.display = "none";
+                    card.style.display = "none";
                 }
-            }
+            });
+        }
+
+        // Helper to keep button highlight states clean
+        function setActiveButton(activeId) {
+            const buttons = ["btn-all", "btn-latest", "btn-random"];
+            buttons.forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) {
+                    if (id === activeId) btn.classList.add("active");
+                    else btn.classList.remove("active");
+                }
+            });
         }
     </script>
 
