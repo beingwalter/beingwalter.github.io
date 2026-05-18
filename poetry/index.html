@@ -19,6 +19,7 @@
 
         header {
             text-align: center;
+            width: 100%;
             max-width: 600px;
             margin-bottom: 40px;
         }
@@ -33,7 +34,7 @@
 
         /* Navigation Controls */
         .nav-controls {
-            margin-bottom: 40px;
+            margin-bottom: 20px;
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
@@ -55,6 +56,35 @@
             background-color: #334155;
             color: #f8fafc;
             border-color: #475569;
+        }
+
+        /* Search Bar Styling */
+        .search-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 20px auto;
+        }
+
+        .search-input {
+            width: 100%;
+            background-color: #1e252b;
+            color: #f1f5f9;
+            border: 1px solid #334155;
+            padding: 10px 16px;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: #64748b;
+        }
+
+        .search-input::placeholder {
+            color: #475569;
         }
 
         main {
@@ -105,7 +135,7 @@
             font-size: 1.1rem;
             white-space: pre-line;
             color: #cbd5e1;
-            margin-top: 0; /* Keeps the first line tucked right under the header */
+            margin-top: 0;
             margin-bottom: 25px;
             letter-spacing: 0.5px;
         }
@@ -130,9 +160,13 @@
         <h1>The Collection</h1>
         
         <div class="nav-controls">
-            <button class="nav-btn active" id="btn-all" onclick="changeMode('all')">All Poems (A-Z)</button>
-            <button class="nav-btn" id="btn-latest" onclick="changeMode('latest')">Latest First</button>
+            <button class="nav-btn" id="btn-all" onclick="changeMode('all')">All Poems (A-Z)</button>
+            <button class="nav-btn active" id="btn-latest" onclick="changeMode('latest')">Latest First</button>
             <button class="nav-btn" id="btn-random" onclick="changeMode('random')">Random Poem</button>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="search-box" class="search-input" placeholder="Search titles..." oninput="handleSearch()">
         </div>
     </header>
 
@@ -146,7 +180,8 @@
 
     <script>
         let allPoems = [];
-        let currentMode = 'all';
+        let currentMode = 'latest'; // 'Latest First' is now the default mode
+        let searchQuery = '';
 
         // Matches naming rule: lowercase, word-word.mp3
         function cleanSlug(title) {
@@ -168,7 +203,7 @@
             return dateStr;
         }
 
-        // Reads poem-list.txt on the fly
+        // Reads --poem-list.txt on the fly
         async function loadPoetryData() {
             try {
                 const response = await fetch('--poem-list.txt');
@@ -179,30 +214,24 @@
                 const rawBlocks = rawText.split(/-----+/);
                 
                 allPoems = rawBlocks.map(block => {
-                    // Split into raw lines, trimming trailing spaces but preserving empty lines
                     const rawLines = block.split(/\r?\n/).map(l => l.trimEnd());
                     
-                    // Filter out any leading completely empty lines in a block
                     while (rawLines.length > 0 && rawLines[0].trim() === "") {
                         rawLines.shift();
                     }
 
-                    // Ensure we have at least the header lines (Date, Location, Title)
                     if (rawLines.length < 3) return null;
 
                     const dateRaw = rawLines[0].trim();
                     const location = rawLines[1].trim();
                     const title = rawLines[2].trim();
                     
-                    // The rest is the poem body (preserving intentional blank stanza lines)
                     let bodyLines = rawLines.slice(3);
                     
-                    // Trim any trailing empty lines at the very end of the poem body
                     while (bodyLines.length > 0 && bodyLines[bodyLines.length - 1].trim() === "") {
                         bodyLines.pop();
                     }
                     
-                    // Ensure it is a valid entry
                     if (!dateRaw || !title) return null;
 
                     return {
@@ -222,27 +251,45 @@
             }
         }
 
-        // Builds screens based on selected order
+        // Runs search filter dynamically as user types
+        function handleSearch() {
+            searchQuery = document.getElementById('search-box').value.toLowerCase().trim();
+            render();
+        }
+
+        // Builds screens based on selected order and search query
         function render() {
             const container = document.getElementById('poetry-container');
             container.innerHTML = "";
             
-            let displayList = [...allPoems];
+            // First, filter the master list based on the search box
+            let displayList = allPoems.filter(poem => {
+                return poem.title.toLowerCase().includes(searchQuery);
+            });
 
+            // If a search is happening, hide the "Random Poem" logic or clear constraints
             if (currentMode === 'all') {
                 displayList.sort((a, b) => a.title.localeCompare(b.title));
             } else if (currentMode === 'latest') {
                 displayList.sort((a, b) => b.sortDate.localeCompare(a.sortDate));
             } else if (currentMode === 'random') {
-                const randomIndex = Math.floor(Math.random() * displayList.length);
-                displayList = [displayList[randomIndex]];
+                // Only show a single random poem if the search bar is empty
+                if (searchQuery === '' && displayList.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * displayList.length);
+                    displayList = [displayList[randomIndex]];
+                }
+            }
+
+            // Display message if no match is found
+            if (displayList.length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: #64748b; font-style: italic; margin-top: 20px;">No titles match your search.</p>`;
+                return;
             }
 
             displayList.forEach(poem => {
                 const card = document.createElement('div');
                 card.className = 'poem-card';
                 
-                // Show location next to the date seamlessly
                 let metaText = poem.displayDate;
                 if (poem.location) {
                     metaText = `${poem.location} • ${poem.displayDate}`;
@@ -267,6 +314,13 @@
             currentMode = mode;
             ['btn-all', 'btn-latest', 'btn-random'].forEach(id => document.getElementById(id).classList.remove('active'));
             document.getElementById(`btn-${mode}`).classList.add('active');
+            
+            // Clear search box if clicking 'Random Poem' to ensure it functions perfectly
+            if (mode === 'random') {
+                document.getElementById('search-box').value = '';
+                searchQuery = '';
+            }
+            
             render();
         }
 
