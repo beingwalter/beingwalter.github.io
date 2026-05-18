@@ -3,160 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Being Walter — Poetry & Reflection</title>
+    <title>Being Walter — Welcome</title>
     <style>
-        /* Minimalist & Meditative Styling */
+        /* Meditative, uncluttered entry space */
         body {
             background-color: #12161a;
             color: #e2e8f0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Georgia, serif;
             line-height: 1.8;
             margin: 0;
-            padding: 40px 20px;
+            padding: 60px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+            min-height: 85vh;
         }
 
-        header {
+        main {
+            max-width: 550px;
             text-align: center;
-            max-width: 600px;
-            margin-bottom: 60px;
         }
 
         h1 {
             font-weight: 300;
-            font-size: 2.2rem;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
+            font-size: 2.5rem;
+            letter-spacing: 3px;
+            margin-bottom: 5px;
             color: #f8fafc;
         }
 
         .subtitle {
             font-style: italic;
             color: #94a3b8;
-            font-size: 1rem;
-        }
-
-        main {
-            width: 100%;
-            max-width: 600px;
-        }
-
-        /* Poetry Card Layout */
-        .poem-card {
-            background-color: #1e252b;
-            padding: 40px;
-            border-radius: 12px;
-            margin-bottom: 40px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            border: 1px solid #2d3742;
-        }
-
-        h2 {
-            font-weight: 400;
-            font-size: 1.5rem;
-            margin-top: 0;
-            margin-bottom: 25px;
-            color: #f1f5f9;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 10px;
-        }
-
-        .poem-text {
+            margin-bottom: 50px;
             font-size: 1.1rem;
-            white-space: pre-line; /* Keeps line breaks intact */
+            letter-spacing: 1px;
+        }
+
+        .intro-text {
             color: #cbd5e1;
-            margin-bottom: 30px;
-            letter-spacing: 0.5px;
+            font-size: 1.1rem;
+            margin-bottom: 50px;
+            text-align: left;
+            border-left: 2px solid #334155;
+            padding-left: 20px;
         }
 
-        /* Clean Native Audio Player */
-        audio {
-            width: 100%;
-            margin-top: 10px;
-            border-radius: 8px;
+        .intro-text p {
+            margin-bottom: 20px;
         }
 
-        footer {
-            margin-top: 60px;
-            text-align: center;
-            font-size: 0.9rem;
-            color: #64748b;
+        /* Balanced navigation button */
+        .enter-btn {
+            display: inline-block;
+            background-color: transparent;
+            color: #f1f5f9;
+            border: 1px solid #475569;
+            padding: 14px 36px;
+            border-radius: 30px;
+            text-decoration: none;
+            letter-spacing: 1.5px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .enter-btn:hover {
+            background-color: #f1f5f9;
+            color: #12161a;
+            border-color: #f1f5f9;
+            box-shadow: 0 4px 20px rgba(255,255,255,0.1);
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Being Walter</h1>
-        <div class="subtitle">Poetry and the understanding of nonduality.</div>
-    </header>
-
     <main>
+        <h1>Being Walter</h1>
+        <div class="subtitle">Poetry & Nondual Reflection</div>
 
-        <div class="poem-card">
-            <h2>Out of Bliss</h2>
-            <p class="poem-text">
-             birth and evolution
-mountains rising within Me,
-death and dissolution
-and they fall into the sea.
-
-yet I remain unchanging,
-I alone exist,
-these apparent re-arrangings
-arising out of Bliss.
-
-You are what always ever is,
-seek not what is always not,
-in this way recognize Yourself
-to get what You’ve always got.
-            </p>
-            <audio controls>
-                <source src="https://docs.google.com/uc?export=download&id=out-of-bliss.mp3" type="audio/mp3">
-                Your browser does not support the audio element.
-            </audio>
+        <div class="intro-text">
+            <p>Welcome. This space is offered simply as a place to share poetry and a quiet understanding of nonduality with anyone who feels inclined to look.</p>
+            <p>There is nothing to buy, no identity to build, and no destination to reach. Inside, you will find a collection of poems written over the years, alongside audio recordings where you can listen to them read aloud.</p>
         </div>
 
-        <div class="poem-card">
-            <h2>The Journey</h2>
-            <p class="poem-text">
-There is no need to pack for this journey of ours,
-no toothbrush, no luggage, no planes, trains or cars
-
-Dropping the thought that this journey is far
-we have no need to wait to arrive where we are
-
-Our birthname forgotten and roles left behind
-we remove all the traces of how we once were defined
-
-Closing our eyes we leave our senses alone
-set aside past and future and return to our home
-
-The mind may complain and say that it’s bored
-always wanting an outcome, it seeks a reward
-
-Let mind say what it will, allow these protests,
-pay no attention, soon it will rest
-
-What remains can’t be measured, no shape, color or size
-nothing to hear or to see with the eyes
-
-What cannot be removed cannot be denied,
-re-discovering our Self, in this we abide
-
-Turning back to the world, we take our stand as the light
-experience losing its power to alter our sight
-            </p>
-       <iframe src="https://drive.google.com/file/d/1tAdO8JzFXSPAPpbnS8RVH6BHIKS8B8uv/preview" width="100%" height="60" allow="autoplay" style="border:none; border-radius: 8px; background: transparent;"></iframe>
-        </div>
-
+        <a href="poetry/" class="enter-btn">Enter the Poetry</a>
     </main>
-
-    <footer>
-        <p>Shared freely for all who are interested.</p>
-    </footer>
 
 </body>
 </html>
