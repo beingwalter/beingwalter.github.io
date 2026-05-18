@@ -115,7 +115,6 @@
             flex-direction: column;
         }
 
-        /* Fade-in Presence Animation */
         .poem-card {
             background-color: #1e252b;
             padding: 40px;
@@ -123,6 +122,11 @@
             margin-bottom: 40px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             border: 1px solid #2d3742;
+            opacity: 1; /* Default state is fully visible */
+        }
+
+        /* This class handles the fade-in exclusively when changing button filters */
+        .animate-presence {
             animation: emergePresence 0.6s cubic-bezier(0.215, 0.610, 0.355, 1.000) forwards;
             opacity: 0; 
         }
@@ -256,6 +260,7 @@
         let searchQuery = '';
         let currentlyPlayingAudio = null;
         let currentlyPlayingButton = null;
+        let isTypingSearch = false; // Flag to differentiate filter clicks from search entries
 
         function cleanSlug(title) {
             return title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/[\s-]+/g, '-').trim();
@@ -330,6 +335,8 @@
                     searchBox.placeholder = `Search ${allPoems.length} titles...`;
                 }
 
+                // Initial page load uses animation
+                isTypingSearch = false;
                 render();
             } catch (err) {
                 document.getElementById('poetry-container').innerHTML = 
@@ -338,6 +345,7 @@
         }
 
         function handleSearch() {
+            isTypingSearch = true; // Turn off the transition sequence for keystroke filtering
             searchQuery = document.getElementById('search-box').value.toLowerCase().trim();
             render();
         }
@@ -402,11 +410,13 @@
 
             displayList.forEach((poem, index) => {
                 const card = document.createElement('div');
-                card.className = 'poem-card';
                 
-                card.style.animation = 'none';
-                card.offsetHeight; 
-                card.style.animation = '';
+                // Add animation class ONLY if we are navigating via menu buttons
+                if (!isTypingSearch) {
+                    card.className = 'poem-card animate-presence';
+                } else {
+                    card.className = 'poem-card';
+                }
 
                 let metaText = poem.displayDate;
                 if (poem.location) {
@@ -462,6 +472,7 @@
             document.getElementById('search-box').value = '';
             searchQuery = '';
             
+            isTypingSearch = false; // Enable animation for menu switches
             render();
         }
 
