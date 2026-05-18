@@ -105,7 +105,7 @@
             font-size: 1.1rem;
             white-space: pre-line;
             color: #cbd5e1;
-            margin-top: 0; /* Permanently flattens the top gap */
+            margin-top: 0; /* Keeps the first line tucked right under the header */
             margin-bottom: 25px;
             letter-spacing: 0.5px;
         }
@@ -179,17 +179,32 @@
                 const rawBlocks = rawText.split(/-----+/);
                 
                 allPoems = rawBlocks.map(block => {
-                    // Extract non-empty lines
-                    const lines = block.split(/\r?\n/).map(l => l.trim()).filter(l => l !== "");
+                    // Split into raw lines, trimming trailing spaces but preserving empty lines
+                    const rawLines = block.split(/\r?\n/).map(l => l.trimEnd());
                     
-                    // Requires at least 4 lines (Date, Location, Title, and at least 1 line of poem)
-                    if (lines.length < 4) return null;
+                    // Filter out any leading completely empty lines in a block
+                    while (rawLines.length > 0 && rawLines[0].trim() === "") {
+                        rawLines.shift();
+                    }
 
-                    const dateRaw = lines[0];
-                    const location = lines[1];
-                    const title = lines[2];
-                    const bodyLines = lines.slice(3);
+                    // Ensure we have at least the header lines (Date, Location, Title)
+                    if (rawLines.length < 3) return null;
+
+                    const dateRaw = rawLines[0].trim();
+                    const location = rawLines[1].trim();
+                    const title = rawLines[2].trim();
                     
+                    // The rest is the poem body (preserving intentional blank stanza lines)
+                    let bodyLines = rawLines.slice(3);
+                    
+                    // Trim any trailing empty lines at the very end of the poem body
+                    while (bodyLines.length > 0 && bodyLines[bodyLines.length - 1].trim() === "") {
+                        bodyLines.pop();
+                    }
+                    
+                    // Ensure it is a valid entry
+                    if (!dateRaw || !title) return null;
+
                     return {
                         title: title,
                         location: location,
@@ -227,9 +242,9 @@
                 const card = document.createElement('div');
                 card.className = 'poem-card';
                 
-                // Show location next to the date if it's not set to 'Unpublished' or blank
+                // Show location next to the date seamlessly
                 let metaText = poem.displayDate;
-                if (poem.location && poem.location.toLowerCase() !== 'unpublished') {
+                if (poem.location) {
                     metaText = `${poem.location} • ${poem.displayDate}`;
                 }
 
