@@ -181,7 +181,7 @@
             white-space: nowrap;
         }
 
-        .play-btn:hover {
+        .play-btn:hover:not(:disabled) {
             color: #cbd5e1;
             border-color: #475569;
         }
@@ -190,6 +190,14 @@
             color: #38bdf8;
             border-color: #0369a1;
             background-color: #142430;
+        }
+
+        /* Gracefully faded disabled look if audio track doesn't exist */
+        .play-btn:disabled {
+            opacity: 0.25;
+            border-color: #242c33;
+            color: #475569;
+            cursor: not-allowed;
         }
 
         footer {
@@ -288,6 +296,12 @@
                     };
                 }).filter(p => p !== null);
 
+                // Dynamically change search bar placeholder text to count total live entries
+                const searchBox = document.getElementById('search-box');
+                if (searchBox && allPoems.length > 0) {
+                    searchBox.placeholder = `Search ${allPoems.length} titles...`;
+                }
+
                 render();
             } catch (err) {
                 document.getElementById('poetry-container').innerHTML = 
@@ -311,7 +325,10 @@
             }
 
             if (audio.paused) {
-                audio.play();
+                audio.play().catch(err => {
+                    // Fallback block if browser blocks play execution safely
+                    console.log("Playback interrupted safely.");
+                });
                 btnElement.classList.add('playing');
                 btnElement.innerHTML = `<span>⏸</span> Pause`;
                 currentlyPlayingAudio = audio;
@@ -364,23 +381,33 @@
                 }
 
                 const audioId = `audio-${index}`;
+                const btnId = `btn-${index}`;
 
                 card.innerHTML = `
                     <div class="poem-header">
                         <h2>${poem.title}</h2>
                         <div class="poem-meta">
                             <span class="meta-details">${metaText}</span>
-                            <button class="play-btn" onclick="toggleAudio('${audioId}', this)">
+                            <button id="${btnId}" class="play-btn" onclick="toggleAudio('${audioId}', this)">
                                 <span>▶</span> Play
                             </button>
                         </div>
                     </div>
                     <p class="poem-text">${poem.text}</p>
-                    <audio id="${audioId}" preload="none">
+                    <audio id="${audioId}" preload="none" onerror="document.getElementById('${btnId}').disabled = true;">
                         <source src="${poem.slug}.mp3" type="audio/mp3">
                     </audio>
                 `;
                 container.appendChild(card);
+                
+                // Extra layer checking folder link validation directly
+                const audioEl = document.getElementById(audioId);
+                if (audioEl) {
+                    audioEl.addEventListener('error', () => {
+                        const targetBtn = document.getElementById(btnId);
+                        if (targetBtn) targetBtn.disabled = true;
+                    }, true);
+                }
             });
         }
 
