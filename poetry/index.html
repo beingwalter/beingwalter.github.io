@@ -171,7 +171,7 @@
         // Reads poem-list.txt on the fly
         async function loadPoetryData() {
             try {
-                const response = await fetch('poem-list.txt');
+                const response = await fetch('_poem-list.txt');
                 if (!response.ok) throw new Error("File not found");
                 const rawText = await response.text();
                 
