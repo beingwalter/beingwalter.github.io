@@ -157,7 +157,7 @@
             text-align: right;
         }
 
-        /* Poem Content Block Layout */
+        /* Default layout styling for poem blocks */
         .poem-text {
             font-size: 1.1rem;
             white-space: pre-line;
@@ -166,6 +166,12 @@
             padding-top: 8px !important;
             margin-bottom: 0;
             letter-spacing: 0.5px;
+            text-align: left; /* Default alignment */
+        }
+
+        /* Dynamic class added when "Centered" flag is discovered */
+        .poem-text.centered-body {
+            text-align: center;
         }
 
         /* Tiny Play Button Styling */
@@ -263,10 +269,8 @@
                 const rawBlocks = rawText.split(/-----+/);
                 
                 allPoems = rawBlocks.map(block => {
-                    // Standardizes lines and trims hidden line break symbols (\r) completely
                     const rawLines = block.split(/\r?\n/);
                     
-                    // Clean up any leading blank arrays that sneak in before the header dates
                     while (rawLines.length > 0 && rawLines[0].trim() === "") {
                         rawLines.shift();
                     }
@@ -274,25 +278,34 @@
                     if (rawLines.length < 3) return null;
 
                     const dateRaw = rawLines[0].trim();
-                    const location = rawLines[1].trim();
+                    let locationRaw = rawLines[1].trim();
                     const title = rawLines[2].trim();
                     
-                    // Slice the body cleanly from index 3 onward
+                    // Check if the location line contains our custom alignment flag
+                    let isCentered = false;
+                    if (locationRaw.toLowerCase().includes('centered')) {
+                        isCentered = true;
+                        // Clean up the location text so the technical word "Centered" doesn't display to readers
+                        locationRaw = locationRaw
+                            .replace(/[-\s,]*centered[-\s,]*/i, '') // Strips words, trailing dashes, commas
+                            .replace(/^,+|,+$/g, '')               // Trims stray edge commas
+                            .trim();
+                    }
+
                     let bodyLines = rawLines.slice(3);
                     
-                    // Trim trailing empty lines at the absolute end of the block
                     while (bodyLines.length > 0 && bodyLines[bodyLines.length - 1].trim() === "") {
                         bodyLines.pop();
                     }
                     
                     if (!dateRaw || !title) return null;
 
-                    // Joins body lines while ensuring the exact first character has zero padding or leading line-breaks
                     const combinedText = bodyLines.join('\n').trimStart();
 
                     return {
                         title: title,
-                        location: location,
+                        location: locationRaw,
+                        isCentered: isCentered, // Save alignment rule to the poem object
                         displayDate: parseHumanDate(dateRaw),
                         sortDate: parseSortDate(dateRaw),
                         slug: cleanSlug(title),
@@ -388,6 +401,9 @@
                 const btnId = `btn-${index}`;
                 const audioUrl = `${poem.slug}.mp3`;
 
+                // If poem.isCentered is true, we add the 'centered-body' class to the text block
+                const alignmentClass = poem.isCentered ? 'poem-text centered-body' : 'poem-text';
+
                 card.innerHTML = `
                     <div class="poem-header">
                         <h2>${poem.title}</h2>
@@ -398,7 +414,7 @@
                             <span class="meta-details">${metaText}</span>
                         </div>
                     </div>
-                    <p class="poem-text">${poem.text}</p>
+                    <p class="${alignmentClass}">${poem.text}</p>
                     <audio id="${audioId}" preload="auto" style="display:none;">
                         <source src="${audioUrl}" type="audio/mp3">
                     </audio>
