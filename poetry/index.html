@@ -125,19 +125,21 @@
         }
 
         .poem-header {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border-bottom: 1px solid #2d3742;
             padding-bottom: 12px;
         }
 
+        /* Centered Poem Title */
         h2 {
             font-weight: 400;
             font-size: 1.6rem;
-            margin: 0 0 10px 0;
+            margin: 0 0 12px 0;
             color: #f1f5f9;
+            text-align: center;
         }
 
-        /* Sub-Header Metadata Row - Handles Left-to-Right Ordering */
+        /* Sub-Header Metadata Row */
         .poem-meta {
             display: flex;
             justify-content: space-between;
@@ -155,12 +157,13 @@
             text-align: right;
         }
 
+        /* Cleaned spacing to remove extra gap before the poem text */
         .poem-text {
             font-size: 1.1rem;
             white-space: pre-line;
             color: #cbd5e1;
-            margin-top: 0;
-            margin-bottom: 10px;
+            margin-top: 5px; 
+            margin-bottom: 0;
             letter-spacing: 0.5px;
         }
 
@@ -195,7 +198,7 @@
 
         /* Faded look if track doesn't exist on server */
         .play-btn:disabled {
-            opacity: 0.25;
+            opacity: 0.15;
             border-color: #242c33;
             color: #475569;
             cursor: not-allowed;
@@ -346,21 +349,6 @@
             }
         }
 
-        // Active lookahead verifying if file exists on server immediately during generation
-        function checkAudioAvailability(url, buttonId) {
-            fetch(url, { method: 'HEAD' })
-                .then(res => {
-                    if (!res.ok) {
-                        const btn = document.getElementById(buttonId);
-                        if (btn) btn.disabled = true;
-                    }
-                })
-                .catch(() => {
-                    const btn = document.getElementById(buttonId);
-                    if (btn) btn.disabled = true;
-                });
-        }
-
         function render() {
             const container = document.getElementById('poetry-container');
             container.innerHTML = "";
@@ -396,7 +384,6 @@
                 const btnId = `btn-${index}`;
                 const audioUrl = `${poem.slug}.mp3`;
 
-                // Layout inverted: Play button on the left, Meta details on the right
                 card.innerHTML = `
                     <div class="poem-header">
                         <h2>${poem.title}</h2>
@@ -408,14 +395,22 @@
                         </div>
                     </div>
                     <p class="poem-text">${poem.text}</p>
-                    <audio id="${audioId}" preload="none">
+                    <audio id="${audioId}" preload="auto" style="display:none;">
                         <source src="${audioUrl}" type="audio/mp3">
                     </audio>
                 `;
                 container.appendChild(card);
                 
-                // Immediately check if audio track exists on the server
-                checkAudioAvailability(audioUrl, btnId);
+                // Native media tracking logic: immediately gray out the button if the audio resource is missing
+                const audioEl = document.getElementById(audioId);
+                if (audioEl) {
+                    audioEl.addEventListener('error', () => {
+                        const targetBtn = document.getElementById(btnId);
+                        if (targetBtn) {
+                            targetBtn.disabled = true;
+                        }
+                    }, true);
+                }
             });
         }
 
