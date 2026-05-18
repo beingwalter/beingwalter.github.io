@@ -21,7 +21,7 @@
             text-align: center;
             width: 100%;
             max-width: 600px;
-            margin-bottom: 25px; /* Tighter space under the header elements */
+            margin-bottom: 25px;
         }
 
         h1 {
@@ -83,7 +83,7 @@
         .search-container {
             width: 100%;
             max-width: 400px;
-            margin: 0 auto 5px auto; /* Reduced bottom margin to snug up the cards below */
+            margin: 0 auto 5px auto;
         }
 
         .search-input {
@@ -117,7 +117,7 @@
 
         .poem-card {
             background-color: #1e252b;
-            padding: 24px 40px 40px 40px; /* Reduced top padding to lift title closer to upper edge */
+            padding: 24px 40px 40px 40px;
             border-radius: 12px;
             margin-bottom: 40px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
@@ -170,6 +170,13 @@
             letter-spacing: 0.5px;
         }
 
+        /* Container to group audio control and top button side-by-side */
+        .control-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
         .meta-details {
             text-transform: uppercase;
             text-align: right;
@@ -191,8 +198,8 @@
             text-align: center;
         }
 
-        /* Tiny Play Button Styling */
-        .play-btn {
+        /* Shared Button Style for Minimal Controls */
+        .play-btn, .top-btn {
             background-color: transparent;
             color: #64748b;
             border: 1px solid #334155;
@@ -207,9 +214,10 @@
             gap: 4px;
             transition: all 0.15s ease;
             white-space: nowrap;
+            text-decoration: none;
         }
 
-        .play-btn:hover {
+        .play-btn:hover, .top-btn:hover {
             color: #cbd5e1;
             border-color: #475569;
         }
@@ -228,17 +236,17 @@
             letter-spacing: 0.5px;
         }
 
-        /* MOBILE OPTIMIZATIONS (1 & 2): Maximizes line area and clamps font scaling */
+        /* Mobile Optimizations */
         @media (max-width: 480px) {
             body {
                 padding: 25px 12px;
             }
             .poem-card {
-                padding: 20px 20px 25px 20px !important; /* Reclaims significant horizontal screen space */
+                padding: 20px 20px 25px 20px !important;
                 margin-bottom: 25px;
             }
             .poem-text {
-                font-size: clamp(0.95rem, 4vw, 1.1rem) !important; /* Dynamically prevents awkward single-word wrapping */
+                font-size: clamp(0.95rem, 4vw, 1.1rem) !important;
                 line-height: 1.7;
             }
             h2 {
@@ -249,8 +257,7 @@
 </head>
 <body>
 
-    <header>
-        <h1>Walter's nondual poetry</h1>
+    <header id="page-top"> <h1>Walter's nondual poetry</h1>
         
         <div class="nav-controls">
             <button class="nav-btn active" id="btn-latest" onclick="changeMode('latest')">Latest</button>
@@ -403,6 +410,14 @@
             }
         }
 
+        // Action handler to cleanly slide up to the header panel smoothly
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
         function render() {
             const container = document.getElementById('poetry-container');
             container.innerHTML = "";
@@ -449,9 +464,14 @@
                     <div class="poem-header">
                         <h2>${poem.title}</h2>
                         <div class="poem-meta">
-                            <button id="${btnId}" class="play-btn" onclick="toggleAudio('${audioId}', this)">
-                                <span>▶</span> Play
-                            </button>
+                            <div class="control-group">
+                                <button id="${btnId}" class="play-btn" onclick="toggleAudio('${audioId}', this)">
+                                    <span>▶</span> Play
+                                </button>
+                                <button class="top-btn" onclick="scrollToTop()" title="Scroll back to sorting controls">
+                                    <span>↑</span> Top
+                                </button>
+                            </div>
                             <span class="meta-details">${metaText}</span>
                         </div>
                     </div>
