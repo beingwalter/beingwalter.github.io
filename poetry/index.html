@@ -115,6 +115,7 @@
             flex-direction: column;
         }
 
+        /* THE FADE-IN ANIMATION: Smoothly drifts up and scales visibility */
         .poem-card {
             background-color: #1e252b;
             padding: 40px;
@@ -122,6 +123,19 @@
             margin-bottom: 40px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             border: 1px solid #2d3742;
+            animation: emergePresence 0.6s cubic-bezier(0.215, 0.610, 0.355, 1.000) forwards;
+            opacity: 0; 
+        }
+
+        @keyframes emergePresence {
+            0% {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .poem-header {
@@ -157,7 +171,7 @@
             text-align: right;
         }
 
-        /* Default layout styling for poem blocks */
+        /* Poem Content Block Layout */
         .poem-text {
             font-size: 1.1rem;
             white-space: pre-line;
@@ -166,10 +180,9 @@
             padding-top: 8px !important;
             margin-bottom: 0;
             letter-spacing: 0.5px;
-            text-align: left; /* Default alignment */
+            text-align: left;
         }
 
-        /* Dynamic class added when "Centered" flag is discovered */
         .poem-text.centered-body {
             text-align: center;
         }
@@ -281,14 +294,12 @@
                     let locationRaw = rawLines[1].trim();
                     const title = rawLines[2].trim();
                     
-                    // Check if the location line contains our custom alignment flag
                     let isCentered = false;
                     if (locationRaw.toLowerCase().includes('centered')) {
                         isCentered = true;
-                        // Clean up the location text so the technical word "Centered" doesn't display to readers
                         locationRaw = locationRaw
-                            .replace(/[-\s,]*centered[-\s,]*/i, '') // Strips words, trailing dashes, commas
-                            .replace(/^,+|,+$/g, '')               // Trims stray edge commas
+                            .replace(/[-\s,]*centered[-\s,]*/i, '')
+                            .replace(/^,+|,+$/g, '')
                             .trim();
                     }
 
@@ -305,7 +316,7 @@
                     return {
                         title: title,
                         location: locationRaw,
-                        isCentered: isCentered, // Save alignment rule to the poem object
+                        isCentered: isCentered,
                         displayDate: parseHumanDate(dateRaw),
                         sortDate: parseSortDate(dateRaw),
                         slug: cleanSlug(title),
@@ -392,6 +403,11 @@
                 const card = document.createElement('div');
                 card.className = 'poem-card';
                 
+                // Forces browser layout engine to reset animation sequence on dynamic re-render
+                card.style.animation = 'none';
+                card.offsetHeight; 
+                card.style.animation = '';
+
                 let metaText = poem.displayDate;
                 if (poem.location) {
                     metaText = `${poem.location}  •  ${poem.displayDate}`;
@@ -401,7 +417,6 @@
                 const btnId = `btn-${index}`;
                 const audioUrl = `${poem.slug}.mp3`;
 
-                // If poem.isCentered is true, we add the 'centered-body' class to the text block
                 const alignmentClass = poem.isCentered ? 'poem-text centered-body' : 'poem-text';
 
                 card.innerHTML = `
