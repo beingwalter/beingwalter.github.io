@@ -105,7 +105,7 @@
             font-size: 1.1rem;
             white-space: pre-line;
             color: #cbd5e1;
-            margin-top: 0;
+            margin-top: 0; /* Permanently flattens the top gap */
             margin-bottom: 25px;
             letter-spacing: 0.5px;
         }
@@ -182,12 +182,12 @@
                     // Extract non-empty lines
                     const lines = block.split(/\r?\n/).map(l => l.trim()).filter(l => l !== "");
                     
-                    // We now need at least 4 lines (Date, Title, Location, and at least 1 line of poem)
+                    // Requires at least 4 lines (Date, Location, Title, and at least 1 line of poem)
                     if (lines.length < 4) return null;
 
                     const dateRaw = lines[0];
-                    const title = lines[1];
-                    const location = lines[2];
+                    const location = lines[1];
+                    const title = lines[2];
                     const bodyLines = lines.slice(3);
                     
                     return {
