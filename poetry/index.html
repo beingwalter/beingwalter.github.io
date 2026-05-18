@@ -157,12 +157,13 @@
             text-align: right;
         }
 
-        /* Cleaned spacing to remove extra gap before the poem text */
+        /* Spacing tightly adjusted under the header rule */
         .poem-text {
             font-size: 1.1rem;
             white-space: pre-line;
             color: #cbd5e1;
-            margin-top: 5px; 
+            margin-top: 0px !important; 
+            padding-top: 5px;
             margin-bottom: 0;
             letter-spacing: 0.5px;
         }
@@ -185,7 +186,7 @@
             white-space: nowrap;
         }
 
-        .play-btn:hover:not(:disabled) {
+        .play-btn:hover {
             color: #cbd5e1;
             border-color: #475569;
         }
@@ -194,14 +195,6 @@
             color: #38bdf8;
             border-color: #0369a1;
             background-color: #142430;
-        }
-
-        /* Faded look if track doesn't exist on server */
-        .play-btn:disabled {
-            opacity: 0.15;
-            border-color: #242c33;
-            color: #475569;
-            cursor: not-allowed;
         }
 
         footer {
@@ -318,13 +311,18 @@
         }
 
         function toggleAudio(audioId, btnElement) {
+            // Prevent clicking if the button text is set to 'No audio'
+            if (btnElement.innerText.trim() === 'No audio') return;
+
             const audio = document.getElementById(audioId);
             
             if (currentlyPlayingAudio && currentlyPlayingAudio !== audio) {
                 currentlyPlayingAudio.pause();
                 currentlyPlayingAudio.currentTime = 0;
-                currentlyPlayingButton.classList.remove('playing');
-                currentlyPlayingButton.innerHTML = `<span>▶</span> Play`;
+                if (currentlyPlayingButton) {
+                    currentlyPlayingButton.classList.remove('playing');
+                    currentlyPlayingButton.innerHTML = `<span>▶</span> Play`;
+                }
             }
 
             if (audio.paused) {
@@ -401,13 +399,13 @@
                 `;
                 container.appendChild(card);
                 
-                // Native media tracking logic: immediately gray out the button if the audio resource is missing
+                // Track missing audio files instantly—changes text to 'No audio' but leaves colors/borders alone
                 const audioEl = document.getElementById(audioId);
                 if (audioEl) {
                     audioEl.addEventListener('error', () => {
                         const targetBtn = document.getElementById(btnId);
                         if (targetBtn) {
-                            targetBtn.disabled = true;
+                            targetBtn.innerHTML = `No audio`;
                         }
                     }, true);
                 }
