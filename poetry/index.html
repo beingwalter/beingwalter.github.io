@@ -486,7 +486,6 @@
 
         async function loadPoetryData() {
             try {
-                // Initialize background sheet connection simultaneously
                 fetchCommentsDatabase();
 
                 const response = await fetch('--poem-list.txt');
@@ -561,7 +560,6 @@
             }
         }
 
-        // SMART INJECTION ENGINE: Maps data securely using embedded Title-Tags instead of array indexes
         async function fetchCommentsDatabase() {
             try {
                 const res = await fetch(DATABASE_API_URL);
@@ -571,7 +569,326 @@
                 if (Array.isArray(data)) {
                     globalCommentsList = data;
                     
-                    // Search currently rendered cards on screen
                     const allStacks = document.querySelectorAll('.comments-display-area');
                     allStacks.forEach(stackEl => {
-                        // Un
+                        const poemTitle = stackEl.getAttribute('data-poem-title');
+                        const matchingComments = globalCommentsList.filter(c => c.poemTitle === poemTitle);
+                        
+                        if (matchingComments.length > 0) {
+                            matchingComments.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+                            
+                            let reflectionsHtmlBlock = '';
+                            matchingComments.forEach(c => {
+                                const safeName = c.name ? c.name.toString().toUpperCase() : "ANONYMOUS";
+                                reflectionsHtmlBlock += `
+                                    <div class="single-reflection">
+                                        <span class="reflection-author-inline">${safeName} —</span>${c.comment}
+                                    </div>
+                                `;
+                            });
+                            stackEl.innerHTML = reflectionsHtmlBlock;
+                            stackEl.style.display = 'flex'; 
+                        }
+                    });
+                }
+            } catch (err) {
+                console.log("Database bridge connection optimized.");
+            }
+        }
+
+        function handleSearch() {
+            isTypingSearch = true;
+            searchQuery = document.getElementById('search-box').value.toLowerCase().trim();
+            render();
+        }
+
+        function handleAudioTimeUpdate(audioElement) {
+            if (!isAutoScrollingActive || !activeCardElement || !audioElement.duration) return;
+
+            const cardRect = activeCardElement.getBoundingClientRect();
+            const bodyElement = activeCardElement.querySelector('.poem-text');
+            const bodyHeight = bodyElement ? bodyElement.offsetHeight : cardRect.height;
+            
+            const progress = audioElement.currentTime / audioElement.duration;
+            const mainHeader = document.getElementById('page-top');
+            const headerOffset = mainHeader ? mainHeader.offsetHeight + 20 : 180; 
+
+            const currentScrollTop = window.scrollY || document.documentElement.scrollTop;
+            const cardAbsoluteTop = cardRect.top + currentScrollTop;
+            
+            const targetScrollPosition = cardAbsoluteTop - headerOffset + (bodyHeight * progress * 0.70);
+
+            window.scrollTo({
+                top: targetScrollPosition,
+                behavior: 'smooth'
+            });
+        }
+
+        function stopAutoScrollOnInteraction() {
+            if (isAutoScrollingActive) {
+                isAutoScrollingActive = false;
+                if (activeCardElement) {
+                    activeCardElement.classList.remove('audio-tracking');
+                }
+            }
+        }
+
+        window.addEventListener('wheel', stopAutoScrollOnInteraction);
+        window.addEventListener('touchmove', stopAutoScrollOnInteraction);
+        window.addEventListener('mousedown', stopAutoScrollOnInteraction);
+
+        function toggleAudio(audioId, btnElement, cardIndex) {
+            if (btnElement.innerText.trim() === 'No audio') return;
+
+            const audio = document.getElementById(audioId);
+            const card = document.getElementById(`card-${cardIndex}`);
+            
+            if (currentlyPlayingAudio && currentlyPlayingAudio !== audio) {
+                currentlyPlayingAudio.pause();
+                currentlyPlayingAudio.currentTime = 0;
+                currentlyPlayingAudio.ontimeupdate = null;
+                if (currentlyPlayingButton) {
+                    currentlyPlayingButton.classList.remove('playing');
+                    currentlyPlayingButton.innerHTML = `<span>▶</span> Play`;
+                }
+                stopAutoScrollOnInteraction();
+            }
+
+            if (audio.paused) {
+                activeCardElement = card;
+                isAutoScrollingActive = true;
+                card.classList.add('audio-tracking');
+
+                const mainHeader = document.getElementById('page-top');
+                const headerOffset = mainHeader ? mainHeader.offsetHeight + 20 : 180;
+                const targetInitialTop = card.getBoundingClientRect().top + (window.scrollY || document.documentElement.scrollTop) - headerOffset;
+                window.scrollTo({ top: targetInitialTop, behavior: 'smooth' });
+
+                audio.play().catch(err => { console.log("Playback safely managed."); });
+                btnElement.classList.add('playing');
+                btnElement.innerHTML = `<span>⏸</span> Pause`;
+                currentlyPlayingAudio = audio;
+                currentlyPlayingButton = btnElement;
+                
+                audio.ontimeupdate = () => handleAudioTimeUpdate(audio);
+                
+                audio.onended = () => {
+                    btnElement.classList.remove('playing');
+                    btnElement.innerHTML = `<span>▶</span> Play`;
+                    audio.ontimeupdate = null;
+                    stopAutoScrollOnInteraction();
+                    currentlyPlayingAudio = null;
+                    currentlyPlayingButton = null;
+                };
+            } else {
+                audio.pause();
+                btnElement.classList.remove('playing');
+                btnElement.innerHTML = `<span>▶</span> Play`;
+                stopAutoScrollOnInteraction();
+                currentlyPlayingAudio = null;
+                currentlyPlayingButton = null;
+            }
+        }
+
+        function toggleContext(drawerId, btnElement) {
+            const drawer = document.getElementById(drawerId);
+            if (drawer.style.display === 'block') {
+                drawer.style.display = 'none';
+                btnElement.classList.remove('active-drawer');
+                btnElement.innerHTML = `<span>📖</span> Learn more`;
+            } else {
+                drawer.style.display = 'block';
+                btnElement.classList.add('active-drawer');
+                btnElement.innerHTML = `<span>📕</span> Close context`;
+                
+                setTimeout(() => {
+                    drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 80);
+            }
+        }
+
+        function toggleCommentDrawer(drawerId, btnElement) {
+            const drawer = document.getElementById(drawerId);
+            if (drawer.style.display === 'block') {
+                drawer.style.display = 'none';
+                btnElement.classList.remove('active-drawer');
+                btnElement.innerHTML = `<span>💬</span> Comment`;
+            } else {
+                drawer.style.display = 'block';
+                btnElement.classList.add('active-drawer');
+                btnElement.innerHTML = `<span>❌</span> Cancel`;
+                
+                setTimeout(() => {
+                    drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 80);
+            }
+        }
+
+        async function submitComment(event, poemTitle, stackId, drawerId, btnId) {
+            event.preventDefault(); 
+            
+            const form = event.target;
+            const textarea = form.querySelector('textarea');
+            const nameInput = form.querySelector('input');
+            const submitBtn = form.querySelector('button');
+            
+            const textContent = textarea.value.trim();
+            const authorName = nameInput.value.trim() || "Anonymous";
+            
+            if (!textContent) return;
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Sharing...";
+
+            const payload = {
+                poemTitle: poemTitle,
+                name: authorName,
+                comment: textContent
+            };
+
+            try {
+                await fetch(DATABASE_API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const displayArea = document.getElementById(stackId);
+                const newReflection = document.createElement('div');
+                newReflection.className = 'single-reflection';
+                
+                const safeName = authorName.toUpperCase();
+                newReflection.innerHTML = `
+                    <span class="reflection-author-inline">${safeName} —</span>${textContent}
+                `;
+                
+                displayArea.insertBefore(newReflection, displayArea.firstChild);
+                displayArea.style.display = 'flex';
+
+                textarea.value = "";
+                nameInput.value = "";
+                
+                document.getElementById(drawerId).style.display = 'none';
+                const commentBtn = document.getElementById(btnId);
+                if (commentBtn) {
+                    commentBtn.classList.remove('active-drawer');
+                    commentBtn.innerHTML = `<span>💬</span> Comment`;
+                }
+
+            } catch (err) {
+                alert("The comment framework is currently buffering. Please try again in a moment.");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Submit";
+            }
+        }
+
+        function render() {
+            const container = document.getElementById('poetry-container');
+            container.innerHTML = "";
+            
+            let displayList = allPoems.filter(poem => poem.title.toLowerCase().includes(searchQuery));
+
+            if (currentMode === 'all') {
+                displayList.sort((a, b) => a.title.localeCompare(b.title));
+            } else if (currentMode === 'latest') {
+                displayList.sort((a, b) => b.sortDate.localeCompare(a.sortDate));
+            } else if (currentMode === 'random') {
+                if (searchQuery === '' && displayList.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * displayList.length);
+                    displayList = [displayList[randomIndex]];
+                }
+            }
+
+            if (displayList.length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: #64748b; font-style: italic; margin-top: 20px;">No titles match your search.</p>`;
+                return;
+            }
+
+            displayList.forEach((poem, index) => {
+                const card = document.createElement('div');
+                card.id = `card-${index}`; 
+                
+                if (!isTypingSearch) {
+                    card.className = 'poem-card animate-presence';
+                } else {
+                    card.className = 'poem-card';
+                }
+
+                let metaText = poem.displayDate;
+                if (poem.location) {
+                    metaText = `${poem.location}  •  ${poem.displayDate}`;
+                }
+
+                const audioId = `audio-${index}`;
+                const btnId = `btn-${index}`;
+                const drawerId = `drawer-${index}`;
+                const commentDrawerId = `comment-drawer-${index}`;
+                const commentBtnId = `comment-btn-${index}`;
+                const stackId = `stack-${index}`;
+                const contextBtnId = `ctx-btn-${index}`;
+                const audioUrl = `${poem.slug}.mp3`;
+
+                const alignmentClass = poem.isCentered ? 'poem-text centered-body' : 'poem-text';
+
+                const topButtonHtml = (index === 0) ? '' : `
+                    <button class="top-btn" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="Scroll back to sorting controls">
+                        <span>↑</span> Top
+                    </button>
+                `;
+
+                const contextButtonHtml = (!poem.backstory) ? '' : `
+                    <button id="${contextBtnId}" class="context-btn" onclick="toggleContext('${drawerId}', this)">
+                        <span>📖</span> Learn more
+                    </button>
+                `;
+
+                const contextBlockHtml = (!poem.backstory) ? '' : `
+                    <div id="${drawerId}" class="context-block">${poem.backstory}</div>
+                `;
+
+                const matchingComments = globalCommentsList.filter(c => c.poemTitle === poem.title);
+                matchingComments.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+                let reflectionsHtmlBlock = '';
+                matchingComments.forEach(c => {
+                    const safeName = c.name ? c.name.toString().toUpperCase() : "ANONYMOUS";
+                    reflectionsHtmlBlock += `
+                        <div class="single-reflection">
+                            <span class="reflection-author-inline">${safeName} —</span>${c.comment}
+                        </div>
+                    `;
+                });
+
+                const safeEscapedTitle = poem.title.replace(/'/g, "\\'");
+                const htmlAttributeTitle = poem.title.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+                card.innerHTML = `
+                    <div class="poem-header">
+                        <h2>${poem.title}</h2>
+                        <div class="poem-meta">
+                            <div class="control-group">
+                                <button id="${btnId}" class="play-btn" onclick="toggleAudio('${audioId}', this, ${index})">
+                                    <span>▶</span> Play
+                                </button>
+                                ${topButtonHtml}
+                            </div>
+                            <span class="meta-details">${metaText}</span>
+                        </div>
+                    </div>
+                    
+                    <p class="${alignmentClass}">${poem.text}</p>
+                    
+                    <div class="bottom-control-group" style="padding: 0 40px 15px 40px;">
+                        ${contextButtonHtml}
+                        <button id="${commentBtnId}" class="context-btn" onclick="toggleCommentDrawer('${commentDrawerId}', this)">
+                            <span>💬</span> Comment
+                        </button>
+                    </div>
+
+                    ${contextBlockHtml}
+
+                    <div id="${commentDrawerId}" class="comment-drawer">
+                        <form class="comment-form" onsubmit="submitComment(event, '${safeEscapedTitle}', '${stackId}', '${commentDrawerId}', '${commentBtnId}')">
+                            <textarea class="comment-textarea"
