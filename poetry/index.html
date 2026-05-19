@@ -197,9 +197,10 @@
             align-items: center;
         }
 
-        /* OPTIMIZED BOTTOM CONTAINER: Reduced top margin to pull 'Learn more' up tightly */
+        /* OPTIMIZED BOTTOM CONTAINER */
         .bottom-control-group {
             display: flex;
+            gap: 8px;
             margin-top: 5px; 
             justify-content: flex-start;
         }
@@ -215,7 +216,7 @@
             white-space: pre-line;
             color: #cbd5e1;
             margin-top: 0 !important;
-            padding: 30px 40px 15px 40px; /* Reduced bottom padding slightly to close the gap */
+            padding: 30px 40px 15px 40px; 
             margin-bottom: 0;
             letter-spacing: 0.5px;
             text-align: left;
@@ -228,7 +229,7 @@
         /* Context Block Style for Backstories and Explanations */
         .context-block {
             display: none; 
-            margin: 0 40px 40px 40px;
+            margin: 0 40px 20px 40px;
             padding-top: 20px;
             border-top: 1px dashed #334155;
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
@@ -237,6 +238,106 @@
             color: #94a3b8;
             letter-spacing: 0.3px;
             animation: expandDrawer 0.4s ease-out forwards;
+        }
+
+        /* INLINE COMMENT COMPONENT STYLING */
+        .comment-drawer {
+            display: none;
+            margin: 0 40px 20px 40px;
+            padding-top: 20px;
+            border-top: 1px dashed #334155;
+            animation: expandDrawer 0.4s ease-out forwards;
+        }
+
+        .comment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .comment-textarea {
+            width: 100%;
+            background-color: #12161a;
+            color: #f1f5f9;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            resize: vertical;
+            outline: none;
+        }
+
+        .comment-row-fields {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .comment-name-input {
+            background-color: #12161a;
+            color: #f1f5f9;
+            border: 1px solid #334155;
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            max-width: 200px;
+        }
+
+        .comment-submit-btn {
+            background-color: #334155;
+            color: #f8fafc;
+            border: 1px solid #475569;
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .comment-submit-btn:hover {
+            background-color: #475569;
+        }
+
+        /* PUBLIC REFLECTION STACK CONTAINER */
+        .comments-display-area {
+            margin: 0 40px 40px 40px;
+            padding-top: 15px;
+            border-top: 1px solid #2d3742;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .single-reflection {
+            background-color: rgba(18, 22, 26, 0.4);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border-left: 2px solid #334155;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            animation: expandDrawer 0.3s ease-out forwards;
+        }
+
+        .reflection-author {
+            font-size: 0.8rem;
+            color: #64748b;
+            font-weight: 600;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .reflection-body {
+            font-size: 0.92rem;
+            color: #cbd5e1;
+            margin: 0;
+            white-space: pre-line;
         }
 
         @keyframes expandDrawer {
@@ -305,8 +406,12 @@
                 font-size: clamp(0.95rem, 4vw, 1.1rem) !important;
                 line-height: 1.7;
             }
-            .context-block {
-                margin: 0 20px 30px 20px;
+            .context-block, .comment-drawer, .comments-display-area {
+                margin-left: 20px;
+                margin-right: 20px;
+            }
+            .comments-display-area {
+                margin-bottom: 25px;
             }
             h2 {
                 font-size: 1.4rem;
@@ -341,6 +446,7 @@
 
     <script>
         let allPoems = [];
+        let globalCommentsList = []; // Global cache for current sheet row maps
         let currentMode = 'latest'; 
         let searchQuery = '';
         let currentlyPlayingAudio = null;
@@ -349,6 +455,9 @@
         
         let isAutoScrollingActive = false;
         let activeCardElement = null;
+
+        // YOUR SECURE GOOGLE SHEETS WEB APP ENDPOINT LINK
+        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycby81aAVsgaf0uieandQPBvUj8uStY6SFhCmDQDJRi_qYnI6dNvfK1pYefyDTfkt_vLXHA/exec";
 
         function updateStickyPositions() {
             const mainHeader = document.getElementById('page-top');
@@ -379,8 +488,12 @@
             return dateStr;
         }
 
+        // Parallel processing loop captures sheet data alongside file definitions natively
         async function loadPoetryData() {
             try {
+                // Kick off sheet rows fetch in the background concurrently
+                fetchCommentsDatabase();
+
                 const response = await fetch('--poem-list.txt');
                 if (!response.ok) throw new Error("File not found");
                 const rawText = await response.text();
@@ -450,6 +563,22 @@
             } catch (err) {
                 document.getElementById('poetry-container').innerHTML = 
                     `<p style="color: #64748b; text-align: center; font-style: italic;">The collection is resting at the moment.</p>`;
+            }
+        }
+
+        // Pulls existing historical reflection rows straight from your Google App configuration link
+        async function fetchCommentsDatabase() {
+            try {
+                const res = await fetch(DATABASE_API_URL);
+                if (!res.ok) return;
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    globalCommentsList = data;
+                    // Trigger a clean rendering loop pass to slot reflections seamlessly under matching titles
+                    render(); 
+                }
+            } catch (err) {
+                console.log("Database read sequence buffered safely.");
             }
         }
 
@@ -564,6 +693,89 @@
             }
         }
 
+        // Toggles display state of the hidden inline comment generation field
+        function toggleCommentDrawer(drawerId, btnElement) {
+            const drawer = document.getElementById(drawerId);
+            if (drawer.style.display === 'block') {
+                drawer.style.display = 'none';
+                btnElement.classList.remove('active-drawer');
+                btnElement.innerHTML = `<span>💬</span> Comment`;
+            } else {
+                drawer.style.display = 'block';
+                btnElement.classList.add('active-drawer');
+                btnElement.innerHTML = `<span>❌</span> Cancel`;
+                
+                setTimeout(() => {
+                    drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 80);
+            }
+        }
+
+        // SUBMISSION ROUTER: dispatches user payload to Sheets API back-end instantly
+        async function submitComment(event, poemTitle, stackId, drawerId, btnId) {
+            event.preventDefault(); // Lock form reset path
+            
+            const form = event.target;
+            const textarea = form.querySelector('textarea');
+            const nameInput = form.querySelector('input');
+            const submitBtn = form.querySelector('button');
+            
+            const textContent = textarea.value.trim();
+            const authorName = nameInput.value.trim() || "Anonymous";
+            
+            if (!textContent) return;
+
+            // Update submission panel state metrics
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Sharing...";
+
+            const payload = {
+                poemTitle: poemTitle,
+                name: authorName,
+                comment: textContent
+            };
+
+            try {
+                // Cross-Origin network pipeline dispatches JSON payload safely
+                const res = await fetch(DATABASE_API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Permits clean submission transit to Google macros framework bypasses
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                // Since 'no-cors' returns an opaque block, assume immediate success
+                const displayArea = document.getElementById(stackId);
+                const newReflection = document.createElement('div');
+                newReflection.className = 'single-reflection';
+                newReflection.innerHTML = `
+                    <div class="reflection-author">${authorName.toUpperCase()}</div>
+                    <p class="reflection-body">${textContent}</p>
+                `;
+                
+                // Immediately push reflection to the very top of the visible stack deck
+                displayArea.insertBefore(newReflection, displayArea.firstChild);
+
+                // Reset internal data state structures
+                textarea.value = "";
+                nameInput.value = "";
+                
+                // Tuck the drawer away cleanly
+                document.getElementById(drawerId).style.display = 'none';
+                const commentBtn = document.getElementById(btnId);
+                if (commentBtn) {
+                    commentBtn.classList.remove('active-drawer');
+                    commentBtn.innerHTML = `<span>💬</span> Comment`;
+                }
+
+            } catch (err) {
+                alert("The comment framework is currently buffering. Please try again in a moment.");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Submit";
+            }
+        }
+
         function render() {
             const container = document.getElementById('poetry-container');
             container.innerHTML = "";
@@ -604,6 +816,9 @@
                 const audioId = `audio-${index}`;
                 const btnId = `btn-${index}`;
                 const drawerId = `drawer-${index}`;
+                const commentDrawerId = `comment-drawer-${index}`;
+                const commentBtnId = `comment-btn-${index}`;
+                const stackId = `stack-${index}`;
                 const contextBtnId = `ctx-btn-${index}`;
                 const audioUrl = `${poem.slug}.mp3`;
 
@@ -615,17 +830,32 @@
                     </button>
                 `;
 
+                // Minimal action link items group layout blocks
                 const contextButtonHtml = (!poem.backstory) ? '' : `
-                    <div class="bottom-control-group" style="padding: 0 40px 30px 40px;">
-                        <button id="${contextBtnId}" class="context-btn" onclick="toggleContext('${drawerId}', this)">
-                            <span>📖</span> Learn more
-                        </button>
-                    </div>
+                    <button id="${contextBtnId}" class="context-btn" onclick="toggleContext('${drawerId}', this)">
+                        <span>📖</span> Learn more
+                    </button>
                 `;
 
                 const contextBlockHtml = (!poem.backstory) ? '' : `
                     <div id="${drawerId}" class="context-block">${poem.backstory}</div>
                 `;
+
+                // Map row instances out of global comments container specifically matching this card's title
+                const matchingComments = globalCommentsList.filter(c => c.poemTitle === poem.title);
+                
+                // Sort historical reflections so that the most recent submissions sit at the top of the deck
+                matchingComments.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+                let reflectionsHtmlBlock = '';
+                matchingComments.forEach(c => {
+                    reflectionsHtmlBlock += `
+                        <div class="single-reflection">
+                            <div class="reflection-author">${c.name.toUpperCase()}</div>
+                            <p class="reflection-body">${c.comment}</p>
+                        </div>
+                    `;
+                });
 
                 card.innerHTML = `
                     <div class="poem-header">
@@ -640,15 +870,47 @@
                             <span class="meta-details">${metaText}</span>
                         </div>
                     </div>
+                    
                     <p class="${alignmentClass}">${poem.text}</p>
-                    ${contextButtonHtml}
+                    
+                    <div class="bottom-control-group" style="padding: 0 40px 15px 40px;">
+                        ${contextButtonHtml}
+                        <button id="${commentBtnId}" class="context-btn" onclick="toggleCommentDrawer('${commentDrawerId}', this)">
+                            <span>💬</span> Comment
+                        </button>
+                    </div>
+
                     ${contextBlockHtml}
+
+                    <div id="${commentDrawerId}" class="comment-drawer">
+                        <form class="comment-form" onsubmit="submitComment(event, '${poem.title.replace(/'/g, "\\'")}', '${stackId}', '${commentDrawerId}', '${commentBtnId}')">
+                            <textarea class="comment-textarea" placeholder="Share a reflection..." rows="2" required></textarea>
+                            <div class="comment-row-fields">
+                                <input type="text" class="comment-name-input" placeholder="— Your Name (Optional)" maxlength="40">
+                                <button type="submit" class="comment-submit-btn">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div id="${stackId}" class="comments-display-area" style="${matchingComments.length === 0 ? 'display:none;' : ''}">
+                        ${reflectionsHtmlBlock}
+                    </div>
+
                     <audio id="${audioId}" preload="auto" style="display:none;">
                         <source src="${audioUrl}" type="audio/mp3">
                     </audio>
                 `;
                 container.appendChild(card);
                 
+                // Safe handling ensures blank areas show when display layers load
+                const currentStack = document.getElementById(stackId);
+                const observer = new MutationObserver(() => {
+                    if (currentStack.children.length > 0) {
+                        currentStack.style.display = 'flex';
+                    }
+                });
+                observer.observe(currentStack, { childList: true });
+
                 const audioEl = document.getElementById(audioId);
                 if (audioEl) {
                     audioEl.addEventListener('error', () => {
