@@ -306,38 +306,35 @@
             background-color: #475569;
         }
 
-        /* PUBLIC REFLECTION STACK CONTAINER */
+        /* SPACE-SAVING INLINE REFLECTION CONTAINER */
         .comments-display-area {
             margin: 0 40px 40px 40px;
             padding-top: 15px;
             border-top: 1px solid #2d3742;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px; /* Tighter vertical flow between compact comments */
         }
 
         .single-reflection {
-            background-color: rgba(18, 22, 26, 0.4);
-            padding: 12px 16px;
-            border-radius: 8px;
-            border-left: 2px solid #334155;
+            background-color: rgba(18, 22, 26, 0.2);
+            padding: 6px 12px; /* Slimmer padding footprints */
+            border-radius: 6px;
+            border-left: 2px solid #2d3742;
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 0.92rem;
+            color: #cbd5e1;
+            line-height: 1.5;
             animation: expandDrawer 0.3s ease-out forwards;
         }
 
-        .reflection-author {
+        /* Styled inline name badge */
+        .reflection-author-inline {
             font-size: 0.8rem;
             color: #64748b;
             font-weight: 600;
-            margin-bottom: 4px;
             letter-spacing: 0.5px;
-        }
-
-        .reflection-body {
-            font-size: 0.92rem;
-            color: #cbd5e1;
-            margin: 0;
-            white-space: pre-line;
+            margin-right: 6px;
         }
 
         @keyframes expandDrawer {
@@ -738,9 +735,10 @@
                 const displayArea = document.getElementById(stackId);
                 const newReflection = document.createElement('div');
                 newReflection.className = 'single-reflection';
+                
+                // SPACE-SAVING FIX: New inline template renders the badge and reflection on one continuous line
                 newReflection.innerHTML = `
-                    <div class="reflection-author">${authorName.toUpperCase()}</div>
-                    <p class="reflection-body">${textContent}</p>
+                    <span class="reflection-author-inline">${authorName.toUpperCase()} —</span>${textContent}
                 `;
                 
                 displayArea.insertBefore(newReflection, displayArea.firstChild);
@@ -827,16 +825,15 @@
                     <div id="${drawerId}" class="context-block">${poem.backstory}</div>
                 `;
 
-                // DATA RE-MAPPING ENGINE: Evaluates keys strictly matching your capitalized Sheet column mapping definitions
                 const matchingComments = globalCommentsList.filter(c => c.poemTitle === poem.title);
                 matchingComments.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
 
                 let reflectionsHtmlBlock = '';
                 matchingComments.forEach(c => {
+                    // SPACE-SAVING FIX: Map data row elements directly into an inline span string footprint
                     reflectionsHtmlBlock += `
                         <div class="single-reflection">
-                            <div class="reflection-author">${c.name.toUpperCase()}</div>
-                            <p class="reflection-body">${c.comment}</p>
+                            <span class="reflection-author-inline">${c.name.toUpperCase()} —</span>${c.comment}
                         </div>
                     `;
                 });
@@ -919,7 +916,6 @@
             stopAutoScrollOnInteraction();
             
             currentMode = mode;
-            // FIXED SYNTAX: Missing closing loop parameter explicitly re-appended here
             ['btn-all', 'btn-latest', 'btn-random'].forEach(id => document.getElementById(id).classList.remove('active'));
             document.getElementById(`btn-${mode}`).classList.add('active');
             
