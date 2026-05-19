@@ -900,7 +900,7 @@
 
                     <div id="${commentDrawerId}" class="comment-drawer">
                         <form class="comment-form" onsubmit="submitComment(event, '${safeEscapedTitle}', '${stackId}', '${commentDrawerId}', '${commentBtnId}')">
-                            <textarea class="comment-textarea" placeholder="Share a reflection..." rows="2" required></textarea>
+                            <textarea class="comment-textarea" placeholder="Share a short reflection (max 100 chars)..." rows="2" maxlength="100" required></textarea>
                             <div class="comment-row-fields">
                                 <input type="text" class="comment-name-input" placeholder="— Your Name (Optional)" maxlength="40">
                                 <button type="submit" class="comment-submit-btn">Submit</button>
