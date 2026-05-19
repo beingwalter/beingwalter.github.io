@@ -431,9 +431,9 @@
         <h1>Walter's nondual poetry</h1>
         
         <div class="nav-controls">
-            <button class="nav-btn active" id="btn-latest" onclick="changeMode('latest')">Latest</button>
+            <button class="nav-btn" id="btn-latest" onclick="changeMode('latest')">Latest</button>
             <button class="nav-btn" id="btn-all" onclick="changeMode('all')">A - Z</button>
-            <button class="nav-btn" id="btn-random" onclick="changeMode('random')">Random</button>
+            <button class="nav-btn active" id="btn-random" onclick="changeMode('random')">Random</button>
             <a href="../" class="home-btn" title="Return Home">🏠</a>
         </div>
 
@@ -453,7 +453,8 @@
     <script>
         let allPoems = [];
         let globalCommentsList = []; 
-        let currentMode = 'latest'; 
+        // INITIALIZATION ADJUSTMENT: Changed global fallback landing parameter mode to random
+        let currentMode = 'random'; 
         let searchQuery = '';
         let currentlyPlayingAudio = null;
         let currentlyPlayingButton = null;
@@ -593,7 +594,7 @@
                                     <div class="single-reflection">
                                         <span class="reflection-author-inline">${safeName} —</span>${c.comment}
                                     </div>
-                                `;
+                                ];
                             });
                             stackEl.innerHTML = reflectionsHtmlBlock;
                             stackEl.style.display = 'flex'; 
