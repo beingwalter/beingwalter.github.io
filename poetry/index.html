@@ -418,6 +418,15 @@
 </head>
 <body>
 
+    <script>
+        window.addEventListener('error', function(e) {
+            const container = document.getElementById('poetry-container');
+            if (container) {
+                container.innerHTML = `<p style="color: #ef4444; padding: 20px; text-align: center; font-family: monospace;"><b>Diagnostic Alert:</b><br>${e.message}<br>Line: ${e.lineno}</p>`;
+            }
+        });
+    </script>
+
     <header id="page-top">
         <h1>Walter's nondual poetry</h1>
         
@@ -891,4 +900,68 @@
 
                     <div id="${commentDrawerId}" class="comment-drawer">
                         <form class="comment-form" onsubmit="submitComment(event, '${safeEscapedTitle}', '${stackId}', '${commentDrawerId}', '${commentBtnId}')">
-                            <textarea class="comment-textarea"
+                            <textarea class="comment-textarea" placeholder="Share a reflection..." rows="2" required></textarea>
+                            <div class="comment-row-fields">
+                                <input type="text" class="comment-name-input" placeholder="— Your Name (Optional)" maxlength="40">
+                                <button type="submit" class="comment-submit-btn">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div id="${stackId}" class="comments-display-area" data-poem-title="${htmlAttributeTitle}" style="${matchingComments.length === 0 ? 'display:none;' : 'display:flex;'}">
+                        ${reflectionsHtmlBlock}
+                    </div>
+
+                    <audio id="${audioId}" preload="auto" style="display:none;">
+                        <source src="${audioUrl}" type="audio/mp3">
+                    </audio>
+                `;
+                container.appendChild(card);
+                
+                const currentStack = document.getElementById(stackId);
+                const observer = new MutationObserver(() => {
+                    if (currentStack.children.length > 0) {
+                        currentStack.style.display = 'flex';
+                    }
+                });
+                observer.observe(currentStack, { childList: true });
+
+                const audioEl = document.getElementById(audioId);
+                if (audioEl) {
+                    audioEl.addEventListener('error', () => {
+                        const targetBtn = document.getElementById(btnId);
+                        if (targetBtn) {
+                            targetBtn.innerHTML = `No audio`;
+                        }
+                    }, true);
+                }
+            });
+
+            updateStickyPositions();
+        }
+
+        function changeMode(mode) {
+            if (currentlyPlayingAudio) {
+                currentlyPlayingAudio.pause();
+                currentlyPlayingAudio = null;
+                currentlyPlayingButton = null;
+            }
+            stopAutoScrollOnInteraction();
+            
+            currentMode = mode;
+            ['btn-all', 'btn-latest', 'btn-random'].forEach(id => document.getElementById(id).classList.remove('active'));
+            document.getElementById(`btn-${mode}`).classList.add('active');
+            
+            document.getElementById('search-box').value = '';
+            searchQuery = '';
+            isTypingSearch = false;
+            
+            window.scrollTo(0, 0);
+            render();
+        }
+
+        window.addEventListener('DOMContentLoaded', loadPoetryData);
+        window.addEventListener('resize', updateStickyPositions);
+    </script>
+</body>
+</html>
