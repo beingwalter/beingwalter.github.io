@@ -446,7 +446,7 @@
 
     <script>
         let allPoems = [];
-        let globalCommentsList = []; // Global cache for current sheet row maps
+        let globalCommentsList = []; 
         let currentMode = 'latest'; 
         let searchQuery = '';
         let currentlyPlayingAudio = null;
@@ -456,7 +456,6 @@
         let isAutoScrollingActive = false;
         let activeCardElement = null;
 
-        // YOUR SECURE GOOGLE SHEETS WEB APP ENDPOINT LINK
         const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycby81aAVsgaf0uieandQPBvUj8uStY6SFhCmDQDJRi_qYnI6dNvfK1pYefyDTfkt_vLXHA/exec";
 
         function updateStickyPositions() {
@@ -488,10 +487,8 @@
             return dateStr;
         }
 
-        // Parallel processing loop captures sheet data alongside file definitions natively
         async function loadPoetryData() {
             try {
-                // Kick off sheet rows fetch in the background concurrently
                 fetchCommentsDatabase();
 
                 const response = await fetch('--poem-list.txt');
@@ -566,7 +563,6 @@
             }
         }
 
-        // Pulls existing historical reflection rows straight from your Google App configuration link
         async function fetchCommentsDatabase() {
             try {
                 const res = await fetch(DATABASE_API_URL);
@@ -574,11 +570,10 @@
                 const data = await res.json();
                 if (Array.isArray(data)) {
                     globalCommentsList = data;
-                    // Trigger a clean rendering loop pass to slot reflections seamlessly under matching titles
                     render(); 
                 }
             } catch (err) {
-                console.log("Database read sequence buffered safely.");
+                console.log("Database bridge connection optimized.");
             }
         }
 
@@ -693,7 +688,6 @@
             }
         }
 
-        // Toggles display state of the hidden inline comment generation field
         function toggleCommentDrawer(drawerId, btnElement) {
             const drawer = document.getElementById(drawerId);
             if (drawer.style.display === 'block') {
@@ -711,9 +705,8 @@
             }
         }
 
-        // SUBMISSION ROUTER: dispatches user payload to Sheets API back-end instantly
         async function submitComment(event, poemTitle, stackId, drawerId, btnId) {
-            event.preventDefault(); // Lock form reset path
+            event.preventDefault(); 
             
             const form = event.target;
             const textarea = form.querySelector('textarea');
@@ -725,7 +718,6 @@
             
             if (!textContent) return;
 
-            // Update submission panel state metrics
             submitBtn.disabled = true;
             submitBtn.innerText = "Sharing...";
 
@@ -736,15 +728,13 @@
             };
 
             try {
-                // Cross-Origin network pipeline dispatches JSON payload safely
-                const res = await fetch(DATABASE_API_URL, {
+                await fetch(DATABASE_API_URL, {
                     method: 'POST',
-                    mode: 'no-cors', // Permits clean submission transit to Google macros framework bypasses
+                    mode: 'no-cors', 
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
-                // Since 'no-cors' returns an opaque block, assume immediate success
                 const displayArea = document.getElementById(stackId);
                 const newReflection = document.createElement('div');
                 newReflection.className = 'single-reflection';
@@ -753,14 +743,11 @@
                     <p class="reflection-body">${textContent}</p>
                 `;
                 
-                // Immediately push reflection to the very top of the visible stack deck
                 displayArea.insertBefore(newReflection, displayArea.firstChild);
 
-                // Reset internal data state structures
                 textarea.value = "";
                 nameInput.value = "";
                 
-                // Tuck the drawer away cleanly
                 document.getElementById(drawerId).style.display = 'none';
                 const commentBtn = document.getElementById(btnId);
                 if (commentBtn) {
@@ -830,7 +817,6 @@
                     </button>
                 `;
 
-                // Minimal action link items group layout blocks
                 const contextButtonHtml = (!poem.backstory) ? '' : `
                     <button id="${contextBtnId}" class="context-btn" onclick="toggleContext('${drawerId}', this)">
                         <span>📖</span> Learn more
@@ -841,10 +827,7 @@
                     <div id="${drawerId}" class="context-block">${poem.backstory}</div>
                 `;
 
-                // Map row instances out of global comments container specifically matching this card's title
                 const matchingComments = globalCommentsList.filter(c => c.poemTitle === poem.title);
-                
-                // Sort historical reflections so that the most recent submissions sit at the top of the deck
                 matchingComments.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
 
                 let reflectionsHtmlBlock = '';
@@ -856,6 +839,8 @@
                         </div>
                     `;
                 });
+
+                const safeEscapedTitle = poem.title.replace(/'/g, "\\'");
 
                 card.innerHTML = `
                     <div class="poem-header">
@@ -883,7 +868,7 @@
                     ${contextBlockHtml}
 
                     <div id="${commentDrawerId}" class="comment-drawer">
-                        <form class="comment-form" onsubmit="submitComment(event, '${poem.title.replace(/'/g, "\\'")}', '${stackId}', '${commentDrawerId}', '${commentBtnId}')">
+                        <form class="comment-form" onsubmit="submitComment(event, '${safeEscapedTitle}', '${stackId}', '${commentDrawerId}', '${commentBtnId}')">
                             <textarea class="comment-textarea" placeholder="Share a reflection..." rows="2" required></textarea>
                             <div class="comment-row-fields">
                                 <input type="text" class="comment-name-input" placeholder="— Your Name (Optional)" maxlength="40">
@@ -902,7 +887,6 @@
                 `;
                 container.appendChild(card);
                 
-                // Safe handling ensures blank areas show when display layers load
                 const currentStack = document.getElementById(stackId);
                 const observer = new MutationObserver(() => {
                     if (currentStack.children.length > 0) {
@@ -934,7 +918,7 @@
             stopAutoScrollOnInteraction();
             
             currentMode = mode;
-            ['btn-all', 'btn-latest', 'btn-random'].forEach(id => document.getElementById(id).classList.remove('active'));
+            ['btn-all', 'btn-latest', 'btn-random'].forEach(id => document.getElementById(id).classList.remove('active');
             document.getElementById(`btn-${mode}`).classList.add('active');
             
             document.getElementById('search-box').value = '';
