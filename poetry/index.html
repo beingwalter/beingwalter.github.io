@@ -170,7 +170,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* Container to group audio control and top button side-by-side */
         .control-group {
             display: flex;
             gap: 8px;
@@ -198,8 +197,27 @@
             text-align: center;
         }
 
+        /* Context Block Style for Backstories and Explanations */
+        .context-block {
+            display: none; /* Initially hidden until requested */
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px dashed #334155;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #94a3b8;
+            letter-spacing: 0.3px;
+            animation: expandDrawer 0.4s ease-out forwards;
+        }
+
+        @keyframes expandDrawer {
+            0% { opacity: 0; transform: translateY(-5px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
         /* Shared Button Style for Minimal Controls */
-        .play-btn, .top-btn {
+        .play-btn, .top-btn, .context-btn {
             background-color: transparent;
             color: #64748b;
             border: 1px solid #334155;
@@ -217,7 +235,7 @@
             text-decoration: none;
         }
 
-        .play-btn:hover, .top-btn:hover {
+        .play-btn:hover, .top-btn:hover, .context-btn:hover {
             color: #cbd5e1;
             border-color: #475569;
         }
@@ -226,6 +244,12 @@
             color: #38bdf8;
             border-color: #0369a1;
             background-color: #142430;
+        }
+
+        .context-btn.active-drawer {
+            color: #94a3b8;
+            border-color: #475569;
+            background-color: #1e252b;
         }
 
         footer {
@@ -343,7 +367,17 @@
                     
                     if (!dateRaw || !title) return null;
 
-                    const combinedText = bodyLines.join('\n').trimStart();
+                    const combinedRawText = bodyLines.join('\n').trimStart();
+                    
+                    // NEW PARSING ENGINE: Evaluates the presence of the triple '===' flag
+                    let mainPoemText = combinedRawText;
+                    let backstoryText = "";
+                    
+                    if (combinedRawText.includes('===')) {
+                        const parts = combinedRawText.split(/===+/);
+                        mainPoemText = parts[0].trimEnd();
+                        backstoryText = parts[1].trim();
+                    }
 
                     return {
                         title: title,
@@ -352,7 +386,8 @@
                         displayDate: parseHumanDate(dateRaw),
                         sortDate: parseSortDate(dateRaw),
                         slug: cleanSlug(title),
-                        text: combinedText
+                        text: mainPoemText,
+                        backstory: backstoryText // Appends the explanation securely to the object
                     };
                 }).filter(p => p !== null);
 
@@ -411,6 +446,20 @@
             }
         }
 
+        // Toggles visibility of the specific explanation drawer
+        function toggleContext(drawerId, btnElement) {
+            const drawer = document.getElementById(drawerId);
+            if (drawer.style.display === 'block') {
+                drawer.style.display = 'none';
+                btnElement.classList.remove('active-drawer');
+                btnElement.innerHTML = `<span>📖</span> Learn more`;
+            } else {
+                drawer.style.display = 'block';
+                btnElement.classList.add('active-drawer');
+                btnElement.innerHTML = `<span>📕</span> Close context`;
+            }
+        }
+
         function scrollToTop() {
             window.scrollTo({
                 top: 0,
@@ -456,15 +505,28 @@
 
                 const audioId = `audio-${index}`;
                 const btnId = `btn-${index}`;
+                const drawerId = `drawer-${index}`;
+                const contextBtnId = `ctx-btn-${index}`;
                 const audioUrl = `${poem.slug}.mp3`;
 
                 const alignmentClass = poem.isCentered ? 'poem-text centered-body' : 'poem-text';
 
-                // DYNAMIC RULE: Generates the 'Top' button HTML only if it's NOT the very first card on screen
                 const topButtonHtml = (index === 0) ? '' : `
                     <button class="top-btn" onclick="scrollToTop()" title="Scroll back to sorting controls">
                         <span>↑</span> Top
                     </button>
+                `;
+
+                // If a backstory segment exists, dynamically build the 'Learn more' action item
+                const contextButtonHtml = (!poem.backstory) ? '' : `
+                    <button id="${contextBtnId}" class="context-btn" onclick="toggleContext('${drawerId}', this)">
+                        <span>📖</span> Learn more
+                    </button>
+                `;
+
+                // Prepares the hidden content tray block
+                const contextBlockHtml = (!poem.backstory) ? '' : `
+                    <div id="${drawerId}" class="context-block">${poem.backstory}</div>
                 `;
 
                 card.innerHTML = `
@@ -475,12 +537,14 @@
                                 <button id="${btnId}" class="play-btn" onclick="toggleAudio('${audioId}', this)">
                                     <span>▶</span> Play
                                 </button>
+                                ${contextButtonHtml}
                                 ${topButtonHtml}
                             </div>
                             <span class="meta-details">${metaText}</span>
                         </div>
                     </div>
                     <p class="${alignmentClass}">${poem.text}</p>
+                    ${contextBlockHtml}
                     <audio id="${audioId}" preload="auto" style="display:none;">
                         <source src="${audioUrl}" type="audio/mp3">
                     </audio>
