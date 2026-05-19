@@ -11,24 +11,23 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Georgia, serif;
             line-height: 1.8;
             margin: 0;
-            padding: 0 20px 40px 20px; /* Removed top padding to let the sticky header sit perfectly flush */
+            padding: 0 20px 40px 20px; 
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        /* STICKY HEADER ENGINE: Anchors the navigation controls to the peak of the viewport */
         header {
             position: sticky;
             top: 0;
-            z-index: 100; /* Keeps controls floating safely above the scrolling stanzas */
+            z-index: 100; 
             width: 100%;
             max-width: 600px;
             padding-top: 40px;
             padding-bottom: 20px;
-            background-color: rgba(18, 22, 26, 0.92); /* Matches body background with subtle opacity */
-            backdrop-filter: blur(12px); /* Beautifully dissolves background items as they scroll beneath */
-            -webkit-backdrop-filter: blur(12px); /* Safari support */
+            background-color: rgba(18, 22, 26, 0.92); 
+            backdrop-filter: blur(12px); 
+            -webkit-backdrop-filter: blur(12px); 
             text-align: center;
         }
 
@@ -122,7 +121,7 @@
             max-width: 600px;
             display: flex;
             flex-direction: column;
-            margin-top: 15px; /* Creates a clean, safe buffer between sticky header and first card */
+            margin-top: 15px; 
         }
 
         .poem-card {
@@ -133,6 +132,12 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             border: 1px solid #2d3742;
             opacity: 1;
+            transition: border-color 0.3s;
+        }
+
+        /* Dynamic visual cue showing which card is currently driving the audio sync */
+        .poem-card.audio-tracking {
+            border-color: #334155;
         }
 
         /* Handles the fade-in exclusively when changing button filters */
@@ -186,7 +191,6 @@
             align-items: center;
         }
 
-        /* Bottom Row Control Group for the Learn More utility */
         .bottom-control-group {
             display: flex;
             margin-top: 20px;
@@ -283,7 +287,7 @@
                 padding: 0 12px 25px 12px;
             }
             header {
-                padding-top: 25px; /* Pulls the header controls slightly tighter to top frame on phones */
+                padding-top: 25px; 
             }
             .poem-card {
                 padding: 20px 20px 25px 20px !important;
@@ -331,6 +335,10 @@
         let currentlyPlayingAudio = null;
         let currentlyPlayingButton = null;
         let isTypingSearch = false;
+        
+        // Tracking states for the automatic scrolling machine
+        let isAutoScrollingActive = false;
+        let activeCardElement = null;
 
         function cleanSlug(title) {
             return title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/[\s-]+/g, '-').trim();
@@ -429,30 +437,90 @@
             render();
         }
 
-        function toggleAudio(audioId, btnElement) {
+        // Handles smooth linear pacing engine alignment calculations
+        function handleAudioTimeUpdate(audioElement) {
+            if (!isAutoScrollingActive || !activeCardElement || !audioElement.duration) return;
+
+            // Determine dimensions of current target framework elements
+            const cardRect = activeCardElement.getBoundingClientRect();
+            const cardHeight = cardRect.height;
+            
+            // Calculate progress ratios
+            const progress = audioElement.currentTime / audioElement.duration;
+            
+            // Fixed sticky header height blueprint offset buffer
+            const headerOffset = 180; 
+
+            // Find destination points relative to the ongoing viewport positions
+            const currentScrollTop = window.scrollY || document.documentElement.scrollTop;
+            const cardAbsoluteTop = cardRect.top + currentScrollTop;
+            
+            // Target anchor lines calculation
+            const targetScrollPosition = cardAbsoluteTop - headerOffset + (cardHeight * progress * 0.75);
+
+            window.scrollTo({
+                top: targetScrollPosition,
+                behavior: 'smooth'
+            });
+        }
+
+        // HUMAN INTERCEPT DETECTOR: Shuts off auto-scrolling immediately if reader touches the screen
+        function stopAutoScrollOnInteraction() {
+            if (isAutoScrollingActive) {
+                isAutoScrollingActive = false;
+                if (activeCardElement) {
+                    activeCardElement.classList.remove('audio-tracking');
+                }
+            }
+        }
+
+        // Register intercept listeners across touch and wheel input paths natively
+        window.addEventListener('wheel', stopAutoScrollOnInteraction);
+        window.addEventListener('touchmove', stopAutoScrollOnInteraction);
+        window.addEventListener('mousedown', stopAutoScrollOnInteraction);
+
+        function toggleAudio(audioId, btnElement, cardIndex) {
             if (btnElement.innerText.trim() === 'No audio') return;
 
             const audio = document.getElementById(audioId);
+            const card = document.getElementById(`card-${cardIndex}`);
             
             if (currentlyPlayingAudio && currentlyPlayingAudio !== audio) {
                 currentlyPlayingAudio.pause();
                 currentlyPlayingAudio.currentTime = 0;
+                currentlyPlayingAudio.ontimeupdate = null; // Clear loop bindings
                 if (currentlyPlayingButton) {
                     currentlyPlayingButton.classList.remove('playing');
                     currentlyPlayingButton.innerHTML = `<span>▶</span> Play`;
                 }
+                stopAutoScrollOnInteraction();
             }
 
             if (audio.paused) {
+                // Focus the scrolling matrix layout to this specific text block
+                activeCardElement = card;
+                isAutoScrollingActive = true;
+                card.classList.add('audio-tracking');
+
+                // Snap card to starting frame layout instantly on track initialization
+                const headerOffset = 180;
+                const targetInitialTop = card.getBoundingClientRect().top + (window.scrollY || document.documentElement.scrollTop) - headerOffset;
+                window.scrollTo({ top: targetInitialTop, behavior: 'smooth' });
+
                 audio.play().catch(err => { console.log("Playback safely managed."); });
                 btnElement.classList.add('playing');
                 btnElement.innerHTML = `<span>⏸</span> Pause`;
                 currentlyPlayingAudio = audio;
                 currentlyPlayingButton = btnElement;
                 
+                // Bind the pacing updates engine live
+                audio.ontimeupdate = () => handleAudioTimeUpdate(audio);
+                
                 audio.onended = () => {
                     btnElement.classList.remove('playing');
                     btnElement.innerHTML = `<span>▶</span> Play`;
+                    audio.ontimeupdate = null;
+                    stopAutoScrollOnInteraction();
                     currentlyPlayingAudio = null;
                     currentlyPlayingButton = null;
                 };
@@ -460,12 +528,12 @@
                 audio.pause();
                 btnElement.classList.remove('playing');
                 btnElement.innerHTML = `<span>▶</span> Play`;
+                stopAutoScrollOnInteraction();
                 currentlyPlayingAudio = null;
                 currentlyPlayingButton = null;
             }
         }
 
-        // Toggles expansion and aligns the viewport to the exposed drawer area
         function toggleContext(drawerId, btnElement) {
             const drawer = document.getElementById(drawerId);
             if (drawer.style.display === 'block') {
@@ -481,14 +549,6 @@
                     drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }, 80);
             }
-        }
-
-        // Modified scrollToTop to account for the physical height footprint of the sticky header panels
-        function scrollToTop() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
         }
 
         function render() {
@@ -515,6 +575,7 @@
 
             displayList.forEach((poem, index) => {
                 const card = document.createElement('div');
+                card.id = `card-${index}`; // Unique IDs assigned to cards to anchor tracking targets
                 
                 if (!isTypingSearch) {
                     card.className = 'poem-card animate-presence';
@@ -535,8 +596,9 @@
 
                 const alignmentClass = poem.isCentered ? 'poem-text centered-body' : 'poem-text';
 
+                // Top button logic scales perfectly inside scrolling viewport matrices
                 const topButtonHtml = (index === 0) ? '' : `
-                    <button class="top-btn" onclick="scrollToTop()" title="Scroll back to sorting controls">
+                    <button class="top-btn" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="Scroll back to sorting controls">
                         <span>↑</span> Top
                     </button>
                 `;
@@ -558,7 +620,7 @@
                         <h2>${poem.title}</h2>
                         <div class="poem-meta">
                             <div class="control-group">
-                                <button id="${btnId}" class="play-btn" onclick="toggleAudio('${audioId}', this)">
+                                <button id="${btnId}" class="play-btn" onclick="toggleAudio('${audioId}', this, ${index})">
                                     <span>▶</span> Play
                                 </button>
                                 ${topButtonHtml}
@@ -593,6 +655,7 @@
                 currentlyPlayingAudio = null;
                 currentlyPlayingButton = null;
             }
+            stopAutoScrollOnInteraction();
             
             currentMode = mode;
             ['btn-all', 'btn-latest', 'btn-random'].forEach(id => document.getElementById(id).classList.remove('active'));
