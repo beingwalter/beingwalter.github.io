@@ -453,7 +453,6 @@
     <script>
         let allPoems = [];
         let globalCommentsList = []; 
-        // INITIALIZATION ADJUSTMENT: Changed global fallback landing parameter mode to random
         let currentMode = 'random'; 
         let searchQuery = '';
         let currentlyPlayingAudio = null;
@@ -594,7 +593,7 @@
                                     <div class="single-reflection">
                                         <span class="reflection-author-inline">${safeName} —</span>${c.comment}
                                     </div>
-                                ];
+                                `;
                             });
                             stackEl.innerHTML = reflectionsHtmlBlock;
                             stackEl.style.display = 'flex'; 
@@ -770,7 +769,7 @@
                 
                 const safeName = authorName.toUpperCase();
                 newReflection.innerHTML = `
-                    <span class="reflection-author-inline">${safeName} —</span>${textContent}
+                    <span class="reflection-author-inline">${safeName} —</span>${text0Content}
                 `;
                 
                 displayArea.insertBefore(newReflection, displayArea.firstChild);
