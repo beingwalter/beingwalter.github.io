@@ -17,7 +17,7 @@
             align-items: center;
         }
 
-        /* SITE CONTENT HEADER FRAMEWORK */
+        /* MAIN NAVIGATION BAR (STICKY) */
         header {
             position: sticky;
             top: 0;
@@ -26,7 +26,7 @@
             max-width: 600px;
             padding-top: 40px;
             padding-bottom: 20px;
-            background-color: #12161a; /* Solid background screens out passing content layers underneath */
+            background-color: #12161a; 
             text-align: center;
         }
 
@@ -139,10 +139,11 @@
             border-color: #334155;
         }
 
-        /* COORDINATED STACKING HEADER ENGINE */
+        /* DYNAMIC INNER-CARD STICKY POEM HEADER */
         .poem-header {
             position: sticky;
-            top: 175px; /* Clear footprint alignment space directly below desktop search container */
+            /* Top value is calculated dynamically by JavaScript below */
+            top: 150px; 
             z-index: 10;
             background-color: #1e252b; 
             padding: 24px 40px 16px 40px;
@@ -287,7 +288,7 @@
             letter-spacing: 0.5px;
         }
 
-        /* Mobile Viewport Stacking Tweaks */
+        /* Mobile Adjustments */
         @media (max-width: 480px) {
             body {
                 padding: 0 12px 25px 12px;
@@ -297,7 +298,6 @@
                 padding-bottom: 15px;
             }
             .poem-header {
-                top: 145px; /* Shifting phone header stacking constraint lower balances visual line footprints */
                 padding: 20px 20px 12px 20px;
             }
             .poem-text {
@@ -349,6 +349,21 @@
         
         let isAutoScrollingActive = false;
         let activeCardElement = null;
+
+        // DYNAMIC HEIGHT COUPLING: Calculates exactly how tall the main header is and sets the cards' sticky points
+        function updateStickyPositions() {
+            const mainHeader = document.getElementById('page-top');
+            if (!mainHeader) return;
+            
+            // Get exact real-time pixel height of the main navigation box
+            const headerHeight = mainHeader.offsetHeight;
+            
+            // Apply that exact value to all poem card headers currently on screen
+            const cardHeaders = document.querySelectorAll('.poem-header');
+            cardHeaders.forEach(header => {
+                header.style.top = `${headerHeight}px`;
+            });
+        }
 
         function cleanSlug(title) {
             return title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/[\s-]+/g, '-').trim();
@@ -455,7 +470,8 @@
             const bodyHeight = bodyElement ? bodyElement.offsetHeight : cardRect.height;
             
             const progress = audioElement.currentTime / audioElement.duration;
-            const headerOffset = 180; 
+            const mainHeader = document.getElementById('page-top');
+            const headerOffset = mainHeader ? mainHeader.offsetHeight + 20 : 180; 
 
             const currentScrollTop = window.scrollY || document.documentElement.scrollTop;
             const cardAbsoluteTop = cardRect.top + currentScrollTop;
@@ -503,7 +519,8 @@
                 isAutoScrollingActive = true;
                 card.classList.add('audio-tracking');
 
-                const headerOffset = 180;
+                const mainHeader = document.getElementById('page-top');
+                const headerOffset = mainHeader ? mainHeader.offsetHeight + 20 : 180;
                 const targetInitialTop = card.getBoundingClientRect().top + (window.scrollY || document.documentElement.scrollTop) - headerOffset;
                 window.scrollTo({ top: targetInitialTop, behavior: 'smooth' });
 
@@ -645,6 +662,9 @@
                     }, true);
                 }
             });
+
+            // Re-calculate the position calculations immediately after rendering the new lists
+            updateStickyPositions();
         }
 
         function changeMode(mode) {
@@ -667,7 +687,9 @@
             render();
         }
 
+        // Run the dynamic calculation engine when the page opens and whenever the window is resized
         window.addEventListener('DOMContentLoaded', loadPoetryData);
+        window.addEventListener('resize', updateStickyPositions);
     </script>
 </body>
 </html>
