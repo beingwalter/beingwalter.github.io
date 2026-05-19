@@ -66,6 +66,25 @@
             border-color: #475569;
         }
 
+        /* DYNAMIC FLASH ANIMATION: Draws subtle visual attention to the random button initialization */
+        .nav-btn.flash-active {
+            animation: buttonFlash 0.6s ease-in-out 3; /* Pulses 3 clean times upon entrance */
+        }
+
+        @keyframes buttonFlash {
+            0%, 100% {
+                background-color: #334155;
+                color: #f8fafc;
+                border-color: #475569;
+            }
+            50% {
+                background-color: #475569;
+                color: #ffffff;
+                border-color: #64748b;
+                transform: scale(1.04); /* Tiny kinetic swell adds a professional touch */
+            }
+        }
+
         /* Diminutive Home Button Styling */
         .home-btn {
             background-color: #1e252b;
@@ -433,7 +452,7 @@
         <div class="nav-controls">
             <button class="nav-btn" id="btn-latest" onclick="changeMode('latest')">Latest</button>
             <button class="nav-btn" id="btn-all" onclick="changeMode('all')">A - Z</button>
-            <button class="nav-btn active" id="btn-random" onclick="changeMode('random')">Random</button>
+            <button class="nav-btn active flash-active" id="btn-random" onclick="changeMode('random')">Random</button>
             <a href="../" class="home-btn" title="Return Home">🏠</a>
         </div>
 
@@ -563,6 +582,13 @@
 
                 isTypingSearch = false;
                 render();
+                
+                // AUTOMATION TIMEOUT: Safely strips the animation class after completion so user-clicks function cleanly later
+                setTimeout(() => {
+                    const randBtn = document.getElementById('btn-random');
+                    if (randBtn) randBtn.classList.remove('flash-active');
+                }, 2000);
+
             } catch (err) {
                 document.getElementById('poetry-container').innerHTML = 
                     `<p style="text-align: center; color: #64748b; font-style: italic;">The collection is resting at the moment.</p>`;
@@ -769,7 +795,7 @@
                 
                 const safeName = authorName.toUpperCase();
                 newReflection.innerHTML = `
-                    <span class="reflection-author-inline">${safeName} —</span>${text0Content}
+                    <span class="reflection-author-inline">${safeName} —</span>${textContent}
                 `;
                 
                 displayArea.insertBefore(newReflection, displayArea.firstChild);
