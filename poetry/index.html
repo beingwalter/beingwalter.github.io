@@ -17,6 +17,7 @@
             align-items: center;
         }
 
+        /* MAIN PAGE STICKY HEADER FRAMEWORK */
         header {
             position: sticky;
             top: 0;
@@ -25,9 +26,7 @@
             max-width: 600px;
             padding-top: 40px;
             padding-bottom: 20px;
-            background-color: rgba(18, 22, 26, 0.92); 
-            backdrop-filter: blur(12px); 
-            -webkit-backdrop-filter: blur(12px); 
+            background-color: #12161a; /* Solid match to prevent text overlapping main controls */
             text-align: center;
         }
 
@@ -125,14 +124,14 @@
         }
 
         .poem-card {
+            position: relative;
             background-color: #1e252b;
-            padding: 0; /* Clear default padding so sticky headers can touch edges */
+            padding: 0; 
             border-radius: 12px;
             margin-bottom: 40px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             border: 1px solid #2d3742;
             opacity: 1;
-            overflow: hidden; /* Keeps internal components perfectly inside border radiuses */
             transition: border-color 0.3s;
         }
 
@@ -140,16 +139,17 @@
             border-color: #334155;
         }
 
-        /* INNER-CARD STICKY HEADER: Keeps the title, tags, and play button locked */
+        /* FIXED INNER-CARD STICKY ENGINE */
         .poem-header {
             position: sticky;
-            top: 153px; /* Sits precisely beneath the main page sticky header framework */
+            top: 155px; /* Sits cleanly below the main layout search engine bar */
             z-index: 10;
-            background-color: rgba(30, 37, 43, 0.94); /* Card background with slight transparency */
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            padding: 24px 40px 12px 40px;
+            background-color: #1e252b; /* Solid color matching card background prevents text bleeds */
+            padding: 24px 40px 16px 40px;
+            border-top-left-radius: 11px;  /* Keeps edges crisp inside card boundaries */
+            border-top-right-radius: 11px;
             border-bottom: 1px solid #2d3742;
+            margin: 0;
         }
 
         /* Handles the fade-in exclusively when changing button filters */
@@ -213,8 +213,8 @@
             font-size: 1.1rem;
             white-space: pre-line;
             color: #cbd5e1;
-            margin-top: 0px !important;
-            padding: 20px 40px 40px 40px; /* Pads text edges independently of the sticky header */
+            margin-top: 0 !important;
+            padding: 30px 40px 40px 40px; /* Safe padding for clean reading */
             margin-bottom: 0;
             letter-spacing: 0.5px;
             text-align: left;
@@ -297,16 +297,16 @@
                 padding-bottom: 15px;
             }
             .poem-header {
-                top: 133px; /* Tweaked offset adjustment for standard phone scale line footprints */
-                padding: 16px 20px 10px 20px;
+                top: 129px; /* Aligns header precisely beneath the main controls on mobile frameworks */
+                padding: 20px 20px 12px 20px;
             }
             .poem-text {
-                padding: 15px 20px 25px 20px;
+                padding: 25px 20px 30px 20px;
                 font-size: clamp(0.95rem, 4vw, 1.1rem) !important;
                 line-height: 1.7;
             }
             .context-block {
-                margin: 0 20px 25px 20px;
+                margin: 0 20px 30px 20px;
             }
             h2 {
                 font-size: 1.4rem;
@@ -451,7 +451,6 @@
             if (!isAutoScrollingActive || !activeCardElement || !audioElement.duration) return;
 
             const cardRect = activeCardElement.getBoundingClientRect();
-            // Track height of text area only to accurately space linear math lines
             const bodyElement = activeCardElement.querySelector('.poem-text');
             const bodyHeight = bodyElement ? bodyElement.offsetHeight : cardRect.height;
             
@@ -662,12 +661,9 @@
             
             document.getElementById('search-box').value = '';
             searchQuery = '';
-            
             isTypingSearch = false;
             
-            // CRITICAL FIX: Instantly forces view window up to absolute top layout zero point on navigation button press
             window.scrollTo(0, 0);
-            
             render();
         }
 
