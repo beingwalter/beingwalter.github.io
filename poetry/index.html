@@ -11,17 +11,25 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Georgia, serif;
             line-height: 1.8;
             margin: 0;
-            padding: 40px 20px;
+            padding: 0 20px 40px 20px; /* Removed top padding to let the sticky header sit perfectly flush */
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
+        /* STICKY HEADER ENGINE: Anchors the navigation controls to the peak of the viewport */
         header {
-            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100; /* Keeps controls floating safely above the scrolling stanzas */
             width: 100%;
             max-width: 600px;
-            margin-bottom: 25px;
+            padding-top: 40px;
+            padding-bottom: 20px;
+            background-color: rgba(18, 22, 26, 0.92); /* Matches body background with subtle opacity */
+            backdrop-filter: blur(12px); /* Beautifully dissolves background items as they scroll beneath */
+            -webkit-backdrop-filter: blur(12px); /* Safari support */
+            text-align: center;
         }
 
         h1 {
@@ -29,6 +37,7 @@
             font-size: 1.8rem;
             letter-spacing: 1px;
             color: #f8fafc;
+            margin-top: 0;
             margin-bottom: 25px;
         }
 
@@ -113,6 +122,7 @@
             max-width: 600px;
             display: flex;
             flex-direction: column;
+            margin-top: 15px; /* Creates a clean, safe buffer between sticky header and first card */
         }
 
         .poem-card {
@@ -270,7 +280,10 @@
         /* Mobile Optimizations */
         @media (max-width: 480px) {
             body {
-                padding: 25px 12px;
+                padding: 0 12px 25px 12px;
+            }
+            header {
+                padding-top: 25px; /* Pulls the header controls slightly tighter to top frame on phones */
             }
             .poem-card {
                 padding: 20px 20px 25px 20px !important;
@@ -452,7 +465,7 @@
             }
         }
 
-        // Toggles expansion and smoothly aligns the screen onto the exposed text block
+        // Toggles expansion and aligns the viewport to the exposed drawer area
         function toggleContext(drawerId, btnElement) {
             const drawer = document.getElementById(drawerId);
             if (drawer.style.display === 'block') {
@@ -464,13 +477,13 @@
                 btnElement.classList.add('active-drawer');
                 btnElement.innerHTML = `<span>📕</span> Close context`;
                 
-                // Deliberately slides view context downward slightly so the new text registers instantly
                 setTimeout(() => {
                     drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }, 80);
             }
         }
 
+        // Modified scrollToTop to account for the physical height footprint of the sticky header panels
         function scrollToTop() {
             window.scrollTo({
                 top: 0,
@@ -528,7 +541,6 @@
                     </button>
                 `;
 
-                // Moves the Learn More tray trigger exclusively to the bottom container area
                 const contextButtonHtml = (!poem.backstory) ? '' : `
                     <div class="bottom-control-group">
                         <button id="${contextBtnId}" class="context-btn" onclick="toggleContext('${drawerId}', this)">
