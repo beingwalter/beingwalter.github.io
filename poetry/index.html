@@ -142,7 +142,6 @@
         /* DYNAMIC INNER-CARD STICKY POEM HEADER */
         .poem-header {
             position: sticky;
-            /* Top value is calculated dynamically by JavaScript below */
             top: 150px; 
             z-index: 10;
             background-color: #1e252b; 
@@ -198,9 +197,10 @@
             align-items: center;
         }
 
+        /* OPTIMIZED BOTTOM CONTAINER: Reduced top margin to pull 'Learn more' up tightly */
         .bottom-control-group {
             display: flex;
-            margin-top: 20px;
+            margin-top: 5px; 
             justify-content: flex-start;
         }
 
@@ -215,7 +215,7 @@
             white-space: pre-line;
             color: #cbd5e1;
             margin-top: 0 !important;
-            padding: 30px 40px 40px 40px; 
+            padding: 30px 40px 15px 40px; /* Reduced bottom padding slightly to close the gap */
             margin-bottom: 0;
             letter-spacing: 0.5px;
             text-align: left;
@@ -301,7 +301,7 @@
                 padding: 20px 20px 12px 20px;
             }
             .poem-text {
-                padding: 25px 20px 30px 20px;
+                padding: 25px 20px 15px 20px;
                 font-size: clamp(0.95rem, 4vw, 1.1rem) !important;
                 line-height: 1.7;
             }
@@ -350,15 +350,12 @@
         let isAutoScrollingActive = false;
         let activeCardElement = null;
 
-        // DYNAMIC HEIGHT COUPLING: Calculates exactly how tall the main header is and sets the cards' sticky points
         function updateStickyPositions() {
             const mainHeader = document.getElementById('page-top');
             if (!mainHeader) return;
             
-            // Get exact real-time pixel height of the main navigation box
             const headerHeight = mainHeader.offsetHeight;
             
-            // Apply that exact value to all poem card headers currently on screen
             const cardHeaders = document.querySelectorAll('.poem-header');
             cardHeaders.forEach(header => {
                 header.style.top = `${headerHeight}px`;
@@ -663,7 +660,6 @@
                 }
             });
 
-            // Re-calculate the position calculations immediately after rendering the new lists
             updateStickyPositions();
         }
 
@@ -687,7 +683,6 @@
             render();
         }
 
-        // Run the dynamic calculation engine when the page opens and whenever the window is resized
         window.addEventListener('DOMContentLoaded', loadPoetryData);
         window.addEventListener('resize', updateStickyPositions);
     </script>
