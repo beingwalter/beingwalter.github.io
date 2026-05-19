@@ -308,17 +308,17 @@
 
         /* SPACE-SAVING INLINE REFLECTION CONTAINER */
         .comments-display-area {
+            display: none; /* Kept completely hidden by default unless content actively fields inside */
             margin: 0 40px 40px 40px;
             padding-top: 15px;
             border-top: 1px solid #2d3742;
-            display: flex;
             flex-direction: column;
-            gap: 8px; /* Tighter vertical flow between compact comments */
+            gap: 8px; 
         }
 
         .single-reflection {
             background-color: rgba(18, 22, 26, 0.2);
-            padding: 6px 12px; /* Slimmer padding footprints */
+            padding: 6px 12px; 
             border-radius: 6px;
             border-left: 2px solid #2d3742;
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
@@ -486,6 +486,7 @@
 
         async function loadPoetryData() {
             try {
+                // Initialize background sheet connection parameters
                 fetchCommentsDatabase();
 
                 const response = await fetch('--poem-list.txt');
@@ -560,14 +561,37 @@
             }
         }
 
+        // NON-DISRUPTIVE BACKGROUND FETCH: Injects comments directly into active card stacks without clearing user screens
         async function fetchCommentsDatabase() {
             try {
                 const res = await fetch(DATABASE_API_URL);
                 if (!res.ok) return;
                 const data = await res.json();
-                if (Array.isArray(data)) {
+                
+                if (Array.isArray(data) && data.length > 0) {
                     globalCommentsList = data;
-                    render(); 
+                    
+                    // Iterate and update layout ONLY for cards that actually have matching data rows
+                    allPoems.forEach((poem, index) => {
+                        const matchingComments = globalCommentsList.filter(c => c.poemTitle === poem.title);
+                        if (matchingComments.length > 0) {
+                            matchingComments.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+                            
+                            const stackEl = document.getElementById(`stack-${index}`);
+                            if (stackEl) {
+                                let reflectionsHtmlBlock = '';
+                                matchingComments.forEach(c => {
+                                    reflectionsHtmlBlock += `
+                                        <div class="single-reflection">
+                                            <span class="reflection-author-inline">${c.name.toUpperCase()} —</span>${c.comment}
+                                        </div>
+                                    `;
+                                });
+                                stackEl.innerHTML = reflectionsHtmlBlock;
+                                stackEl.style.display = 'flex'; // Make the community section active seamlessly
+                            }
+                        }
+                    });
                 }
             } catch (err) {
                 console.log("Database bridge connection optimized.");
@@ -736,12 +760,12 @@
                 const newReflection = document.createElement('div');
                 newReflection.className = 'single-reflection';
                 
-                // SPACE-SAVING FIX: New inline template renders the badge and reflection on one continuous line
                 newReflection.innerHTML = `
                     <span class="reflection-author-inline">${authorName.toUpperCase()} —</span>${textContent}
                 `;
                 
                 displayArea.insertBefore(newReflection, displayArea.firstChild);
+                displayArea.style.display = 'flex'; // Forces display area active instantly upon personal action submit
 
                 textarea.value = "";
                 nameInput.value = "";
@@ -830,7 +854,6 @@
 
                 let reflectionsHtmlBlock = '';
                 matchingComments.forEach(c => {
-                    // SPACE-SAVING FIX: Map data row elements directly into an inline span string footprint
                     reflectionsHtmlBlock += `
                         <div class="single-reflection">
                             <span class="reflection-author-inline">${c.name.toUpperCase()} —</span>${c.comment}
@@ -875,7 +898,7 @@
                         </form>
                     </div>
 
-                    <div id="${stackId}" class="comments-display-area" style="${matchingComments.length === 0 ? 'display:none;' : ''}">
+                    <div id="${stackId}" class="comments-display-area" style="${matchingComments.length === 0 ? 'display:none;' : 'display:flex;'}">
                         ${reflectionsHtmlBlock}
                     </div>
 
@@ -884,14 +907,6 @@
                     </audio>
                 `;
                 container.appendChild(card);
-                
-                const currentStack = document.getElementById(stackId);
-                const observer = new MutationObserver(() => {
-                    if (currentStack.children.length > 0) {
-                        currentStack.style.display = 'flex';
-                    }
-                });
-                observer.observe(currentStack, { childList: true });
 
                 const audioEl = document.getElementById(audioId);
                 if (audioEl) {
