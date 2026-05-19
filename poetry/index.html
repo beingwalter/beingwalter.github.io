@@ -126,18 +126,30 @@
 
         .poem-card {
             background-color: #1e252b;
-            padding: 24px 40px 40px 40px;
+            padding: 0; /* Clear default padding so sticky headers can touch edges */
             border-radius: 12px;
             margin-bottom: 40px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             border: 1px solid #2d3742;
             opacity: 1;
+            overflow: hidden; /* Keeps internal components perfectly inside border radiuses */
             transition: border-color 0.3s;
         }
 
-        /* Dynamic visual cue showing which card is currently driving the audio sync */
         .poem-card.audio-tracking {
             border-color: #334155;
+        }
+
+        /* INNER-CARD STICKY HEADER: Keeps the title, tags, and play button locked */
+        .poem-header {
+            position: sticky;
+            top: 153px; /* Sits precisely beneath the main page sticky header framework */
+            z-index: 10;
+            background-color: rgba(30, 37, 43, 0.94); /* Card background with slight transparency */
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 24px 40px 12px 40px;
+            border-bottom: 1px solid #2d3742;
         }
 
         /* Handles the fade-in exclusively when changing button filters */
@@ -155,12 +167,6 @@
                 opacity: 1;
                 transform: translateY(0);
             }
-        }
-
-        .poem-header {
-            margin-bottom: 15px;
-            border-bottom: 1px solid #2d3742;
-            padding-bottom: 12px;
         }
 
         /* Centered Poem Title */
@@ -208,7 +214,7 @@
             white-space: pre-line;
             color: #cbd5e1;
             margin-top: 0px !important;
-            padding-top: 8px !important;
+            padding: 20px 40px 40px 40px; /* Pads text edges independently of the sticky header */
             margin-bottom: 0;
             letter-spacing: 0.5px;
             text-align: left;
@@ -221,7 +227,7 @@
         /* Context Block Style for Backstories and Explanations */
         .context-block {
             display: none; 
-            margin-top: 25px;
+            margin: 0 40px 40px 40px;
             padding-top: 20px;
             border-top: 1px dashed #334155;
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
@@ -288,14 +294,19 @@
             }
             header {
                 padding-top: 25px; 
+                padding-bottom: 15px;
             }
-            .poem-card {
-                padding: 20px 20px 25px 20px !important;
-                margin-bottom: 25px;
+            .poem-header {
+                top: 133px; /* Tweaked offset adjustment for standard phone scale line footprints */
+                padding: 16px 20px 10px 20px;
             }
             .poem-text {
+                padding: 15px 20px 25px 20px;
                 font-size: clamp(0.95rem, 4vw, 1.1rem) !important;
                 line-height: 1.7;
+            }
+            .context-block {
+                margin: 0 20px 25px 20px;
             }
             h2 {
                 font-size: 1.4rem;
@@ -336,7 +347,6 @@
         let currentlyPlayingButton = null;
         let isTypingSearch = false;
         
-        // Tracking states for the automatic scrolling machine
         let isAutoScrollingActive = false;
         let activeCardElement = null;
 
@@ -437,26 +447,21 @@
             render();
         }
 
-        // Handles smooth linear pacing engine alignment calculations
         function handleAudioTimeUpdate(audioElement) {
             if (!isAutoScrollingActive || !activeCardElement || !audioElement.duration) return;
 
-            // Determine dimensions of current target framework elements
             const cardRect = activeCardElement.getBoundingClientRect();
-            const cardHeight = cardRect.height;
+            // Track height of text area only to accurately space linear math lines
+            const bodyElement = activeCardElement.querySelector('.poem-text');
+            const bodyHeight = bodyElement ? bodyElement.offsetHeight : cardRect.height;
             
-            // Calculate progress ratios
             const progress = audioElement.currentTime / audioElement.duration;
-            
-            // Fixed sticky header height blueprint offset buffer
             const headerOffset = 180; 
 
-            // Find destination points relative to the ongoing viewport positions
             const currentScrollTop = window.scrollY || document.documentElement.scrollTop;
             const cardAbsoluteTop = cardRect.top + currentScrollTop;
             
-            // Target anchor lines calculation
-            const targetScrollPosition = cardAbsoluteTop - headerOffset + (cardHeight * progress * 0.75);
+            const targetScrollPosition = cardAbsoluteTop - headerOffset + (bodyHeight * progress * 0.70);
 
             window.scrollTo({
                 top: targetScrollPosition,
@@ -464,7 +469,6 @@
             });
         }
 
-        // HUMAN INTERCEPT DETECTOR: Shuts off auto-scrolling immediately if reader touches the screen
         function stopAutoScrollOnInteraction() {
             if (isAutoScrollingActive) {
                 isAutoScrollingActive = false;
@@ -474,7 +478,6 @@
             }
         }
 
-        // Register intercept listeners across touch and wheel input paths natively
         window.addEventListener('wheel', stopAutoScrollOnInteraction);
         window.addEventListener('touchmove', stopAutoScrollOnInteraction);
         window.addEventListener('mousedown', stopAutoScrollOnInteraction);
@@ -488,7 +491,7 @@
             if (currentlyPlayingAudio && currentlyPlayingAudio !== audio) {
                 currentlyPlayingAudio.pause();
                 currentlyPlayingAudio.currentTime = 0;
-                currentlyPlayingAudio.ontimeupdate = null; // Clear loop bindings
+                currentlyPlayingAudio.ontimeupdate = null;
                 if (currentlyPlayingButton) {
                     currentlyPlayingButton.classList.remove('playing');
                     currentlyPlayingButton.innerHTML = `<span>▶</span> Play`;
@@ -497,12 +500,10 @@
             }
 
             if (audio.paused) {
-                // Focus the scrolling matrix layout to this specific text block
                 activeCardElement = card;
                 isAutoScrollingActive = true;
                 card.classList.add('audio-tracking');
 
-                // Snap card to starting frame layout instantly on track initialization
                 const headerOffset = 180;
                 const targetInitialTop = card.getBoundingClientRect().top + (window.scrollY || document.documentElement.scrollTop) - headerOffset;
                 window.scrollTo({ top: targetInitialTop, behavior: 'smooth' });
@@ -513,7 +514,6 @@
                 currentlyPlayingAudio = audio;
                 currentlyPlayingButton = btnElement;
                 
-                // Bind the pacing updates engine live
                 audio.ontimeupdate = () => handleAudioTimeUpdate(audio);
                 
                 audio.onended = () => {
@@ -575,7 +575,7 @@
 
             displayList.forEach((poem, index) => {
                 const card = document.createElement('div');
-                card.id = `card-${index}`; // Unique IDs assigned to cards to anchor tracking targets
+                card.id = `card-${index}`; 
                 
                 if (!isTypingSearch) {
                     card.className = 'poem-card animate-presence';
@@ -596,7 +596,6 @@
 
                 const alignmentClass = poem.isCentered ? 'poem-text centered-body' : 'poem-text';
 
-                // Top button logic scales perfectly inside scrolling viewport matrices
                 const topButtonHtml = (index === 0) ? '' : `
                     <button class="top-btn" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="Scroll back to sorting controls">
                         <span>↑</span> Top
@@ -604,7 +603,7 @@
                 `;
 
                 const contextButtonHtml = (!poem.backstory) ? '' : `
-                    <div class="bottom-control-group">
+                    <div class="bottom-control-group" style="padding: 0 40px 30px 40px;">
                         <button id="${contextBtnId}" class="context-btn" onclick="toggleContext('${drawerId}', this)">
                             <span>📖</span> Learn more
                         </button>
@@ -665,6 +664,10 @@
             searchQuery = '';
             
             isTypingSearch = false;
+            
+            // CRITICAL FIX: Instantly forces view window up to absolute top layout zero point on navigation button press
+            window.scrollTo(0, 0);
+            
             render();
         }
 
