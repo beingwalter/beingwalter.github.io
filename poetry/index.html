@@ -827,6 +827,7 @@
                     <div id="${drawerId}" class="context-block">${poem.backstory}</div>
                 `;
 
+                // DATA RE-MAPPING ENGINE: Evaluates keys strictly matching your capitalized Sheet column mapping definitions
                 const matchingComments = globalCommentsList.filter(c => c.poemTitle === poem.title);
                 matchingComments.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
 
@@ -918,7 +919,8 @@
             stopAutoScrollOnInteraction();
             
             currentMode = mode;
-            ['btn-all', 'btn-latest', 'btn-random'].forEach(id => document.getElementById(id).classList.remove('active');
+            // FIXED SYNTAX: Missing closing loop parameter explicitly re-appended here
+            ['btn-all', 'btn-latest', 'btn-random'].forEach(id => document.getElementById(id).classList.remove('active'));
             document.getElementById(`btn-${mode}`).classList.add('active');
             
             document.getElementById('search-box').value = '';
