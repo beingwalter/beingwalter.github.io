@@ -281,7 +281,7 @@
             learn: false,
             source: false
         };
-        let activeSourceSubFilter = 'any'; // Options: 'any', 'temple', 'seeker'
+        let activeSourceSubFilter = 'any'; 
         let currentSort = { field: 'date', direction: 'desc' };
 
         const COMMENTS_DATABASE_URL = "https://script.google.com/macros/s/AKfycby81aAVsgaf0uieandQPBvUj8uStY6SFhCmDQDJRi_qYnI6dNvfK1pYefyDTfkt_vLXHA/exec";
@@ -290,7 +290,6 @@
             return title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/[\s-]+/g, '-').trim();
         }
 
-        // Parallel data ingest fetches textual blocks and spreadsheet metadata side-by-side
         async function initializeDashboard() {
             try {
                 let commentsData = [];
@@ -301,7 +300,8 @@
                     console.log("Database connection deferred.");
                 }
 
-                const response = await fetch('--poem-list.txt');
+                // SECURE PATH CORRECTION: Swapped to local relative pathways to naturally bypass subdomain CORS rules
+                const response = await fetch('./poetry/--poem-list.txt');
                 if (!response.ok) throw new Error("Poem layout configuration file unreachable.");
                 const rawText = await response.text();
                 
@@ -316,10 +316,8 @@
                     let sourceMetadataRow = rawLines[1].trim();
                     const title = rawLines[2].trim();
 
-                    // Strip centering logic flag seamlessly
                     sourceMetadataRow = sourceMetadataRow.replace(/[-\s,]*centered[-\s,]*/i, '').trim();
 
-                    // Clean string extraction securely isolates your two published book targets
                     let detectedSource = "Unpublished";
                     if (sourceMetadataRow.toLowerCase().includes("temple of silence")) {
                         detectedSource = "The Temple of Silence";
@@ -345,13 +343,13 @@
                         slug: cleanSlug(title),
                         hasLearnMore: hasLearnMore,
                         commentCount: matchComments.length,
-                        hasAudio: true // Default assumed true until background initialization checks catch an asset error downstream
+                        hasAudio: true 
                     };
                 }).filter(p => p !== null);
 
-                // Run down checking the actual availability of the MP3 tracks dynamically
+                // SECURE PATH CORRECTION: Swapped to local relative audio lookup tracks
                 for (let poem of rawPoemsList) {
-                    poem.hasAudio = await verifyAudioTrack(`${poem.slug}.mp3`);
+                    poem.hasAudio = await verifyAudioTrack(`./poetry/${poem.slug}.mp3`);
                 }
 
                 applyPipeline();
@@ -371,7 +369,6 @@
                 audio.addEventListener('canplaythrough', () => resolve(true), { once: true });
                 audio.addEventListener('error', () => resolve(false), { once: true });
                 
-                // Absolute short circuit keeps loading processing immediate
                 setTimeout(() => resolve(false), 250);
             });
         }
@@ -382,7 +379,6 @@
             
             document.getElementById(`filter-${filterType}`).classList.toggle('active', activeFilters[filterType]);
             
-            // Toggle sub-panel for published work filters
             const subPanel = document.getElementById('source-sub-panel');
             if (filterType === 'source') {
                 subPanel.style.display = activeFilters.source ? 'flex' : 'none';
@@ -428,11 +424,9 @@
             applyPipeline();
         }
 
-        // COMPREHENSIVE PIPELINE ENGINE: Computes dynamic multi-layered filters and sorting vectors instantly
         function applyPipeline() {
             let processed = [...rawPoemsList];
 
-            // 1. Evaluate cross-layered boolean checks
             if (activeFilters.audio) processed = processed.filter(p => p.hasAudio);
             if (activeFilters.comments) processed = processed.filter(p => p.commentCount > 0);
             if (activeFilters.learn) processed = processed.filter(p => p.hasLearnMore);
@@ -447,7 +441,6 @@
                 }
             }
 
-            // 2. Compute targeted directional sorting parameters
             if (currentSort.field === 'date') {
                 processed.sort((a, b) => {
                     return currentSort.direction === 'desc' 
