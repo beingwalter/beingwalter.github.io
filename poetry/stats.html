@@ -3,358 +3,552 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Poetry Collection Dashboard</title>
+    <title>Walter's nondual poetry</title>
     <style>
         body {
             background-color: #12161a;
             color: #e2e8f0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            line-height: 1.5;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Georgia, serif;
+            line-height: 1.8;
             margin: 0;
-            padding: 40px 20px;
-        }
-
-        .dashboard-container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .header-row {
+            padding: 0 20px 40px 20px; 
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-            gap: 15px;
+        }
+
+        /* MAIN NAVIGATION BAR (STICKY) */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100; 
+            width: 100%;
+            max-width: 600px;
+            padding-top: 40px;
+            padding-bottom: 20px;
+            background-color: #12161a; 
+            text-align: center;
         }
 
         h1 {
             font-weight: 300;
-            font-size: 2rem;
-            color: #f8fafc;
-            margin: 0;
-            letter-spacing: 0.5px;
-        }
-
-        /* REPOSITIONED PRINT BUTTON STYLE (DOCKING TOP RIGHT) */
-        .btn-print {
-            background-color: #0369a1;
-            border-color: #0284c7;
-            color: #f8fafc;
-            padding: 8px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.88rem;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-print:hover {
-            background-color: #0284c7;
-            border-color: #0ea5e9;
-        }
-
-        /* REPOSITIONED METRIC COUNTER BADGE (DOCKING INSIDE CONTROLS ACTION ROW) */
-        .live-counter {
-            background-color: rgba(56, 189, 248, 0.1);
-            border: 1px solid rgba(56, 189, 248, 0.2);
-            color: #38bdf8;
-            padding: 7px 16px;
-            border-radius: 20px;
-            font-size: 0.88rem;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-        }
-
-        /* CONTROLS SECTION */
-        .controls-panel {
-            background-color: #1e252b;
-            border: 1px solid #2d3742;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-        }
-
-        .section-label {
-            font-size: 0.8rem;
-            text-transform: uppercase;
+            font-size: 1.8rem;
             letter-spacing: 1px;
-            color: #64748b;
-            margin-bottom: 10px;
-            font-weight: 600;
+            color: #f8fafc;
+            margin-top: 0;
+            margin-bottom: 25px;
         }
 
-        .filter-group, .sort-group {
+        /* Navigation Controls Container */
+        .nav-controls {
+            margin-bottom: 20px;
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
-            margin-bottom: 20px;
+            justify-content: center;
+            align-items: center;
         }
 
-        .sort-group {
-            margin-bottom: 0;
-        }
-
-        .btn {
-            background-color: #12161a;
+        .nav-btn {
+            background-color: #1e252b;
             color: #cbd5e1;
             border: 1px solid #334155;
-            padding: 8px 16px;
+            padding: 8px 18px;
             border-radius: 20px;
             cursor: pointer;
-            font-size: 0.88rem;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
         }
 
-        .btn:hover {
-            border-color: #475569;
-            color: #f8fafc;
-        }
-
-        .btn.active {
+        .nav-btn:hover, .nav-btn.active {
             background-color: #334155;
             color: #f8fafc;
             border-color: #475569;
         }
 
-        .btn.btn-no-audio.active {
-            background-color: #7f1d1d;
-            border-color: #f87171;
-            color: #fca5a5;
+        /* DYNAMIC FLASH ANIMATION */
+        .nav-btn.flash-active {
+            animation: buttonFlash 0.6s ease-in-out 3; 
         }
 
-        /* SOURCE SUB-TOGGLES */
-        .source-sub-panel {
-            display: none;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: -10px;
-            margin-bottom: 20px;
-            padding: 12px;
-            background-color: rgba(18, 22, 26, 0.4);
-            border-radius: 8px;
-            border-left: 3px solid #334155;
+        @keyframes buttonFlash {
+            0%, 100% {
+                background-color: #334155;
+                color: #f8fafc;
+                border-color: #475569;
+            }
+            50% {
+                background-color: #475569;
+                color: #ffffff;
+                border-color: #64748b;
+                transform: scale(1.04); 
+            }
         }
 
-        /* DATA TABLE Styling */
-        .table-wrapper {
-            background-color: #1e252b;
-            border: 1px solid #2d3742;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 0.92rem;
-        }
-
-        th {
-            background-color: rgba(18, 22, 26, 0.6);
-            color: #94a3b8;
-            font-weight: 500;
-            text-transform: uppercase;
-            font-size: 0.78rem;
-            letter-spacing: 0.5px;
-            padding: 14px 20px;
-            border-bottom: 1px solid #2d3742;
-        }
-
-        td {
-            padding: 14px 20px;
-            border-bottom: 1px solid #2d3742;
+        /* WELCOME BUBBLE LAYOUT */
+        .toast-overlay {
+            display: block;
+            margin: 0 auto 15px auto; 
+            background-color: rgba(30, 37, 43, 0.98);
             color: #cbd5e1;
+            border: 1px solid #334155;
+            padding: 6px 20px;
+            border-radius: 30px;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 0.88rem;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            max-width: fit-content;
+            text-align: center;
+            opacity: 0;
+            height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-bottom: 0;
+            overflow: hidden;
+            pointer-events: none;
+            transition: opacity 0.4s ease, margin 0.4s ease, padding 0.4s ease, height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        tr:last-child td {
-            border-bottom: none;
+        .toast-overlay.visible {
+            opacity: 1;
+            height: 20px; 
+            padding: 6px 20px;
+            margin-bottom: 15px;
         }
 
-        tr:hover td {
-            background-color: rgba(51, 65, 85, 0.15);
-        }
-
-        /* LIVE EXTERNAL LINKS SYSTEM STYLING */
-        .poem-dashboard-link {
-            color: #f1f5f9;
+        /* Diminutive Home Button Styling */
+        .home-btn {
+            background-color: #1e252b;
+            border: 1px solid #334155;
+            padding: 7px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
             text-decoration: none;
-            font-weight: 500;
-            transition: color 0.15s ease;
-            display: inline-block;
         }
 
-        .poem-dashboard-link:hover {
-            color: #38bdf8;
-            text-decoration: underline;
+        .home-btn:hover {
+            background-color: #334155;
+            border-color: #475569;
         }
 
-        .status-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
+        /* Search Bar Styling */
+        .search-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 5px auto;
+        }
+
+        .search-input {
+            width: 100%;
+            background-color: #1e252b;
+            color: #f1f5f9;
+            border: 1px solid #334155;
+            padding: 10px 16px;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: #64748b;
+        }
+
+        .search-input::placeholder {
+            color: #475569;
+        }
+
+        main {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            margin-top: 15px; 
+        }
+
+        .poem-card {
+            position: relative;
+            background-color: #1e252b;
+            padding: 0; 
+            border-radius: 12px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            border: 1px solid #2d3742;
+            opacity: 1;
+            transition: border-color 0.3s;
+        }
+
+        .poem-card.audio-tracking {
+            border-color: #334155;
+        }
+
+        /* DYNAMIC INNER-CARD STICKY POEM HEADER */
+        .poem-header {
+            position: sticky;
+            top: 150px; 
+            z-index: 10;
+            background-color: #1e252b; 
+            padding: 24px 40px 16px 40px;
+            border-top-left-radius: 11px;  
+            border-top-right-radius: 11px;
+            border-bottom: 1px solid #2d3742;
+            margin: 0;
+        }
+
+        /* Handles the fade-in exclusively when changing button filters */
+        .animate-presence {
+            animation: emergePresence 0.6s cubic-bezier(0.215, 0.610, 0.355, 1.000) forwards;
+            opacity: 0; 
+        }
+
+        @keyframes emergePresence {
+            0% {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Centered Poem Title */
+        h2 {
+            font-weight: 400;
+            font-size: 1.6rem;
+            margin: 0 0 12px 0;
+            color: #f1f5f9;
+            text-align: center;
+        }
+
+        /* Sub-Header Metadata Row */
+        .poem-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 0.82rem;
+            color: #64748b;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             letter-spacing: 0.5px;
         }
 
-        .badge-yes { background-color: rgba(16, 185, 129, 0.15); color: #34d399; }
-        .badge-no { background-color: rgba(239, 68, 68, 0.15); color: #f87171; }
-        
-        .source-text {
-            font-size: 0.88rem;
+        .control-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
         }
-        .source-unpublished { color: #64748b; font-style: italic; }
-        .source-published { color: #38bdf8; }
 
-        .summary-bar {
-            margin-top: 15px;
-            font-size: 0.85rem;
-            color: #64748b;
+        /* OPTIMIZED BOTTOM CONTAINER */
+        .bottom-control-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 5px; 
+            justify-content: flex-start;
+        }
+
+        .meta-details {
+            text-transform: uppercase;
             text-align: right;
         }
 
-        /* NATIVE PDF PRINT ENGINE OVERRIDES */
-        @media print {
+        /* Poem Content Block Layout */
+        .poem-text {
+            font-size: 1.1rem;
+            white-space: pre-line;
+            color: #cbd5e1;
+            margin-top: 0 !important;
+            padding: 30px 40px 15px 40px; 
+            margin-bottom: 0;
+            letter-spacing: 0.5px;
+            text-align: left;
+        }
+
+        .poem-text.centered-body {
+            text-align: center;
+        }
+
+        /* Context Block Style for Backstories and Explanations */
+        .context-block {
+            display: none; 
+            margin: 0 40px 20px 40px;
+            padding-top: 20px;
+            border-top: 1px dashed #334155;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #94a3b8;
+            letter-spacing: 0.3px;
+            animation: expandDrawer 0.4s ease-out forwards;
+        }
+
+        /* INLINE COMMENT COMPONENT STYLING */
+        .comment-drawer {
+            display: none;
+            margin: 0 40px 20px 40px;
+            padding-top: 20px;
+            border-top: 1px dashed #334155;
+            animation: expandDrawer 0.4s ease-out forwards;
+        }
+
+        .comment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .comment-textarea {
+            width: 100%;
+            background-color: #12161a;
+            color: #f1f5f9;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            resize: vertical;
+            outline: none;
+        }
+
+        .comment-row-fields {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .comment-name-input {
+            background-color: #12161a;
+            color: #f1f5f9;
+            border: 1px solid #334155;
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            max-width: 200px;
+        }
+
+        .comment-submit-btn {
+            background-color: #334155;
+            color: #f8fafc;
+            border: 1px solid #475569;
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .comment-submit-btn:hover {
+            background-color: #475569;
+        }
+
+        /* SPACE-SAVING INLINE REFLECTION CONTAINER */
+        .comments-display-area {
+            display: none; 
+            margin: 0 40px 40px 40px;
+            padding-top: 15px;
+            border-top: 1px solid #2d3742;
+            flex-direction: column;
+            gap: 8px; 
+        }
+
+        .single-reflection {
+            background-color: rgba(18, 22, 26, 0.2);
+            padding: 6px 12px; 
+            border-radius: 6px;
+            border-left: 2px solid #2d3742;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 0.92rem;
+            color: #cbd5e1;
+            line-height: 1.5;
+            animation: expandDrawer 0.3s ease-out forwards;
+        }
+
+        /* Styled inline name badge */
+        .reflection-author-inline {
+            font-size: 0.8rem;
+            color: #64748b;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-right: 6px;
+        }
+
+        @keyframes expandDrawer {
+            0% { opacity: 0; transform: translateY(-5px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Shared Button Style for Minimal Controls */
+        .play-btn, .top-btn, .context-btn {
+            background-color: transparent;
+            color: #64748b;
+            border: 1px solid #334155;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+            text-decoration: none;
+        }
+
+        .play-btn:hover, .top-btn:hover, .context-btn:hover {
+            color: #cbd5e1;
+            border-color: #475569;
+        }
+
+        .play-btn.playing {
+            color: #38bdf8;
+            border-color: #0369a1;
+            background-color: #142430;
+        }
+
+        .context-btn.active-drawer {
+            color: #94a3b8;
+            border-color: #475569;
+            background-color: #1e252b;
+        }
+
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #475569;
+            letter-spacing: 0.5px;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 480px) {
             body {
-                background-color: #ffffff;
-                color: #000000;
-                padding: 0;
+                padding: 0 12px 25px 12px;
             }
-            .controls-panel, .summary-bar, .btn-print, script {
-                display: none !important;
+            header {
+                padding-top: 25px; 
+                padding-bottom: 15px;
             }
-            .table-wrapper {
-                border: none;
-                box-shadow: none;
+            .poem-header {
+                padding: 20px 20px 12px 20px;
             }
-            table {
-                font-size: 11pt;
+            .poem-text {
+                padding: 25px 20px 15px 20px;
+                font-size: clamp(0.95rem, 4vw, 1.1rem) !important;
+                line-height: 1.7;
             }
-            th {
-                background-color: #f1f5f9 !important;
-                color: #000000 !important;
-                border-bottom: 2px solid #000000;
+            .context-block, .comment-drawer, .comments-display-area {
+                margin-left: 20px;
+                margin-right: 20px;
             }
-            td {
-                color: #000000 !important;
-                border-bottom: 1px solid #cbd5e1;
-                padding: 10px 12px;
+            .comments-display-area {
+                margin-bottom: 25px;
             }
-            .poem-dashboard-link {
-                color: #000000 !important;
-                text-decoration: none !important;
+            h2 {
+                font-size: 1.4rem;
             }
-            .status-badge {
-                padding: 0;
-                background: none !important;
-                font-weight: normal;
-            }
-            .badge-yes { color: #000000 !important; }
-            .badge-no { color: #64748b !important; }
-            .source-unpublished { color: #64748b !important; }
-            .source-published { color: #000000 !important; font-weight: bold; }
         }
     </style>
 </head>
 <body>
 
-    <div class="dashboard-container">
-        <div class="header-row">
-            <h1>Poetry Collection Dashboard</h1>
-            <button class="btn-print" onclick="window.print()">
-                <span>🖨️</span> Print or Save PDF
-            </button>
+    <script>
+        window.addEventListener('error', function(e) {
+            const container = document.getElementById('poetry-container');
+            if (container) {
+                container.innerHTML = `<p style="color: #ef4444; padding: 20px; text-align: center; font-family: monospace;"><b>Diagnostic Alert:</b><br>${e.message}<br>Line: ${e.lineno}</p>`;
+            }
+        });
+    </script>
+
+    <header id="page-top">
+        <h1>Walter's nondual poetry</h1>
+        
+        <div class="nav-controls">
+            <button class="nav-btn" id="btn-latest" onclick="changeMode('latest')">Latest</button>
+            <button class="nav-btn" id="btn-all" onclick="changeMode('all')">A - Z</button>
+            <button class="nav-btn active flash-active" id="btn-random" onclick="changeMode('random')">Random</button>
+            <a href="../" class="home-btn" title="Return Home">🏠</a>
         </div>
 
-        <div class="controls-panel">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <div class="section-label" style="margin-bottom: 0;">Cross-Filters (Multiple Active Allowed)</div>
-                <div class="live-counter" id="top-counter-badge">Showing: -- / -- total</div>
-            </div>
-            
-            <div class="filter-group">
-                <button class="btn active" id="filter-all" onclick="resetFilters()">All Rows</button>
-                <button class="btn btn-no-audio" id="filter-audio" onclick="toggleFilter('noAudio')">No Audio</button>
-                <button class="btn" id="filter-comments" onclick="toggleFilter('comments')">Has Comments</button>
-                <button class="btn" id="filter-learn" onclick="toggleFilter('learn')">Has Learn More</button>
-                <button class="btn" id="filter-source" onclick="toggleFilter('source')">Is Published Book</button>
-            </div>
+        <div id="toast-message" class="toast-overlay">Welcome</div>
 
-            <div id="source-sub-panel" class="source-sub-panel">
-                <button class="btn active" id="src-any" onclick="setSourceSubFilter('any')">Any Book</button>
-                <button class="btn" id="src-temple" onclick="setSourceSubFilter('temple')">The Temple of Silence</button>
-                <button class="btn" id="src-seeker" onclick="setSourceSubFilter('seeker')">Take Heart, Seeker</button>
-            </div>
-
-            <div class="section-label">Sorting Engines</div>
-            <div class="sort-group">
-                <button class="btn active" id="sort-date-desc" onclick="setSort('date', 'desc')">Date (Newest)</button>
-                <button class="btn" id="sort-date-asc" onclick="setSort('date', 'asc')">Date (Oldest)</button>
-                <button class="btn" id="sort-title-asc" onclick="setSort('title', 'asc')">Title (A - Z)</button>
-            </div>
+        <div class="search-container">
+            <input type="text" id="search-box" class="search-input" placeholder="Search titles..." oninput="handleSearch()">
         </div>
+    </header>
 
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Audio</th>
-                        <th>Source</th>
-                        <th>Date</th>
-                        <th>Comments</th>
-                        <th>Learn More</th>
-                    </tr>
-                </thead>
-                <tbody id="dashboard-rows">
-                    <tr>
-                        <td colspan="6" style="text-align: center; color: #64748b; font-style: italic; padding: 40px;">
-                            Reading configuration array...
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="summary-bar" id="summary-text"></div>
-    </div>
+    <main id="poetry-container">
+        <p style="text-align: center; color: #64748b; font-style: italic;">Gathering verses...</p>
+    </main>
+
+    <footer>
+        <p>Contents © Walter Cecchini</p>
+    </footer>
 
     <script>
         let allPoems = [];
         let globalCommentsList = []; 
-        let activeFilters = {
-            noAudio: false,
-            comments: false,
-            learn: false,
-            source: false
-        };
-        let activeSourceSubFilter = 'any'; 
-        let currentSort = { field: 'date', direction: 'desc' };
+        let currentMode = 'random'; 
+        let searchQuery = '';
+        let currentlyPlayingAudio = null;
+        let currentlyPlayingButton = null;
+        let isTypingSearch = false;
+        
+        let isAutoScrollingActive = false;
+        let activeCardElement = null;
 
         const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycby81aAVsgaf0uieandQPBvUj8uStY6SFhCmDQDJRi_qYnI6dNvfK1pYefyDTfkt_vLXHA/exec";
+
+        function updateStickyPositions() {
+            const mainHeader = document.getElementById('page-top');
+            if (!mainHeader) return;
+            
+            const headerHeight = mainHeader.offsetHeight;
+            
+            const cardHeaders = document.querySelectorAll('.poem-header');
+            cardHeaders.forEach(header => {
+                header.style.top = `${headerHeight}px`;
+            });
+        }
 
         function cleanSlug(title) {
             return title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/[\s-]+/g, '-').trim();
         }
 
-        async function initializeDashboard() {
+        function parseSortDate(dateStr) {
+            const d = new Date(dateStr);
+            return isNaN(d.getTime()) ? "2026-01-01" : d.toISOString().split('T')[0];
+        }
+
+        function parseHumanDate(dateStr) {
+            const parts = dateStr.replace(',', '').split(' ');
+            if (parts.length >= 3) {
+                return `${parts[0].substring(0, 3)} ${parts[2]}`;
+            }
+            return dateStr;
+        }
+
+        async function loadPoetryData() {
             try {
-                let commentsData = [];
-                try {
-                    const comResponse = await fetch(DATABASE_API_URL);
-                    if (comResponse.ok) commentsData = await comResponse.json();
-                } catch (e) {
-                    console.log("Database connection deferred.");
-                }
+                fetchCommentsDatabase();
 
                 const response = await fetch('--poem-list.txt');
                 if (!response.ok) throw new Error("Poem layout configuration file unreachable.");
@@ -368,197 +562,481 @@
                     if (rawLines.length < 3) return null;
 
                     const dateRaw = rawLines[0].trim();
-                    let sourceMetadataRow = rawLines[1].trim();
+                    let locationRaw = rawLines[1].trim();
                     const title = rawLines[2].trim();
-
-                    sourceMetadataRow = sourceMetadataRow.replace(/[-\s,]*centered[-\s,]*/i, '').trim();
-
-                    let detectedSource = "Unpublished";
-                    if (sourceMetadataRow.toLowerCase().includes("temple of silence")) {
-                        detectedSource = "The Temple of Silence";
-                    } else if (sourceMetadataRow.toLowerCase().includes("take heart")) {
-                        detectedSource = "Take Heart, Seeker";
+                    
+                    let isCentered = false;
+                    if (locationRaw.toLowerCase().includes('centered')) {
+                        isCentered = true;
+                        locationRaw = locationRaw
+                            .replace(/[-\s,]*centered[-\s,]*/i, '')
+                            .replace(/^,+|,+$/g, '')
+                            .trim();
                     }
 
                     let bodyLines = rawLines.slice(3);
                     while (bodyLines.length > 0 && bodyLines[bodyLines.length - 1].trim() === "") bodyLines.pop();
                     const combinedRawText = bodyLines.join('\n').trimStart();
                     
-                    const hasLearnMore = combinedRawText.includes('===');
-                    const matchComments = Array.isArray(commentsData) ? commentsData.filter(c => c.poemTitle === title) : [];
-
-                    const d = new Date(dateRaw);
-                    const safeISOString = isNaN(d.getTime()) ? "2026-01-01" : d.toISOString().split('T')[0];
+                    let mainPoemText = combinedRawText;
+                    let backstoryText = "";
+                    
+                    if (combinedRawText.includes('===')) {
+                        const parts = combinedRawText.split(/===+/);
+                        mainPoemText = parts[0].trimEnd();
+                        backstoryText = parts[1].trim();
+                    }
 
                     return {
                         title: title,
-                        source: detectedSource,
-                        sortDate: safeISOString,
-                        displayDate: dateRaw,
+                        location: locationRaw,
+                        isCentered: isCentered,
+                        displayDate: parseHumanDate(dateRaw),
+                        sortDate: parseSortDate(dateRaw),
                         slug: cleanSlug(title),
-                        hasLearnMore: hasLearnMore,
-                        commentCount: matchComments.length,
-                        hasAudio: true 
+                        text: mainPoemText,
+                        backstory: backstoryText
                     };
                 }).filter(p => p !== null);
 
-                for (let poem of allPoems) {
-                    poem.hasAudio = await verifyAudioTrack(`${poem.slug}.mp3`);
+                const searchBox = document.getElementById('search-box');
+                if (searchBox && allPoems.length > 0) {
+                    searchBox.placeholder = `Search ${allPoems.length} titles...`;
                 }
 
-                applyPipeline();
+                isTypingSearch = false;
+                render();
+                
+                // INLINE SLIDE ACTIVATION TRIGGER
+                const toast = document.getElementById('toast-message');
+                if (toast) {
+                    toast.innerText = "Welcome";
+                    setTimeout(() => {
+                        toast.classList.add('visible');
+                        updateStickyPositions();
+                    }, 400);
+
+                    setTimeout(() => {
+                        toast.classList.remove('visible');
+                        setTimeout(updateStickyPositions, 450); 
+                    }, 2600);
+                }
+
+                // URL CATCH ENGINE: Listens for incoming focus links arriving from stats dashboard
+                const urlParams = new URLSearchParams(window.location.search);
+                const searchParam = urlParams.get('search');
+                if (searchParam) {
+                    if (searchBox) {
+                        searchBox.value = decodeURIComponent(searchParam);
+                        handleSearch();
+                    }
+                }
+
+                // RESET FLASH UTILITY RULE
+                setTimeout(() => {
+                    const randBtn = document.getElementById('btn-random');
+                    if (randBtn) randBtn.classList.remove('flash-active');
+                }, 2000);
 
             } catch (err) {
-                document.getElementById('dashboard-rows').innerHTML = 
-                    `<tr><td colspan="6" style="text-align: center; color: #f87171; font-style: italic; padding: 40px;">Pipeline Interrupted: ${err.message}</td></tr>`;
+                document.getElementById('poetry-container').innerHTML = 
+                    `<p style="text-align: center; color: #64748b; font-style: italic;">The collection is resting at the moment.</p>`;
             }
         }
 
-        function verifyAudioTrack(url) {
-            return new Promise((resolve) => {
-                const audio = new Audio();
-                audio.src = url;
-                audio.preload = "auto";
+        async function fetchCommentsDatabase() {
+            try {
+                const res = await fetch(DATABASE_API_URL);
+                if (!res.ok) return;
+                const data = await res.json();
                 
-                audio.addEventListener('canplaythrough', () => resolve(true), { once: true });
-                audio.addEventListener('error', () => resolve(false), { once: true });
-                
-                setTimeout(() => resolve(false), 250);
+                if (Array.isArray(data)) {
+                    globalCommentsList = data;
+                    
+                    const allStacks = document.querySelectorAll('.comments-display-area');
+                    allStacks.forEach(stackEl => {
+                        const poemTitle = stackEl.getAttribute('data-poem-title');
+                        const matchingComments = globalCommentsList.filter(c => c.poemTitle === poemTitle);
+                        
+                        if (matchingComments.length > 0) {
+                            matchingComments.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+                            
+                            let reflectionsHtmlBlock = '';
+                            matchingComments.forEach(c => {
+                                const safeName = c.name ? c.name.toString().toUpperCase() : "ANONYMOUS";
+                                reflectionsHtmlBlock += `
+                                    <div class="single-reflection">
+                                        <span class="reflection-author-inline">${safeName} —</span>${c.comment}
+                                    </div>
+                                `;
+                            });
+                            stackEl.innerHTML = reflectionsHtmlBlock;
+                            stackEl.style.display = 'flex'; 
+                        }
+                    });
+                }
+            } catch (err) {
+                console.log("Database bridge connection optimized.");
+            }
+        }
+
+        function handleSearch() {
+            isTypingSearch = true;
+            searchQuery = document.getElementById('search-box').value.toLowerCase().trim();
+            render();
+        }
+
+        function handleAudioTimeUpdate(audioElement) {
+            if (!isAutoScrollingActive || !activeCardElement || !audioElement.duration) return;
+
+            const cardRect = activeCardElement.getBoundingClientRect();
+            const bodyElement = activeCardElement.querySelector('.poem-text');
+            const bodyHeight = bodyElement ? bodyElement.offsetHeight : cardRect.height;
+            
+            const progress = audioElement.currentTime / audioElement.duration;
+            const mainHeader = document.getElementById('page-top');
+            const headerOffset = mainHeader ? mainHeader.offsetHeight + 20 : 180; 
+
+            const currentScrollTop = window.scrollY || document.documentElement.scrollTop;
+            const cardAbsoluteTop = cardRect.top + currentScrollTop;
+            
+            const targetScrollPosition = cardAbsoluteTop - headerOffset + (bodyHeight * progress * 0.70);
+
+            window.scrollTo({
+                top: targetScrollPosition,
+                behavior: 'smooth'
             });
         }
 
-        function toggleFilter(filterType) {
-            document.getElementById('filter-all').classList.remove('active');
-            activeFilters[filterType] = !activeFilters[filterType];
+        function stopAutoScrollOnInteraction() {
+            if (isAutoScrollingActive) {
+                isAutoScrollingActive = false;
+                if (activeCardElement) {
+                    activeCardElement.classList.remove('audio-tracking');
+                }
+            }
+        }
+
+        window.addEventListener('wheel', stopAutoScrollOnInteraction);
+        window.addEventListener('touchmove', stopAutoScrollOnInteraction);
+        window.addEventListener('mousedown', stopAutoScrollOnInteraction);
+
+        function toggleAudio(audioId, btnElement, cardIndex) {
+            if (btnElement.innerText.trim() === 'No audio') return;
+
+            const audio = document.getElementById(audioId);
+            const card = document.getElementById(`card-${cardIndex}`);
             
-            const targetId = filterType === 'noAudio' ? 'filter-audio' : `filter-${filterType}`;
-            document.getElementById(targetId).classList.toggle('active', activeFilters[filterType]);
-            
-            const subPanel = document.getElementById('source-sub-panel');
-            if (filterType === 'source') {
-                subPanel.style.display = activeFilters.source ? 'flex' : 'none';
+            if (currentlyPlayingAudio && currentlyPlayingAudio !== audio) {
+                currentlyPlayingAudio.pause();
+                currentlyPlayingAudio.currentTime = 0;
+                currentlyPlayingAudio.ontimeupdate = null;
+                if (currentlyPlayingButton) {
+                    currentlyPlayingButton.classList.remove('playing');
+                    currentlyPlayingButton.innerHTML = `<span>▶</span> Play`;
+                }
+                stopAutoScrollOnInteraction();
             }
 
-            applyPipeline();
+            if (audio.paused) {
+                activeCardElement = card;
+                isAutoScrollingActive = true;
+                card.classList.add('audio-tracking');
+
+                const mainHeader = document.getElementById('page-top');
+                const headerOffset = mainHeader ? mainHeader.offsetHeight + 20 : 180;
+                const targetInitialTop = card.getBoundingClientRect().top + (window.scrollY || document.documentElement.scrollTop) - headerOffset;
+                window.scrollTo({ top: targetInitialTop, behavior: 'smooth' });
+
+                audio.play().catch(err => { console.log("Playback safely managed."); });
+                btnElement.classList.add('playing');
+                btnElement.innerHTML = `<span>⏸</span> Pause`;
+                currentlyPlayingAudio = audio;
+                currentlyPlayingButton = btnElement;
+                
+                audio.ontimeupdate = () => handleAudioTimeUpdate(audio);
+                
+                audio.onended = () => {
+                    btnElement.classList.remove('playing');
+                    btnElement.innerHTML = `<span>▶</span> Play`;
+                    audio.ontimeupdate = null;
+                    stopAutoScrollOnInteraction();
+                    currentlyPlayingAudio = null;
+                    currentlyPlayingButton = null;
+                };
+            } else {
+                audio.pause();
+                btnElement.classList.remove('playing');
+                btnElement.innerHTML = `<span>▶</span> Play`;
+                stopAutoScrollOnInteraction();
+                currentlyPlayingAudio = null;
+                currentlyPlayingButton = null;
+            }
         }
 
-        function setSourceSubFilter(type) {
-            activeSourceSubFilter = type;
-            ['src-any', 'src-temple', 'src-seeker'].forEach(id => document.getElementById(id).classList.remove('active'));
-            
-            if (type === 'any') document.getElementById('src-any').classList.add('active');
-            if (type === 'temple') document.getElementById('src-temple').classList.add('active');
-            if (type === 'seeker') document.getElementById('src-seeker').classList.add('active');
-            
-            applyPipeline();
+        function toggleContext(drawerId, btnElement) {
+            const drawer = document.getElementById(drawerId);
+            if (drawer.style.display === 'block') {
+                drawer.style.display = 'none';
+                btnElement.classList.remove('active-drawer');
+                btnElement.innerHTML = `<span>📖</span> Learn more`;
+            } else {
+                drawer.style.display = 'block';
+                btnElement.classList.add('active-drawer');
+                btnElement.innerHTML = `<span>📕</span> Close context`;
+                
+                setTimeout(() => {
+                    drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 80);
+            }
         }
 
-        function resetFilters() {
-            activeFilters = { noAudio: false, comments: false, learn: false, source: false };
-            activeSourceSubFilter = 'any';
-            
-            ['filter-audio', 'filter-comments', 'filter-learn', 'filter-source'].forEach(id => {
-                document.getElementById(id).classList.remove('active');
-            });
-            document.getElementById('source-sub-panel').style.display = 'none';
-            document.getElementById('filter-all').classList.add('active');
-            
-            applyPipeline();
+        function toggleCommentDrawer(drawerId, btnElement) {
+            const drawer = document.getElementById(drawerId);
+            if (drawer.style.display === 'block') {
+                drawer.style.display = 'none';
+                btnElement.classList.remove('active-drawer');
+                btnElement.innerHTML = `<span>💬</span> Comment`;
+            } else {
+                drawer.style.display = 'block';
+                btnElement.classList.add('active-drawer');
+                btnElement.innerHTML = `<span>❌</span> Cancel`;
+                
+                setTimeout(() => {
+                    drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 80);
+            }
         }
 
-        function setSort(field, direction) {
-            currentSort = { field: field, direction: direction };
-            ['sort-date-desc', 'sort-date-asc', 'sort-title-asc'].forEach(id => {
-                document.getElementById(id).classList.remove('active');
-            });
+        async function submitComment(event, poemTitle, stackId, drawerId, btnId) {
+            event.preventDefault(); 
             
-            if (field === 'date' && direction === 'desc') document.getElementById('sort-date-desc').classList.add('active');
-            if (field === 'date' && direction === 'asc') document.getElementById('sort-date-asc').classList.add('active');
-            if (field === 'title' && direction === 'asc') document.getElementById('sort-title-asc').classList.add('active');
+            const form = event.target;
+            const textarea = form.querySelector('textarea');
+            const nameInput = form.querySelector('input');
+            const submitBtn = form.querySelector('button');
             
-            applyPipeline();
+            const textContent = textarea.value.trim();
+            const authorName = nameInput.value.trim() || "Anonymous";
+            
+            if (!textContent) return;
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Sharing...";
+
+            const payload = {
+                poemTitle: poemTitle,
+                name: authorName,
+                comment: textContent
+            };
+
+            try {
+                await fetch(DATABASE_API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const displayArea = document.getElementById(stackId);
+                const newReflection = document.createElement('div');
+                newReflection.className = 'single-reflection';
+                
+                const safeName = authorName.toUpperCase();
+                newReflection.innerHTML = `
+                    <span class="reflection-author-inline">${safeName} —</span>${textContent}
+                `;
+                
+                displayArea.insertBefore(newReflection, displayArea.firstChild);
+                displayArea.style.display = 'flex';
+
+                textarea.value = "";
+                nameInput.value = "";
+                
+                document.getElementById(drawerId).style.display = 'none';
+                const commentBtn = document.getElementById(btnId);
+                if (commentBtn) {
+                    commentBtn.classList.remove('active-drawer');
+                    commentBtn.innerHTML = `<span>💬</span> Comment`;
+                }
+
+            } catch (err) {
+                alert("The comment framework is currently buffering. Please try again in a moment.");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Submit";
+            }
         }
 
-        function applyPipeline() {
-            let processed = [...allPoems];
-
-            if (activeFilters.noAudio) processed = processed.filter(p => !p.hasAudio);
-            if (activeFilters.comments) processed = processed.filter(p => p.commentCount > 0);
-            if (activeFilters.learn) processed = processed.filter(p => p.hasLearnMore);
+        function render() {
+            const container = document.getElementById('poetry-container');
+            container.innerHTML = "";
             
-            if (activeFilters.source) {
-                if (activeSourceSubFilter === 'any') {
-                    processed = processed.filter(p => p.source !== "Unpublished");
-                } else if (activeSourceSubFilter === 'temple') {
-                    processed = processed.filter(p => p.source === "The Temple of Silence");
-                } else if (activeSourceSubFilter === 'seeker') {
-                    processed = processed.filter(p => p.source === "Take Heart, Seeker");
+            let displayList = allPoems.filter(poem => poem.title.toLowerCase().includes(searchQuery));
+
+            if (currentMode === 'all') {
+                displayList.sort((a, b) => a.title.localeCompare(b.title));
+            } else if (currentMode === 'latest') {
+                displayList.sort((a, b) => b.sortDate.localeCompare(a.sortDate));
+            } else if (currentMode === 'random') {
+                if (searchQuery === '' && displayList.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * displayList.length);
+                    displayList = [displayList[randomIndex]];
                 }
             }
 
-            if (currentSort.field === 'date') {
-                processed.sort((a, b) => {
-                    return currentSort.direction === 'desc' 
-                        ? b.sortDate.localeCompare(a.sortDate)
-                        : a.sortDate.localeCompare(b.sortDate);
-                });
-            } else if (currentSort.field === 'title') {
-                processed.sort((a, b) => a.title.localeCompare(b.title));
-            }
-
-            renderDashboard(processed);
-        }
-
-        function renderDashboard(dataset) {
-            const tbody = document.getElementById('dashboard-rows');
-            tbody.innerHTML = "";
-
-            const counterText = `Showing: ${dataset.length} / ${allPoems.length} total`;
-            document.getElementById('top-counter-badge').innerText = counterText;
-
-            if (dataset.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b; font-style: italic; padding: 30px;">No registered poems match the selected cross-filter matrix criteria.</td></tr>`;
-                document.getElementById('summary-text').innerText = `Showing 0 of ${allPoems.length} total metrics`;
+            if (displayList.length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: #64748b; font-style: italic; margin-top: 20px;">No titles match your search.</p>`;
                 return;
             }
 
-            dataset.forEach(poem => {
-                const tr = document.createElement('tr');
+            displayList.forEach((poem, index) => {
+                const card = document.createElement('div');
+                card.id = `card-${index}`; 
                 
-                const audioBadge = poem.hasAudio 
-                    ? `<span class="status-badge badge-yes">YES</span>` 
-                    : `<span class="status-badge badge-no">NO</span>`;
-                    
-                const learnBadge = poem.hasLearnMore 
-                    ? `<span class="status-badge badge-yes">YES</span>` 
-                    : `<span class="status-badge badge-no">NO</span>`;
+                if (!isTypingSearch) {
+                    card.className = 'poem-card animate-presence';
+                } else {
+                    card.className = 'poem-card';
+                }
 
-                const sourceClass = poem.source === "Unpublished" ? "source-text source-unpublished" : "source-text source-published";
-                
-                // LIVE LINKS INTEGRATION: Encodes titles to programmatically pass exact focus targets to the main index logic in a new tab
-                const linkTargetUrl = `./index.html?search=${encodeURIComponent(poem.title.toLowerCase())}`;
+                let metaText = poem.displayDate;
+                if (poem.location) {
+                    metaText = `${poem.location}  •  ${poem.displayDate}`;
+                }
 
-                tr.innerHTML = `
-                    <td>
-                        <a href="${linkTargetUrl}" target="_blank" class="poem-dashboard-link" title="Open this poem isolated in a new window">
-                            ${poem.title}
-                        </a>
-                    </td>
-                    <td>${audioBadge}</td>
-                    <td class="${sourceClass}">${poem.source}</td>
-                    <td style="font-family: monospace; font-size: 0.85rem;">${poem.displayDate}</td>
-                    <td style="font-weight: ${poem.commentCount > 0 ? 'bold' : 'normal'}; color: ${poem.commentCount > 0 ? '#38bdf8' : '#64748b'};">
-                        ${poem.commentCount}
-                    </td>
-                    <td>${learnBadge}</td>
+                const audioId = `audio-${index}`;
+                const btnId = `btn-${index}`;
+                const drawerId = `drawer-${index}`;
+                const commentDrawerId = `comment-drawer-${index}`;
+                const commentBtnId = `comment-btn-${index}`;
+                const stackId = `stack-${index}`;
+                const contextBtnId = `ctx-btn-${index}`;
+                const audioUrl = `${poem.slug}.mp3`;
+
+                const alignmentClass = poem.isCentered ? 'poem-text centered-body' : 'poem-text';
+
+                const topButtonHtml = (index === 0) ? '' : `
+                    <button class="top-btn" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="Scroll back to sorting controls">
+                        <span>↑</span> Top
+                    </button>
                 `;
-                tbody.appendChild(tr);
+
+                const contextButtonHtml = (!poem.backstory) ? '' : `
+                    <button id="${contextBtnId}" class="context-btn" onclick="toggleContext('${drawerId}', this)">
+                        <span>📖</span> Learn more
+                    </button>
+                `;
+
+                const contextBlockHtml = (!poem.backstory) ? '' : `
+                    <div id="${drawerId}" class="context-block">${poem.backstory}</div>
+                `;
+
+                const matchingComments = globalCommentsList.filter(c => c.poemTitle === poem.title);
+                matchingComments.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+                let reflectionsHtmlBlock = '';
+                matchingComments.forEach(c => {
+                    const safeName = c.name ? c.name.toString().toUpperCase() : "ANONYMOUS";
+                    reflectionsHtmlBlock += `
+                        <div class="single-reflection">
+                            <span class="reflection-author-inline">${safeName} —</span>${c.comment}
+                        </div>
+                    `;
+                });
+
+                const safeEscapedTitle = poem.title.replace(/'/g, "\\'");
+                const htmlAttributeTitle = poem.title.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+                card.innerHTML = `
+                    <div class="poem-header">
+                        <h2>${poem.title}</h2>
+                        <div class="poem-meta">
+                            <div class="control-group">
+                                <button id="${btnId}" class="play-btn" onclick="toggleAudio('${audioId}', this, ${index})">
+                                    <span>▶</span> Play
+                                </button>
+                                ${topButtonHtml}
+                            </div>
+                            <span class="meta-details">${metaText}</span>
+                        </div>
+                    </div>
+                    
+                    <p class="${alignmentClass}">${poem.text}</p>
+                    
+                    <div class="bottom-control-group" style="padding: 0 40px 15px 40px;">
+                        ${contextButtonHtml}
+                        <button id="${commentBtnId}" class="context-btn" onclick="toggleCommentDrawer('${commentDrawerId}', this)">
+                            <span>💬</span> Comment
+                        </button>
+                    </div>
+
+                    ${contextBlockHtml}
+
+                    <div id="${commentDrawerId}" class="comment-drawer">
+                        <form class="comment-form" onsubmit="submitComment(event, '${safeEscapedTitle}', '${stackId}', '${commentDrawerId}', '${commentBtnId}')">
+                            <textarea class="comment-textarea" placeholder="Share a short reflection (max 100 chars)..." rows="2" maxlength="100" required></textarea>
+                            <div class="comment-row-fields">
+                                <input type="text" class="comment-name-input" placeholder="— Your Name (Max 15)" maxlength="15">
+                                <button type="submit" class="comment-submit-btn">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div id="${stackId}" class="comments-display-area" data-poem-title="${htmlAttributeTitle}" style="${matchingComments.length === 0 ? 'display:none;' : 'display:flex;'}">
+                        ${reflectionsHtmlBlock}
+                    </div>
+
+                    <audio id="${audioId}" preload="auto" style="display:none;">
+                        <source src="${audioUrl}" type="audio/mp3">
+                    </audio>
+                `;
+                container.appendChild(card);
+                
+                const currentStack = document.getElementById(stackId);
+                const observer = new MutationObserver(() => {
+                    if (currentStack.children.length > 0) {
+                        currentStack.style.display = 'flex';
+                    }
+                });
+                observer.observe(currentStack, { childList: true });
+
+                const audioEl = document.getElementById(audioId);
+                if (audioEl) {
+                    audioEl.addEventListener('error', () => {
+                        const targetBtn = document.getElementById(btnId);
+                        if (targetBtn) {
+                            targetBtn.innerHTML = `No audio`;
+                        }
+                    }, true);
+                }
             });
 
-            document.getElementById('summary-text').innerText = `Displaying ${dataset.length} of ${allPoems.length} metrics across the ledger`;
+            updateStickyPositions();
         }
 
-        window.addEventListener('DOMContentLoaded', initializeDashboard);
+        function changeMode(mode) {
+            if (currentlyPlayingAudio) {
+                currentlyPlayingAudio.pause();
+                currentlyPlayingAudio = null;
+                currentlyPlayingButton = null;
+            }
+            stopAutoScrollOnInteraction();
+            
+            currentMode = mode;
+            ['btn-all', 'btn-latest', 'btn-random'].forEach(id => document.getElementById(id).classList.remove('active'));
+            document.getElementById(`btn-${mode}`).classList.add('active');
+            
+            document.getElementById('search-box').value = '';
+            searchQuery = '';
+            isTypingSearch = false;
+            
+            window.scrollTo(0, 0);
+            render();
+        }
+
+        window.addEventListener('DOMContentLoaded', loadPoetryData);
+        window.addEventListener('resize', updateStickyPositions);
     </script>
 </body>
 </html>
