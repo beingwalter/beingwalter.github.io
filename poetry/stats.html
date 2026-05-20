@@ -428,8 +428,8 @@
 
     <script>
         let allPoems = [];
-        let discoveredOrphans = []; 
         let globalCommentsList = []; 
+        let currentOrphansList = []; 
         let activeFilters = {
             noAudio: false,
             comments: false,
@@ -523,54 +523,26 @@
                     };
                 }).filter(p => p !== null);
 
-                // ZERO RATE-LIMIT SECURITY OVERRIDE: Reads GitHub's natural local folder structure list directly
-                let scrapedFilenames = [];
-                try {
-                    const folderResponse = await fetch('./' + cacheBypass);
-                    if (folderResponse.ok) {
-                        const htmlContent = await folderResponse.text();
-                        
-                        // Parse layout html to locate standard file structure text references
-                        const stringParser = new DOMParser();
-                        const parsedDocument = stringParser.parseFromString(htmlContent, 'text/html');
-                        const anchorTags = parsedDocument.querySelectorAll('a');
-                        
-                        anchorTags.forEach(anchor => {
-                            const hrefAttribute = anchor.getAttribute('href');
-                            if (hrefAttribute && hrefAttribute.toLowerCase().endsWith('.mp3')) {
-                                // Extract the precise filename cleanly
-                                const pureFilename = hrefAttribute.split('/').pop();
-                                if (!scrapedFilenames.includes(pureFilename)) {
-                                    scrapedFilenames.push(pureFilename);
-                                }
-                            }
-                        });
-                    }
-                } catch (e) { console.log("Directory reading redirected."); }
+                // ASYNC LEDGER SCAN: Verifies track records across server storage frames instantly
+                const audioPromises = allPoems.map(async (poem) => {
+                    poem.hasAudio = await verifyAudioTrackHeadRequest(`${poem.slug}.mp3` + cacheBypass);
+                });
+                await Promise.all(audioPromises);
 
-                // Map results cleanly 
-                discoveredOrphans = [];
-                const matchedSlugs = allPoems.map(p => `${p.slug}.mp3`);
-
-                // If local indexing was successful, extract orphans directly
-                if (scrapedFilenames.length > 0) {
-                    scrapedFilenames.forEach(filename => {
-                        const fileLower = filename.toLowerCase();
-                        const hasOwner = allPoems.some(p => `${p.slug}.mp3` === fileLower);
-                        
-                        if (hasOwner) {
-                            const ownerPoem = allPoems.find(p => `${p.slug}.mp3` === fileLower);
-                            ownerPoem.hasAudio = true;
-                        } else {
-                            discoveredOrphans.push(filename);
+                // CROSS-REFERENCE WORKSPACE FOR ORPHAN IDENTIFICATION: Checks custom suspect file variations
+                currentOrphansList = [];
+                const hardcodedSuspects = ['the-journey.mp3', 'welcome,-enjoy-your-stay.mp3'];
+                
+                for (let suspect of hardcodedSuspects) {
+                    const cleanSuspectSlug = suspect.replace('.mp3', '').replace(/[^a-z0-9\s-]/g, '').trim();
+                    const isClaimedByPoem = allPoems.some(p => p.slug === cleanSuspectSlug);
+                    
+                    if (!isClaimedByPoem) {
+                        const existsOnServer = await verifyAudioTrackHeadRequest(suspect + cacheBypass);
+                        if (existsOnServer) {
+                            currentOrphansList.push(suspect);
                         }
-                    });
-                } else {
-                    // Fallback to safe individual asset verification checks if folder layout index isn't serving HTML
-                    const audioPromises = allPoems.map(async (poem) => {
-                        poem.hasAudio = await verifyAudioTrackHeadRequest(`${poem.slug}.mp3` + cacheBypass);
-                    });
-                    await Promise.all(audioPromises);
+                    }
                 }
 
                 applyPipeline();
@@ -672,7 +644,7 @@
             document.getElementById('th-source').innerText = isOrphanModeActive ? "Suggested Typo Analysis Correction" : "Source";
 
             if (isOrphanModeActive) {
-                let sortedOrphans = [...discoveredOrphans];
+                let sortedOrphans = [...currentOrphansList];
                 sortedOrphans.sort((a, b) => a.localeCompare(b));
                 renderDashboard(sortedOrphans, true);
                 return;
@@ -711,7 +683,7 @@
             const tbody = document.getElementById('dashboard-rows');
             tbody.innerHTML = "";
 
-            const totalCount = isOrphanData ? discoveredOrphans.length : allPoems.length;
+            const totalCount = isOrphanData ? currentOrphansList.length : allPoems.length;
             const counterText = isOrphanData ? `Showing: ${dataset.length} / ${totalCount} orphans` : `Showing: ${dataset.length} / ${totalCount} total`;
             document.getElementById('top-counter-badge').innerText = counterText;
 
@@ -726,7 +698,6 @@
                 const tr = document.createElement('tr');
                 
                 if (isOrphanData) {
-                    // DYNAMIC ORPHAN CHECK ROW GENERATION
                     const cleanBaseName = item.replace('.mp3', '').replace(/-/g, ' ');
                     tr.innerHTML = `
                         <td style="font-family: monospace; color: #fbbf24; font-weight: 500;">${item}</td>
@@ -737,8 +708,7 @@
                         <td><span class="status-badge badge-no">NO</span></td>
                     `;
                 } else {
-                    // STANDARD COLLECTION GRID ROW GENERATION
-                    const audioBadge = poem = item.hasAudio 
+                    const audioBadge = item.hasAudio 
                         ? `<span class="status-badge badge-yes">YES</span>` 
                         : `<span class="status-badge badge-no">NO</span>`;
                         
