@@ -85,28 +85,31 @@
             }
         }
 
-        /* MINIMALIST MOMENTARY OVERLAY (TOAST NOTIFICATION) */
+        /* THEME-ALIGNED TOAST OVERLAY CONTAINER */
         .toast-overlay {
             position: fixed;
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%) translateY(10px);
-            background-color: rgba(30, 37, 43, 0.95);
+            background-color: rgba(30, 37, 43, 0.98);
             color: #cbd5e1;
             border: 1px solid #334155;
-            padding: 10px 22px;
+            padding: 12px 24px;
             border-radius: 30px;
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             font-size: 0.88rem;
+            line-height: 1.4;
             letter-spacing: 0.5px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
             z-index: 1000;
             opacity: 0;
             pointer-events: none;
+            max-width: 90%;
+            width: max-content;
+            text-align: center;
             transition: opacity 0.4s ease, transform 0.4s ease;
         }
 
-        /* Active styling rule invoked fluidly by background timers */
         .toast-overlay.visible {
             opacity: 1;
             transform: translateX(-50%) translateY(0);
@@ -473,7 +476,7 @@
         });
     </script>
 
-    <div id="toast-message" class="toast-overlay">A random verse has appeared</div>
+    <div id="toast-message" class="toast-overlay"></div>
 
     <header id="page-top">
         <h1>Walter's nondual poetry</h1>
@@ -612,19 +615,23 @@
                 isTypingSearch = false;
                 render();
                 
-                // OVERLAY INITIALIZATION EFFECT: Smoothly slide and fade the overlay into view on page load
-                setTimeout(() => {
-                    const toast = document.getElementById('toast-message');
-                    if (toast) toast.classList.add('visible');
-                }, 400); // 400ms micro-delay gives the structural layout cards a chance to assemble first
+                // DYNAMIC TEXT INJECTION RULES: Construct the custom universe overlay string
+                const toast = document.getElementById('toast-message');
+                if (toast && allPoems.length > 0) {
+                    toast.innerText = `The universe serves you this random poem... There are currently ${allPoems.length} poems available for your enjoyment.`;
+                    
+                    // Trigger fade-in layout slide
+                    setTimeout(() => {
+                        toast.classList.add('visible');
+                    }, 400);
 
-                // AUTOMATED OVERLAY DISSOLVE TIMER
-                setTimeout(() => {
-                    const toast = document.getElementById('toast-message');
-                    if (toast) toast.classList.remove('visible');
-                }, 2600); // Overlay completely melts away after sitting cleanly for 2.2 seconds
+                    // Trigger automatic dissolve sequence
+                    setTimeout(() => {
+                        toast.classList.remove('visible');
+                    }, 4500); // Sitting clearly for 4 seconds gives readers time to absorb the longer text footprint smoothly
+                }
 
-                // BUTTON ANIMATION RECOVERY
+                // RESET FLASH UTILITY RULE
                 setTimeout(() => {
                     const randBtn = document.getElementById('btn-random');
                     if (randBtn) randBtn.classList.remove('flash-active');
@@ -1017,7 +1024,7 @@
             
             currentMode = mode;
             ['btn-all', 'btn-latest', 'btn-random'].forEach(id => document.getElementById(id).classList.remove('active'));
-            document.getElementById Levant = document.getElementById(`btn-${mode}`).classList.add('active');
+            document.getElementById(`btn-${mode}`).classList.add('active');
             
             document.getElementById('search-box').value = '';
             searchQuery = '';
