@@ -36,16 +36,37 @@
             letter-spacing: 0.5px;
         }
 
-        /* LIVE METRIC COUNTER BADGE */
+        /* REPOSITIONED PRINT BUTTON STYLE (DOCKING TOP RIGHT) */
+        .btn-print {
+            background-color: #0369a1;
+            border-color: #0284c7;
+            color: #f8fafc;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.88rem;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-print:hover {
+            background-color: #0284c7;
+            border-color: #0ea5e9;
+        }
+
+        /* REPOSITIONED METRIC COUNTER BADGE (DOCKING INSIDE CONTROLS ACTION ROW) */
         .live-counter {
             background-color: rgba(56, 189, 248, 0.1);
             border: 1px solid rgba(56, 189, 248, 0.2);
             color: #38bdf8;
-            padding: 6px 16px;
+            padding: 7px 16px;
             border-radius: 20px;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             font-weight: 500;
             letter-spacing: 0.5px;
+            white-space: nowrap;
         }
 
         /* CONTROLS SECTION */
@@ -103,23 +124,10 @@
             border-color: #475569;
         }
 
-        /* Custom Alert Theme Color for Recording Target Tasks */
         .btn.btn-no-audio.active {
             background-color: #7f1d1d;
             border-color: #f87171;
             color: #fca5a5;
-        }
-
-        .btn-print {
-            background-color: #0369a1;
-            border-color: #0284c7;
-            color: #f8fafc;
-            margin-left: auto;
-        }
-
-        .btn-print:hover {
-            background-color: #0284c7;
-            border-color: #0ea5e9;
         }
 
         /* SOURCE SUB-TOGGLES */
@@ -176,6 +184,20 @@
             background-color: rgba(51, 65, 85, 0.15);
         }
 
+        /* LIVE EXTERNAL LINKS SYSTEM STYLING */
+        .poem-dashboard-link {
+            color: #f1f5f9;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.15s ease;
+            display: inline-block;
+        }
+
+        .poem-dashboard-link:hover {
+            color: #38bdf8;
+            text-decoration: underline;
+        }
+
         .status-badge {
             display: inline-block;
             padding: 2px 8px;
@@ -208,7 +230,7 @@
                 color: #000000;
                 padding: 0;
             }
-            .controls-panel, .summary-bar, .live-counter, script {
+            .controls-panel, .summary-bar, .btn-print, script {
                 display: none !important;
             }
             .table-wrapper {
@@ -228,6 +250,10 @@
                 border-bottom: 1px solid #cbd5e1;
                 padding: 10px 12px;
             }
+            .poem-dashboard-link {
+                color: #000000 !important;
+                text-decoration: none !important;
+            }
             .status-badge {
                 padding: 0;
                 background: none !important;
@@ -245,11 +271,17 @@
     <div class="dashboard-container">
         <div class="header-row">
             <h1>Poetry Collection Dashboard</h1>
-            <div class="live-counter" id="top-counter-badge">Showing: -- / -- total</div>
+            <button class="btn-print" onclick="window.print()">
+                <span>🖨️</span> Print or Save PDF
+            </button>
         </div>
 
         <div class="controls-panel">
-            <div class="section-label">Cross-Filters (Multiple Active Allowed)</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div class="section-label" style="margin-bottom: 0;">Cross-Filters (Multiple Active Allowed)</div>
+                <div class="live-counter" id="top-counter-badge">Showing: -- / -- total</div>
+            </div>
+            
             <div class="filter-group">
                 <button class="btn active" id="filter-all" onclick="resetFilters()">All Rows</button>
                 <button class="btn btn-no-audio" id="filter-audio" onclick="toggleFilter('noAudio')">No Audio</button>
@@ -264,19 +296,11 @@
                 <button class="btn" id="src-seeker" onclick="setSourceSubFilter('seeker')">Take Heart, Seeker</button>
             </div>
 
-            <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 20px;">
-                <div>
-                    <div class="section-label">Sorting Engines</div>
-                    <div class="sort-group">
-                        <button class="btn active" id="sort-date-desc" onclick="setSort('date', 'desc')">Date (Newest)</button>
-                        <button class="btn" id="sort-date-asc" onclick="setSort('date', 'asc')">Date (Oldest)</button>
-                        <button class="btn" id="sort-title-asc" onclick="setSort('title', 'asc')">Title (A - Z)</button>
-                    </div>
-                </div>
-                
-                <button class="btn btn-print" onclick="window.print()">
-                    <span>🖨️</span> Print or Save PDF
-                </button>
+            <div class="section-label">Sorting Engines</div>
+            <div class="sort-group">
+                <button class="btn active" id="sort-date-desc" onclick="setSort('date', 'desc')">Date (Newest)</button>
+                <button class="btn" id="sort-date-asc" onclick="setSort('date', 'asc')">Date (Oldest)</button>
+                <button class="btn" id="sort-title-asc" onclick="setSort('title', 'asc')">Title (A - Z)</button>
             </div>
         </div>
 
@@ -407,7 +431,6 @@
             document.getElementById('filter-all').classList.remove('active');
             activeFilters[filterType] = !activeFilters[filterType];
             
-            // Handles structural link mapping for custom audio class tags
             const targetId = filterType === 'noAudio' ? 'filter-audio' : `filter-${filterType}`;
             document.getElementById(targetId).classList.toggle('active', activeFilters[filterType]);
             
@@ -459,7 +482,6 @@
         function applyPipeline() {
             let processed = [...allPoems];
 
-            // INVERTED CORE COMPUTE RULE: Isolate targets missing audio assets smoothly
             if (activeFilters.noAudio) processed = processed.filter(p => !p.hasAudio);
             if (activeFilters.comments) processed = processed.filter(p => p.commentCount > 0);
             if (activeFilters.learn) processed = processed.filter(p => p.hasLearnMore);
@@ -491,7 +513,6 @@
             const tbody = document.getElementById('dashboard-rows');
             tbody.innerHTML = "";
 
-            // Dynamic Counter Badge text generation syncs completely based on dataset pipeline array metrics
             const counterText = `Showing: ${dataset.length} / ${allPoems.length} total`;
             document.getElementById('top-counter-badge').innerText = counterText;
 
@@ -513,9 +534,16 @@
                     : `<span class="status-badge badge-no">NO</span>`;
 
                 const sourceClass = poem.source === "Unpublished" ? "source-text source-unpublished" : "source-text source-published";
+                
+                // LIVE LINKS INTEGRATION: Encodes titles to programmatically pass exact focus targets to the main index logic in a new tab
+                const linkTargetUrl = `./index.html?search=${encodeURIComponent(poem.title.toLowerCase())}`;
 
                 tr.innerHTML = `
-                    <td style="font-weight: 500; color: #f1f5f9;">${poem.title}</td>
+                    <td>
+                        <a href="${linkTargetUrl}" target="_blank" class="poem-dashboard-link" title="Open this poem isolated in a new window">
+                            ${poem.title}
+                        </a>
+                    </td>
                     <td>${audioBadge}</td>
                     <td class="${sourceClass}">${poem.source}</td>
                     <td style="font-family: monospace; font-size: 0.85rem;">${poem.displayDate}</td>
