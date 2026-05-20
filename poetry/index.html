@@ -85,10 +85,10 @@
             }
         }
 
-        /* REPOSITIONED WELCOME BUBBLE LAYOUT Style overrides position mechanics to dock beautifully inside header rows */
+        /* WELCOME BUBBLE LAYOUT */
         .toast-overlay {
             display: block;
-            margin: 0 auto 15px auto; /* Centers bubble and gives clean breathing space above search bar */
+            margin: 0 auto 15px auto; 
             background-color: rgba(30, 37, 43, 0.98);
             color: #cbd5e1;
             border: 1px solid #334155;
@@ -110,10 +110,9 @@
             transition: opacity 0.4s ease, margin 0.4s ease, padding 0.4s ease, height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        /* Wakes the node up space-accurately right inside the header flow stack */
         .toast-overlay.visible {
             opacity: 1;
-            height: 20px; /* Locks uniform structural volume footprint */
+            height: 20px; 
             padding: 6px 20px;
             margin-bottom: 15px;
         }
@@ -552,18 +551,14 @@
                 fetchCommentsDatabase();
 
                 const response = await fetch('--poem-list.txt');
-                if (!response.ok) throw new Error("File not found");
+                if (!response.ok) throw new Error("Poem layout configuration file unreachable.");
                 const rawText = await response.text();
                 
                 const rawBlocks = rawText.split(/-----+/);
                 
                 allPoems = rawBlocks.map(block => {
                     const rawLines = block.split(/\r?\n/);
-                    
-                    while (rawLines.length > 0 && rawLines[0].trim() === "") {
-                        rawLines.shift();
-                    }
-
+                    while (rawLines.length > 0 && rawLines[0].trim() === "") rawLines.shift();
                     if (rawLines.length < 3) return null;
 
                     const dateRaw = rawLines[0].trim();
@@ -580,13 +575,7 @@
                     }
 
                     let bodyLines = rawLines.slice(3);
-                    
-                    while (bodyLines.length > 0 && bodyLines[bodyLines.length - 1].trim() === "") {
-                        bodyLines.pop();
-                    }
-                    
-                    if (!dateRaw || !title) return null;
-
+                    while (bodyLines.length > 0 && bodyLines[bodyLines.length - 1].trim() === "") bodyLines.pop();
                     const combinedRawText = bodyLines.join('\n').trimStart();
                     
                     let mainPoemText = combinedRawText;
@@ -621,19 +610,26 @@
                 // INLINE SLIDE ACTIVATION TRIGGER
                 const toast = document.getElementById('toast-message');
                 if (toast) {
-                    // Force the static text to read "Welcome" cleanly
                     toast.innerText = "Welcome";
-                    
                     setTimeout(() => {
                         toast.classList.add('visible');
-                        updateStickyPositions(); // Instantly recalculated card tracking anchors to accommodate expansion
+                        updateStickyPositions();
                     }, 400);
 
                     setTimeout(() => {
                         toast.classList.remove('visible');
-                        // Tiny delay waits for the height collapse transition to clear out before sticky boundaries drop back down
                         setTimeout(updateStickyPositions, 450); 
-                    }, 2600); // Sits beautifully for 2.2 seconds before dissolving
+                    }, 2600);
+                }
+
+                // URL CATCH ENGINE: Listens for incoming focus links arriving from stats dashboard
+                const urlParams = new URLSearchParams(window.location.search);
+                const searchParam = urlParams.get('search');
+                if (searchParam) {
+                    if (searchBox) {
+                        searchBox.value = decodeURIComponent(searchParam);
+                        handleSearch();
+                    }
                 }
 
                 // RESET FLASH UTILITY RULE
