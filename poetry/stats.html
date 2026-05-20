@@ -188,11 +188,39 @@
             color: #fca5a5;
         }
 
-        /* ORPHAN ALERT ACTIVE FILTER STYLE BUTTON COLOR */
         .btn.btn-orphan.active {
             background-color: #d97706;
             border-color: #fbbf24;
             color: #fef3c7;
+        }
+
+        /* OPTIMIZED ORPHAN INPUT DRAWER STYLE */
+        .orphan-search-drawer {
+            display: none;
+            background-color: rgba(18, 22, 26, 0.4);
+            border-radius: 8px;
+            border-left: 3px solid #d97706;
+            padding: 15px;
+            margin-top: -10px;
+            margin-bottom: 20px;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .orphan-input {
+            background-color: #12161a;
+            color: #f1f5f9;
+            border: 1px solid #334155;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            outline: none;
+            min-width: 280px;
+        }
+
+        .orphan-input:focus {
+            border-color: #fbbf24;
         }
 
         /* SOURCE SUB-TOGGLES */
@@ -274,13 +302,14 @@
         .badge-yes { background-color: rgba(16, 185, 129, 0.15); color: #34d399; }
         .badge-no { background-color: rgba(239, 68, 68, 0.15); color: #f87171; }
         .badge-orphan { background-color: rgba(217, 119, 6, 0.2); color: #fbbf24; }
+        .badge-linked { background-color: rgba(16, 185, 129, 0.2); color: #34d399; }
         
         .source-text {
             font-size: 0.88rem;
         }
         .source-unpublished { color: #64748b; font-style: italic; }
         .source-published { color: #38bdf8; }
-        .source-orphan-note { color: #eab308; font-family: monospace; font-size: 0.82rem; }
+        .source-orphan-note { color: #eab308; font-size: 0.88rem; }
 
         .summary-bar {
             margin-top: 15px;
@@ -299,7 +328,7 @@
                 color: #000000 !important;
                 padding: 0;
             }
-            .controls-panel, .summary-bar, .action-group, .dashboard-nav-links, script {
+            .controls-panel, .summary-bar, .action-group, .dashboard-nav-links, .orphan-search-drawer, script {
                 display: none !important;
             }
             h1 {
@@ -344,6 +373,7 @@
             .badge-yes { color: #16a34a !important; font-weight: bold; }
             .badge-no { color: #dc2626 !important; font-weight: bold; }
             .badge-orphan { color: #b45309 !important; font-weight: bold; }
+            .badge-linked { color: #16a34a !important; font-weight: bold; }
             .source-text { font-size: 9pt; }
             .source-unpublished { color: #64748b !important; font-style: italic !important; }
             .source-published { color: #0284c7 !important; font-weight: bold !important; }
@@ -386,7 +416,13 @@
                 <button class="btn" id="filter-comments" onclick="toggleFilter('comments')">Has Comments</button>
                 <button class="btn" id="filter-learn" onclick="toggleFilter('learn')">Has Learn More</button>
                 <button class="btn" id="filter-source" onclick="toggleFilter('source')">Is Published Book</button>
-                <button class="btn btn-orphan" id="filter-orphan" onclick="toggleOrphanMode()">Orphan MP3</button>
+                <button class="btn btn-orphan" id="filter-orphan" onclick="toggleOrphanMode()">Orphan MP3 Tester</button>
+            </div>
+
+            <div id="orphan-drawer" class="orphan-search-drawer">
+                <span style="color: #fbbf24; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Test Audio File:</span>
+                <input type="text" id="orphan-input-field" class="orphan-input" placeholder="e.g., the-journey.mp3" oninput="runOrphanVerificationTest()">
+                <span style="color: #64748b; font-size: 0.85rem; font-style: italic;">Checks instantly if this filename is unlinked.</span>
             </div>
 
             <div id="source-sub-panel" class="source-sub-panel">
@@ -429,7 +465,6 @@
 
     <script>
         let allPoems = [];
-        let totalOrphansList = []; 
         let globalCommentsList = []; 
         let activeFilters = {
             noAudio: false,
@@ -442,8 +477,6 @@
         let currentSort = { field: 'date', direction: 'desc' };
         let isRefreshingCurrently = false;
 
-        // DYNAMIC ACCESS REPOSITORY CREDENTIAL CONFIGURATION FOR YOUR REPO
-        const GITHUB_REPO_API_URL = "https://api.github.com/repos/beingwalter/poetry/contents/poetry";
         const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycby81aAVsgaf0uieandQPBvUj8uStY6SFhCmDQDJRi_qYnI6dNvfK1pYefyDTfkt_vLXHA/exec";
 
         function cleanSlug(title) {
@@ -526,47 +559,12 @@
                     };
                 }).filter(p => p !== null);
 
-                // DIRECT GITHUB API DIRECTORY INTERROGATOR MODULE
-                let serverFilesList = [];
-                try {
-                    const githubRes = await fetch(GITHUB_REPO_API_URL, { cache: "no-store" });
-                    if (githubRes.ok) {
-                        serverFilesList = await githubRes.json();
-                    }
-                } catch(e) { console.log("Directory parsing skipped."); }
-
-                // Map matched audios instantly using official server directory ledger
-                const validRegisteredSlugs = allPoems.map(p => `${p.slug}.mp3`);
-                totalOrphansList = [];
-
-                if (Array.isArray(serverFilesList)) {
-                    serverFilesList.forEach(file => {
-                        if (file.name.toLowerCase().endsWith('.mp3')) {
-                            const fileNameLower = file.name.toLowerCase();
-                            
-                            // Check if this MP3 matches a poem slug
-                            const hasMatch = allPoems.some(p => `${p.slug}.mp3` === fileNameLower);
-                            if (hasMatch) {
-                                const matchingPoem = allPoems.find(p => `${p.slug}.mp3` === fileNameLower);
-                                matchingPoem.hasAudio = true;
-                            } else {
-                                // Add track to our isolated orphan list array ledger
-                                totalOrphansList.push({
-                                    fileName: file.name,
-                                    sortDate: "2000-01-01",
-                                    displayDate: "Unknown"
-                                });
-                            }
-                        }
-                    });
-                } else {
-                    // Fallback to rapid individual HEAD requests if API query encounters a burst rate limit
-                    const audioPromises = allPoems.map(async (poem) => {
-                        poem.hasAudio = await verifyAudioTrackFallback(`${poem.slug}.mp3` + cacheBypass);
-                    });
-                    await Promise.all(audioPromises);
-                }
-
+                // AIRTIGHT PARALLEL SCAN: Pings standard server HEAD requests with zero rate limits
+                const audioPromises = allPoems.map(async (poem) => {
+                    poem.hasAudio = await verifyAudioTrackHeadRequest(`${poem.slug}.mp3` + cacheBypass);
+                });
+                
+                await Promise.all(audioPromises);
                 applyPipeline();
 
             } catch (err) {
@@ -575,18 +573,20 @@
             }
         }
 
-        async function verifyAudioTrackFallback(url) {
+        async function verifyAudioTrackHeadRequest(url) {
             try {
                 const response = await fetch(url, { method: 'HEAD' });
                 return response.ok;
-            } catch (e) { return false; }
+            } catch (e) {
+                return false; 
+            }
         }
 
-        // ORPHAN COMPUTE MODE TRIGGER SWITCH
+        // UNLIMITED ORPHAN TESTING INTERFACE LOGIC
         function toggleOrphanMode() {
             isOrphanModeActive = !isOrphanModeActive;
+            const drawer = document.getElementById('orphan-drawer');
             
-            // Short circuit reset standard cross filters when jumping into orphan analysis
             if (isOrphanModeActive) {
                 activeFilters = { noAudio: false, comments: false, learn: false, source: false };
                 ['filter-audio', 'filter-comments', 'filter-learn', 'filter-source'].forEach(id => {
@@ -595,17 +595,25 @@
                 document.getElementById('source-sub-panel').style.display = 'none';
                 document.getElementById('filter-all').classList.remove('active');
                 document.getElementById('filter-orphan').classList.add('active');
+                drawer.style.display = 'flex';
+                document.getElementById('orphan-input-field').value = '';
             } else {
                 document.getElementById('filter-orphan').classList.remove('active');
                 document.getElementById('filter-all').classList.add('active');
+                drawer.style.display = 'none';
             }
             
+            applyPipeline();
+        }
+
+        function runOrphanVerificationTest() {
             applyPipeline();
         }
 
         function toggleFilter(filterType) {
             isOrphanModeActive = false;
             document.getElementById('filter-orphan').classList.remove('active');
+            document.getElementById('orphan-drawer').style.display = 'none';
             document.getElementById('filter-all').classList.remove('active');
             
             activeFilters[filterType] = !activeFilters[filterType];
@@ -645,6 +653,7 @@
                 document.getElementById(id).classList.remove('active');
             });
             document.getElementById('source-sub-panel').style.display = 'none';
+            document.getElementById('orphan-drawer').style.display = 'none';
             document.getElementById('filter-all').classList.add('active');
             
             applyPipeline();
@@ -664,16 +673,11 @@
         }
 
         function applyPipeline() {
-            // Update table headers fluidly based on active mode context
-            document.getElementById('th-title').innerText = isOrphanModeActive ? "Unlinked MP3 Filename" : "Title";
-            document.getElementById('th-source').innerText = isOrphanModeActive ? "Expected Text Target Note" : "Source";
+            document.getElementById('th-title').innerText = isOrphanModeActive ? "Audio Target Evaluated" : "Title";
+            document.getElementById('th-source').innerText = isOrphanModeActive ? "System Verification Analysis Status" : "Source";
 
             if (isOrphanModeActive) {
-                let processedOrphans = [...totalOrphansList];
-                if (currentSort.field === 'title') {
-                    processedOrphans.sort((a, b) => a.fileName.localeCompare(b.fileName));
-                }
-                renderDashboard(processedOrphans, true);
+                renderOrphanTestingRow();
                 return;
             }
 
@@ -703,72 +707,98 @@
                 processed.sort((a, b) => a.title.localeCompare(b.title));
             }
 
-            renderDashboard(processed, false);
+            renderDashboard(processed);
         }
 
-        function renderDashboard(dataset, isOrphanData = false) {
+        // ORPHAN CALCULATION MATRIX ENGINE: Instantly maps your tested inputs against active text configurations
+        function renderOrphanTestingRow() {
             const tbody = document.getElementById('dashboard-rows');
+            const inputVal = document.getElementById('orphan-input-field').value.trim().toLowerCase();
             tbody.innerHTML = "";
 
-            const totalDisplayCount = isOrphanData ? totalOrphansList.length : allPoems.length;
-            const counterText = isOrphanData ? `Showing: ${dataset.length} / ${totalDisplayCount} orphans` : `Showing: ${dataset.length} / ${totalDisplayCount} total`;
-            document.getElementById('top-counter-badge').innerText = counterText;
-
-            if (dataset.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b; font-style: italic; padding: 30px;">Clear ledger. No orphan tracks detected on server.</td></tr>`;
-                document.getElementById('summary-text').innerText = "Showing 0 metrics";
+            if (!inputVal) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b; font-style: italic; padding: 30px;">Type a filename above (e.g., the-journey.mp3) to verify its link status.</td></tr>`;
+                document.getElementById('top-counter-badge').innerText = "Orphan Tester Ready";
+                document.getElementById('summary-text').innerText = "Awaiting manual text testing input parameters.";
                 return;
             }
 
-            dataset.forEach(item => {
+            const cleanInputName = inputVal.replace('.mp3', '');
+            
+            // Query the array to see if any poem slug matches this name
+            const matchingPoem = allPoems.find(p => p.slug === cleanInputName);
+            
+            document.getElementById('top-counter-badge').innerText = "Analysis Complete";
+
+            if (matchingPoem) {
+                document.getElementById('summary-text').innerText = `"${inputVal}" is NOT an orphan. It is cleanly claimed by your poem card.`;
+                tbody.innerHTML = `
+                    <td style="font-family: monospace; color: #34d399; font-weight: 500;">${inputVal}</td>
+                    <td><span class="status-badge badge-linked">LINKED</span></td>
+                    <td style="color: #cbd5e1;">Claimed by Active Verse: <b>"${matchingPoem.title}"</b></td>
+                    <td style="font-family: monospace; font-size: 0.85rem;">${matchingPoem.displayDate}</td>
+                    <td style="color: #64748b;">—</td>
+                    <td><span class="status-badge badge-yes">YES</span></td>
+                `;
+            } else {
+                document.getElementById('summary-text').innerText = `"${inputVal}" IS AN ORPHAN. No active poem title matches this text string.`;
+                const expectedTextTarget = cleanInputName.replace(/-/g, ' ');
+                tbody.innerHTML = `
+                    <td style="font-family: monospace; color: #fbbf24; font-weight: 500;">${inputVal}</td>
+                    <td><span class="status-badge badge-orphan">ORPHAN</span></td>
+                    <td class="source-orphan-note">⚠️ Unlinked file. To connect it, make a poem titled: <b>"${expectedTextTarget}"</b></td>
+                    <td style="color: #475569;">—</td>
+                    <td style="color: #475569;">—</td>
+                    <td><span class="status-badge badge-no">NO</span></td>
+                `;
+            }
+        }
+
+        function renderDashboard(dataset) {
+            const tbody = document.getElementById('dashboard-rows');
+            tbody.innerHTML = "";
+
+            const counterText = `Showing: ${dataset.length} / ${allPoems.length} total`;
+            document.getElementById('top-counter-badge').innerText = counterText;
+
+            if (dataset.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b; font-style: italic; padding: 30px;">No registered poems match the selected cross-filter matrix criteria.</td></tr>`;
+                document.getElementById('summary-text').innerText = `Showing 0 of ${allPoems.length} total metrics`;
+                return;
+            }
+
+            dataset.forEach(poem => {
                 const tr = document.createElement('tr');
                 
-                if (isOrphanData) {
-                    // ORPHAN MATRIX RENDER ROW: Translates raw file naming frameworks into helpful notes
-                    const expectedTextTarget = item.fileName.replace('.mp3', '').replace(/-/g, ' ');
+                const audioBadge = poem.hasAudio 
+                    ? `<span class="status-badge badge-yes">YES</span>` 
+                    : `<span class="status-badge badge-no">NO</span>`;
                     
-                    tr.innerHTML = `
-                        <td style="font-family: monospace; color: #fbbf24; font-weight: 500;">${item.fileName}</td>
-                        <td><span class="status-badge badge-orphan">ORPHAN</span></td>
-                        <td class="source-orphan-note">Wants title like: "${expectedTextTarget}"</td>
-                        <td style="color: #475569; font-size: 0.85rem;">—</td>
-                        <td style="color: #475569;">—</td>
-                        <td><span class="status-badge badge-no">NO</span></td>
-                    `;
-                } else {
-                    // STANDARD DASHBOARD RENDER ROW
-                    const audioBadge = item.hasAudio 
-                        ? `<span class="status-badge badge-yes">YES</span>` 
-                        : `<span class="status-badge badge-no">NO</span>`;
-                        
-                    const learnBadge = item.hasLearnMore 
-                        ? `<span class="status-badge badge-yes">YES</span>` 
-                        : `<span class="status-badge badge-no">NO</span>`;
+                const learnBadge = poem.hasLearnMore 
+                    ? `<span class="status-badge badge-yes">YES</span>` 
+                    : `<span class="status-badge badge-no">NO</span>`;
 
-                    const sourceClass = item.source === "Unpublished" ? "source-text source-unpublished" : "source-text source-published";
-                    const linkTargetUrl = `./index.html?search=${encodeURIComponent(item.title.toLowerCase())}`;
+                const sourceClass = poem.source === "Unpublished" ? "source-text source-unpublished" : "source-text source-published";
+                const linkTargetUrl = `./index.html?search=${encodeURIComponent(poem.title.toLowerCase())}`;
 
-                    tr.innerHTML = `
-                        <td>
-                            <a href="${linkTargetUrl}" target="_blank" class="poem-dashboard-link" title="Open this poem isolated in a new window">
-                                ${item.title}
-                            </a>
-                        </td>
-                        <td>${audioBadge}</td>
-                        <td class="${sourceClass}">${item.source}</td>
-                        <td style="font-family: monospace; font-size: 0.85rem;">${item.displayDate}</td>
-                        <td style="font-weight: ${item.commentCount > 0 ? 'bold' : 'normal'}; color: ${item.commentCount > 0 ? '#38bdf8' : '#64748b'};">
-                            ${item.commentCount}
-                        </td>
-                        <td>${learnBadge}</td>
-                    `;
-                }
+                tr.innerHTML = `
+                    <td>
+                        <a href="${linkTargetUrl}" target="_blank" class="poem-dashboard-link" title="Open this poem isolated in a new window">
+                            ${poem.title}
+                        </a>
+                    </td>
+                    <td>${audioBadge}</td>
+                    <td class="${sourceClass}">${poem.source}</td>
+                    <td style="font-family: monospace; font-size: 0.85rem;">${poem.displayDate}</td>
+                    <td style="font-weight: ${poem.commentCount > 0 ? 'bold' : 'normal'}; color: ${poem.commentCount > 0 ? '#38bdf8' : '#64748b'};">
+                        ${poem.commentCount}
+                    </td>
+                    <td>${learnBadge}</td>
+                `;
                 tbody.appendChild(tr);
             });
 
-            document.getElementById('summary-text').innerText = isOrphanData 
-                ? `Isolating ${dataset.length} unlinked audio files across the repository directory`
-                : `Displaying ${dataset.length} of ${allPoems.length} metrics across the ledger`;
+            document.getElementById('summary-text').innerText = `Displaying ${dataset.length} of ${allPoems.length} metrics across the ledger`;
         }
 
         window.addEventListener('DOMContentLoaded', () => initializeDashboard());
