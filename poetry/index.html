@@ -85,34 +85,37 @@
             }
         }
 
-        /* THEME-ALIGNED TOAST OVERLAY CONTAINER */
+        /* REPOSITIONED WELCOME BUBBLE LAYOUT Style overrides position mechanics to dock beautifully inside header rows */
         .toast-overlay {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(10px);
+            display: block;
+            margin: 0 auto 15px auto; /* Centers bubble and gives clean breathing space above search bar */
             background-color: rgba(30, 37, 43, 0.98);
             color: #cbd5e1;
             border: 1px solid #334155;
-            padding: 12px 24px;
+            padding: 6px 20px;
             border-radius: 30px;
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             font-size: 0.88rem;
-            line-height: 1.4;
             letter-spacing: 0.5px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-            z-index: 1000;
-            opacity: 0;
-            pointer-events: none;
-            max-width: 90%;
-            width: max-content;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            max-width: fit-content;
             text-align: center;
-            transition: opacity 0.4s ease, transform 0.4s ease;
+            opacity: 0;
+            height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-bottom: 0;
+            overflow: hidden;
+            pointer-events: none;
+            transition: opacity 0.4s ease, margin 0.4s ease, padding 0.4s ease, height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
+        /* Wakes the node up space-accurately right inside the header flow stack */
         .toast-overlay.visible {
             opacity: 1;
-            transform: translateX(-50%) translateY(0);
+            height: 20px; /* Locks uniform structural volume footprint */
+            padding: 6px 20px;
+            margin-bottom: 15px;
         }
 
         /* Diminutive Home Button Styling */
@@ -476,8 +479,6 @@
         });
     </script>
 
-    <div id="toast-message" class="toast-overlay"></div>
-
     <header id="page-top">
         <h1>Walter's nondual poetry</h1>
         
@@ -487,6 +488,8 @@
             <button class="nav-btn active flash-active" id="btn-random" onclick="changeMode('random')">Random</button>
             <a href="../" class="home-btn" title="Return Home">🏠</a>
         </div>
+
+        <div id="toast-message" class="toast-overlay">Welcome</div>
 
         <div class="search-container">
             <input type="text" id="search-box" class="search-input" placeholder="Search titles..." oninput="handleSearch()">
@@ -615,20 +618,22 @@
                 isTypingSearch = false;
                 render();
                 
-                // DYNAMIC TEXT INJECTION RULES: Construct the custom universe overlay string
+                // INLINE SLIDE ACTIVATION TRIGGER
                 const toast = document.getElementById('toast-message');
-                if (toast && allPoems.length > 0) {
-                    toast.innerText = `The universe serves you this random poem... There are currently ${allPoems.length} poems available for your enjoyment.`;
+                if (toast) {
+                    // Force the static text to read "Welcome" cleanly
+                    toast.innerText = "Welcome";
                     
-                    // Trigger fade-in layout slide
                     setTimeout(() => {
                         toast.classList.add('visible');
+                        updateStickyPositions(); // Instantly recalculated card tracking anchors to accommodate expansion
                     }, 400);
 
-                    // Trigger automatic dissolve sequence
                     setTimeout(() => {
                         toast.classList.remove('visible');
-                    }, 4500); // Sitting clearly for 4 seconds gives readers time to absorb the longer text footprint smoothly
+                        // Tiny delay waits for the height collapse transition to clear out before sticky boundaries drop back down
+                        setTimeout(updateStickyPositions, 450); 
+                    }, 2600); // Sits beautifully for 2.2 seconds before dissolving
                 }
 
                 // RESET FLASH UTILITY RULE
