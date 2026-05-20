@@ -284,7 +284,7 @@
         let activeSourceSubFilter = 'any'; 
         let currentSort = { field: 'date', direction: 'desc' };
 
-        const COMMENTS_DATABASE_URL = "https://script.google.com/macros/s/AKfycby81aAVsgaf0uieandQPBvUj8uStY6SFhCmDQDJRi_qYnI6dNvfK1pYefyDTfkt_vLXHA/exec";
+        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycby81aAVsgaf0uieandQPBvUj8uStY6SFhCmDQDJRi_qYnI6dNvfK1pYefyDTfkt_vLXHA/exec";
 
         function cleanSlug(title) {
             return title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/[\s-]+/g, '-').trim();
@@ -294,20 +294,20 @@
             try {
                 let commentsData = [];
                 try {
-                    const comResponse = await fetch(COMMENTS_DATABASE_URL);
+                    const comResponse = await fetch(DATABASE_API_URL);
                     if (comResponse.ok) commentsData = await comResponse.json();
                 } catch (e) {
                     console.log("Database connection deferred.");
                 }
 
-                // SECURE PATH CORRECTION: Swapped to local relative pathways to naturally bypass subdomain CORS rules
-                const response = await fetch('./poetry/--poem-list.txt');
+                // LOCAL PATHWAY RESTORED: Running directly alongside the file in the /poetry/ subfolder
+                const response = await fetch('--poem-list.txt');
                 if (!response.ok) throw new Error("Poem layout configuration file unreachable.");
                 const rawText = await response.text();
                 
                 const rawBlocks = rawText.split(/-----+/);
                 
-                rawPoemsList = rawBlocks.map(block => {
+                allPoems = rawBlocks.map(block => {
                     const rawLines = block.split(/\r?\n/);
                     while (rawLines.length > 0 && rawLines[0].trim() === "") rawLines.shift();
                     if (rawLines.length < 3) return null;
@@ -347,9 +347,9 @@
                     };
                 }).filter(p => p !== null);
 
-                // SECURE PATH CORRECTION: Swapped to local relative audio lookup tracks
-                for (let poem of rawPoemsList) {
-                    poem.hasAudio = await verifyAudioTrack(`./poetry/${poem.slug}.mp3`);
+                // LOCAL PATHWAY RESTORED: Audio lookup executes in local frame
+                for (let poem of allPoems) {
+                    poem.hasAudio = await verifyAudioTrack(`${poem.slug}.mp3`);
                 }
 
                 applyPipeline();
@@ -425,7 +425,7 @@
         }
 
         function applyPipeline() {
-            let processed = [...rawPoemsList];
+            let processed = [...allPoems];
 
             if (activeFilters.audio) processed = processed.filter(p => p.hasAudio);
             if (activeFilters.comments) processed = processed.filter(p => p.commentCount > 0);
@@ -460,7 +460,7 @@
 
             if (dataset.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b; font-style: italic; padding: 30px;">No registered poems match the selected cross-filter matrix criteria.</td></tr>`;
-                document.getElementById('summary-text').innerText = "Showing 0 of " + rawPoemsList.length + " total metrics";
+                document.getElementById('summary-text').innerText = "Showing 0 of " + allPoems.length + " total metrics";
                 return;
             }
 
@@ -490,7 +490,7 @@
                 tbody.appendChild(tr);
             });
 
-            document.getElementById('summary-text').innerText = `Displaying ${dataset.length} of ${rawPoemsList.length} metrics across the ledger`;
+            document.getElementById('summary-text').innerText = `Displaying ${dataset.length} of ${allPoems.length} metrics across the ledger`;
         }
 
         window.addEventListener('DOMContentLoaded', initializeDashboard);
