@@ -19,11 +19,32 @@
             margin: 0 auto;
         }
 
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
         h1 {
             font-weight: 300;
             font-size: 2rem;
             color: #f8fafc;
-            margin-bottom: 25px;
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+
+        /* LIVE METRIC COUNTER BADGE */
+        .live-counter {
+            background-color: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
             letter-spacing: 0.5px;
         }
 
@@ -80,6 +101,13 @@
             background-color: #334155;
             color: #f8fafc;
             border-color: #475569;
+        }
+
+        /* Custom Alert Theme Color for Recording Target Tasks */
+        .btn.btn-no-audio.active {
+            background-color: #7f1d1d;
+            border-color: #f87171;
+            color: #fca5a5;
         }
 
         .btn-print {
@@ -180,7 +208,7 @@
                 color: #000000;
                 padding: 0;
             }
-            .controls-panel, .summary-bar, script {
+            .controls-panel, .summary-bar, .live-counter, script {
                 display: none !important;
             }
             .table-wrapper {
@@ -215,13 +243,16 @@
 <body>
 
     <div class="dashboard-container">
-        <h1>Poetry Collection Dashboard</h1>
+        <div class="header-row">
+            <h1>Poetry Collection Dashboard</h1>
+            <div class="live-counter" id="top-counter-badge">Showing: -- / -- total</div>
+        </div>
 
         <div class="controls-panel">
             <div class="section-label">Cross-Filters (Multiple Active Allowed)</div>
             <div class="filter-group">
                 <button class="btn active" id="filter-all" onclick="resetFilters()">All Rows</button>
-                <button class="btn" id="filter-audio" onclick="toggleFilter('audio')">Has Audio</button>
+                <button class="btn btn-no-audio" id="filter-audio" onclick="toggleFilter('noAudio')">No Audio</button>
                 <button class="btn" id="filter-comments" onclick="toggleFilter('comments')">Has Comments</button>
                 <button class="btn" id="filter-learn" onclick="toggleFilter('learn')">Has Learn More</button>
                 <button class="btn" id="filter-source" onclick="toggleFilter('source')">Is Published Book</button>
@@ -274,9 +305,10 @@
     </div>
 
     <script>
-        let rawPoemsList = [];
+        let allPoems = [];
+        let globalCommentsList = []; 
         let activeFilters = {
-            audio: false,
+            noAudio: false,
             comments: false,
             learn: false,
             source: false
@@ -300,7 +332,6 @@
                     console.log("Database connection deferred.");
                 }
 
-                // LOCAL PATHWAY RESTORED: Running directly alongside the file in the /poetry/ subfolder
                 const response = await fetch('--poem-list.txt');
                 if (!response.ok) throw new Error("Poem layout configuration file unreachable.");
                 const rawText = await response.text();
@@ -347,7 +378,6 @@
                     };
                 }).filter(p => p !== null);
 
-                // LOCAL PATHWAY RESTORED: Audio lookup executes in local frame
                 for (let poem of allPoems) {
                     poem.hasAudio = await verifyAudioTrack(`${poem.slug}.mp3`);
                 }
@@ -377,7 +407,9 @@
             document.getElementById('filter-all').classList.remove('active');
             activeFilters[filterType] = !activeFilters[filterType];
             
-            document.getElementById(`filter-${filterType}`).classList.toggle('active', activeFilters[filterType]);
+            // Handles structural link mapping for custom audio class tags
+            const targetId = filterType === 'noAudio' ? 'filter-audio' : `filter-${filterType}`;
+            document.getElementById(targetId).classList.toggle('active', activeFilters[filterType]);
             
             const subPanel = document.getElementById('source-sub-panel');
             if (filterType === 'source') {
@@ -399,7 +431,7 @@
         }
 
         function resetFilters() {
-            activeFilters = { audio: false, comments: false, learn: false, source: false };
+            activeFilters = { noAudio: false, comments: false, learn: false, source: false };
             activeSourceSubFilter = 'any';
             
             ['filter-audio', 'filter-comments', 'filter-learn', 'filter-source'].forEach(id => {
@@ -427,7 +459,8 @@
         function applyPipeline() {
             let processed = [...allPoems];
 
-            if (activeFilters.audio) processed = processed.filter(p => p.hasAudio);
+            // INVERTED CORE COMPUTE RULE: Isolate targets missing audio assets smoothly
+            if (activeFilters.noAudio) processed = processed.filter(p => !p.hasAudio);
             if (activeFilters.comments) processed = processed.filter(p => p.commentCount > 0);
             if (activeFilters.learn) processed = processed.filter(p => p.hasLearnMore);
             
@@ -458,9 +491,13 @@
             const tbody = document.getElementById('dashboard-rows');
             tbody.innerHTML = "";
 
+            // Dynamic Counter Badge text generation syncs completely based on dataset pipeline array metrics
+            const counterText = `Showing: ${dataset.length} / ${allPoems.length} total`;
+            document.getElementById('top-counter-badge').innerText = counterText;
+
             if (dataset.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b; font-style: italic; padding: 30px;">No registered poems match the selected cross-filter matrix criteria.</td></tr>`;
-                document.getElementById('summary-text').innerText = "Showing 0 of " + allPoems.length + " total metrics";
+                document.getElementById('summary-text').innerText = `Showing 0 of ${allPoems.length} total metrics`;
                 return;
             }
 
