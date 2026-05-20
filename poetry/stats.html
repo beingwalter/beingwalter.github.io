@@ -88,7 +88,6 @@
             border-color: #0ea5e9;
         }
 
-        /* BESPOKE REFRESH ACTION BUTTON STYLING */
         .btn-refresh {
             background-color: #1e252b;
             border: 1px solid #334155;
@@ -109,7 +108,6 @@
             background-color: #2d3742;
         }
 
-        /* Spin animation feedback utility class triggered by active script states */
         .spinning {
             animation: syncSpin 0.8s linear infinite;
         }
@@ -451,7 +449,6 @@
             return title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/[\s-]+/g, '-').trim();
         }
 
-        // BACKGROUND REFRESH DISPATCHER: Seamlessly hits files with a unique cache bypass timestamp to guarantee real-time loads
         async function triggerManualRefresh() {
             if (isRefreshingCurrently) return;
             isRefreshingCurrently = true;
@@ -462,11 +459,11 @@
             if (refreshBtn) refreshBtn.disabled = true;
             if (iconNode) iconNode.classList.add('spinning');
             
-            // Generate standard anti-cache timestamp parameter
             const cacheBypassToken = `?nocache=${Date.now()}`;
+            
+            // STATE PRESERVATION ENGINE: Filter choices remain perfectly untouched during the load loop
             await initializeDashboard(cacheBypassToken);
             
-            // Micro-delay guarantees a premium mechanical animation cycle feel 
             setTimeout(() => {
                 if (refreshBtn) refreshBtn.disabled = false;
                 if (iconNode) iconNode.classList.remove('spinning');
@@ -530,10 +527,15 @@
                     };
                 }).filter(p => p !== null);
 
-                for (let poem of allPoems) {
+                // ASYNC BLOCK BARRIER: Gathers audio verification parameters simultaneously
+                const audioPromises = allPoems.map(async (poem) => {
                     poem.hasAudio = await verifyAudioTrack(`${poem.slug}.mp3` + cacheBypass);
-                }
+                });
+                
+                // CRITICAL BUG FIX: Freezes processing until every single track validation promise resolves completely
+                await Promise.all(audioPromises);
 
+                // Re-apply pipeline with state fully intact
                 applyPipeline();
 
             } catch (err) {
@@ -562,6 +564,12 @@
             const targetId = filterType === 'noAudio' ? 'filter-audio' : `filter-${filterType}`;
             document.getElementById(targetId).classList.toggle('active', activeFilters[filterType]);
             
+            // Check if ANY custom filters are still active. If not, fallback activate the "All" row indicator.
+            const anyActive = Object.values(activeFilters).some(v => v === true);
+            if (!anyActive) {
+                document.getElementById('filter-all').classList.add('active');
+            }
+
             const subPanel = document.getElementById('source-sub-panel');
             if (filterType === 'source') {
                 subPanel.style.display = activeFilters.source ? 'flex' : 'none';
