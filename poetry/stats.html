@@ -43,7 +43,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* MINIMALIST INTERNAL HUB NAVIGATION ROW */
         .dashboard-nav-links {
             display: flex;
             gap: 15px;
@@ -460,8 +459,6 @@
             if (iconNode) iconNode.classList.add('spinning');
             
             const cacheBypassToken = `?nocache=${Date.now()}`;
-            
-            // STATE PRESERVATION ENGINE: Filter choices remain perfectly untouched during the load loop
             await initializeDashboard(cacheBypassToken);
             
             setTimeout(() => {
@@ -523,19 +520,16 @@
                         slug: cleanSlug(title),
                         hasLearnMore: hasLearnMore,
                         commentCount: matchComments.length,
-                        hasAudio: true 
+                        hasAudio: false 
                     };
                 }).filter(p => p !== null);
 
-                // ASYNC BLOCK BARRIER: Gathers audio verification parameters simultaneously
+                // DYNAMIC FETCH BLOCK: Replaced media loops with raw HTTP status validation requests
                 const audioPromises = allPoems.map(async (poem) => {
                     poem.hasAudio = await verifyAudioTrack(`${poem.slug}.mp3` + cacheBypass);
                 });
                 
-                // CRITICAL BUG FIX: Freezes processing until every single track validation promise resolves completely
                 await Promise.all(audioPromises);
-
-                // Re-apply pipeline with state fully intact
                 applyPipeline();
 
             } catch (err) {
@@ -544,17 +538,14 @@
             }
         }
 
-        function verifyAudioTrack(url) {
-            return new Promise((resolve) => {
-                const audio = new Audio();
-                audio.src = url;
-                audio.preload = "auto";
-                
-                audio.addEventListener('canplaythrough', () => resolve(true), { once: true });
-                audio.addEventListener('error', () => resolve(false), { once: true });
-                
-                setTimeout(() => resolve(false), 250);
-            });
+        // STATIC CODES CONVERSION RULE: Hits path headers natively to dodge browser audio playback stalls
+        async function verifyAudioTrack(url) {
+            try {
+                const response = await fetch(url, { method: 'HEAD' });
+                return response.ok; // Returns true instantly if server hits a 200, false on 404
+            } catch (e) {
+                return false; 
+            }
         }
 
         function toggleFilter(filterType) {
@@ -564,7 +555,6 @@
             const targetId = filterType === 'noAudio' ? 'filter-audio' : `filter-${filterType}`;
             document.getElementById(targetId).classList.toggle('active', activeFilters[filterType]);
             
-            // Check if ANY custom filters are still active. If not, fallback activate the "All" row indicator.
             const anyActive = Object.values(activeFilters).some(v => v === true);
             if (!anyActive) {
                 document.getElementById('filter-all').classList.add('active');
