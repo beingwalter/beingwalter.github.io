@@ -66,9 +66,9 @@
             border-color: #475569;
         }
 
-        /* DYNAMIC FLASH ANIMATION: Draws subtle visual attention to the random button initialization */
+        /* DYNAMIC FLASH ANIMATION */
         .nav-btn.flash-active {
-            animation: buttonFlash 0.6s ease-in-out 3; /* Pulses 3 clean times upon entrance */
+            animation: buttonFlash 0.6s ease-in-out 3; 
         }
 
         @keyframes buttonFlash {
@@ -81,8 +81,35 @@
                 background-color: #475569;
                 color: #ffffff;
                 border-color: #64748b;
-                transform: scale(1.04); /* Tiny kinetic swell adds a professional touch */
+                transform: scale(1.04); 
             }
+        }
+
+        /* MINIMALIST MOMENTARY OVERLAY (TOAST NOTIFICATION) */
+        .toast-overlay {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background-color: rgba(30, 37, 43, 0.95);
+            color: #cbd5e1;
+            border: 1px solid #334155;
+            padding: 10px 22px;
+            border-radius: 30px;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 0.88rem;
+            letter-spacing: 0.5px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        /* Active styling rule invoked fluidly by background timers */
+        .toast-overlay.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
         }
 
         /* Diminutive Home Button Styling */
@@ -446,6 +473,8 @@
         });
     </script>
 
+    <div id="toast-message" class="toast-overlay">A random verse has appeared</div>
+
     <header id="page-top">
         <h1>Walter's nondual poetry</h1>
         
@@ -583,7 +612,19 @@
                 isTypingSearch = false;
                 render();
                 
-                // AUTOMATION TIMEOUT: Safely strips the animation class after completion so user-clicks function cleanly later
+                // OVERLAY INITIALIZATION EFFECT: Smoothly slide and fade the overlay into view on page load
+                setTimeout(() => {
+                    const toast = document.getElementById('toast-message');
+                    if (toast) toast.classList.add('visible');
+                }, 400); // 400ms micro-delay gives the structural layout cards a chance to assemble first
+
+                // AUTOMATED OVERLAY DISSOLVE TIMER
+                setTimeout(() => {
+                    const toast = document.getElementById('toast-message');
+                    if (toast) toast.classList.remove('visible');
+                }, 2600); // Overlay completely melts away after sitting cleanly for 2.2 seconds
+
+                // BUTTON ANIMATION RECOVERY
                 setTimeout(() => {
                     const randBtn = document.getElementById('btn-random');
                     if (randBtn) randBtn.classList.remove('flash-active');
@@ -976,7 +1017,7 @@
             
             currentMode = mode;
             ['btn-all', 'btn-latest', 'btn-random'].forEach(id => document.getElementById(id).classList.remove('active'));
-            document.getElementById(`btn-${mode}`).classList.add('active');
+            document.getElementById Levant = document.getElementById(`btn-${mode}`).classList.add('active');
             
             document.getElementById('search-box').value = '';
             searchQuery = '';
