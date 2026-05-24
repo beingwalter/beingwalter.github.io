@@ -373,6 +373,50 @@
             100% { opacity: 1; transform: translateY(0); }
         }
 
+        /* CARD ACTION OVAL BUTTON ENGINES */
+        .play-btn, .top-btn, .context-btn {
+            background-color: transparent;
+            color: #64748b;
+            border: 1px solid #334155;
+            padding: 4px 14px;
+            border-radius: 20px !important; /* Preserves elite oval style strictly */
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+            text-decoration: none;
+        }
+
+        .play-btn:hover, .top-btn:hover, .context-btn:hover {
+            color: #cbd5e1;
+            border-color: #475569;
+        }
+
+        .play-btn.playing {
+            color: #38bdf8;
+            border-color: #0369a1;
+            background-color: #142430;
+        }
+
+        .context-btn.active-drawer {
+            color: #94a3b8;
+            border-color: #475569;
+            background-color: #1e252b;
+        }
+
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #475569;
+            letter-spacing: 0.5px;
+        }
+
         /* OVERLAY MODAL COMMON STRUCTURE */
         .welcome-modal-overlay {
             display: none;
@@ -562,7 +606,6 @@
         </div>
     </div>
 
-    <!-- EXPANDED THREE-BOX NATIVE SHARE MODAL WORKSPACE -->
     <div id="native-share-modal" class="welcome-modal-overlay">
         <div class="welcome-modal-card" style="max-width: 460px; padding: 24px 20px;">
             <h2 id="share-modal-title" style="margin-bottom: 10px; font-size: 1.4rem;">Share Poem</h2>
@@ -627,7 +670,7 @@
         let activeSharePoemTitle = ""; 
 
         // ⚠️ PASTE YOUR BRAND-NEW WEB APP URL STRING GENERATED IN STEP 1 HERE BETWEEN THE QUOTES:
-        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbyDJ1JN5zs74_riKPgWLSAwwJ9xp5GijFwxDu2yjARAv1P9f8IYoSBD6w-e7BzuAZfLyQ/exec";
+        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbzO5kqUBVyaiLfCbfH6-nT21CunMcvj1RiEErncl5Y32RdZ3tRu_0wrBJqSO0kVo4gmvw/exec";
 
         function updateStickyPositions() {
             const mainHeader = document.getElementById('page-top');
