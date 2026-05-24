@@ -606,6 +606,7 @@
         </div>
     </div>
 
+    <!-- NATIVE SHARE MODAL WORKSPACE -->
     <div id="native-share-modal" class="welcome-modal-overlay">
         <div class="welcome-modal-card" style="max-width: 460px; padding: 24px 20px;">
             <h2 id="share-modal-title" style="margin-bottom: 10px; font-size: 1.4rem;">Share Poem</h2>
@@ -668,7 +669,6 @@
         let activeCardElement = null;
         let activeSharePoemTitle = ""; 
 
-        // UPDATED WITH YOUR EXACT APPS SCRIPT URL STRING
         const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbyQEF7GLy3YAHvittxH0h0VEEqtyaedpK8i75C4LbhF7H2PiJ5ms6ZrGhRqDA0TIPajtw/exec";
 
         function updateStickyPositions() {
@@ -1068,8 +1068,13 @@
                 document.getElementById('btn-all').classList.add('active');
             }
 
-            // ⚠️ FIXED LINE: Forces lowercase mapping across the entire lookup sequence to neutralize case mismatch bugs completely!
-            let displayList = allPoems.filter(poem => poem.title.toLowerCase().includes(searchQuery));
+            // 🔍 FIXED LOOKUP ENGINE:
+            // Converts title AND search parameters to stripped lowercase keywords to bypass the mixed-case spreadsheet bugs permanently.
+            let displayList = allPoems.filter(poem => {
+                let lowerPoemTitle = poem.title.toLowerCase().trim();
+                let normalizedSearchQuery = searchQuery.toLowerCase().trim();
+                return lowerPoemTitle.includes(normalizedSearchQuery) || normalizedSearchQuery.includes(lowerPoemTitle);
+            });
 
             if (currentMode === 'all' || immediateUrlSearchParam) {
                 displayList.sort((a, b) => a.title.localeCompare(b.title));
