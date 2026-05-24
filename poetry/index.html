@@ -416,7 +416,7 @@
             letter-spacing: 0.5px;
         }
 
-        /* NEWCOMER WELCOME FULL SCREEN MODAL INTERFACE OVERLAY */
+        /* HIGHLY OPTIMIZED LANDING PAGE MIRROR STYLE RULES */
         .welcome-modal-overlay {
             display: none;
             position: fixed;
@@ -424,7 +424,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(10, 12, 15, 0.96);
+            background-color: rgba(18, 22, 26, 0.97);
             z-index: 1000;
             align-items: center;
             justify-content: center;
@@ -435,45 +435,70 @@
         }
 
         .welcome-modal-card {
-            background-color: #1e252b;
-            border: 1px solid #334155;
-            max-width: 500px;
+            background-color: #12161a;
+            max-width: 580px;
             width: 100%;
-            border-radius: 16px;
-            padding: 35px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
             text-align: center;
             box-sizing: border-box;
             transform: scale(0.95);
             animation: popModalCard 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
-        .welcome-modal-text {
-            color: #cbd5e1;
-            font-size: 1.05rem;
-            line-height: 1.7;
-            margin-bottom: 30px;
-            font-weight: 300;
-            letter-spacing: 0.3px;
-        }
-
-        .welcome-modal-btn {
-            background-color: #0369a1;
+        .modal-brand-header {
+            font-size: 2.8rem;
             color: #ffffff;
-            border: 1px solid #0284c7;
-            padding: 10px 24px;
-            border-radius: 25px;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-weight: 500;
+            margin: 0 0 5px 0;
+            font-weight: 400;
             letter-spacing: 0.5px;
         }
 
+        .modal-brand-subtitle {
+            font-style: italic;
+            color: #64748b;
+            font-size: 1.15rem;
+            margin: 0 0 40px 0;
+            letter-spacing: 0.5px;
+            font-weight: 400;
+        }
+
+        /* Left-border structural vertical banner strip copy */
+        .modal-text-quote-wrapper {
+            border-left: 2px solid #22303d;
+            padding-left: 24px;
+            text-align: left;
+            margin-bottom: 40px;
+        }
+
+        .welcome-modal-text {
+            color: #cbd5e1;
+            font-size: 1.05rem;
+            line-height: 1.75;
+            margin: 0 0 25px 0;
+            font-weight: 400;
+            letter-spacing: 0.3px;
+        }
+
+        .welcome-modal-text:last-child {
+            margin-bottom: 0;
+        }
+
+        .welcome-modal-btn {
+            background-color: #1e252b;
+            color: #cbd5e1;
+            border: 1px solid #334155;
+            padding: 10px 28px;
+            border-radius: 25px;
+            font-size: 0.92rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: 0.5px;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
         .welcome-modal-btn:hover {
-            background-color: #0284c7;
-            border-color: #0ea5e9;
-            transform: translateY(-1px);
+            background-color: #334155;
+            border-color: #475569;
+            color: #f8fafc;
         }
 
         @keyframes fadeInOverlay {
@@ -482,7 +507,7 @@
         }
 
         @keyframes popModalCard {
-            0% { transform: scale(0.92); opacity: 0; }
+            0% { transform: scale(0.95); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
         }
 
@@ -498,7 +523,12 @@
             .context-block, .comment-drawer, .comments-display-area { margin-left: 20px; margin-right: 20px; }
             .comments-display-area { margin-bottom: 25px; }
             h2 { font-size: 1.4rem; }
-            .welcome-modal-card { padding: 25px 20px; }
+            
+            /* Responsive calibration for cloned layout scale dimensions */
+            .modal-brand-header { font-size: 2.2rem; }
+            .modal-brand-subtitle { font-size: 1rem; margin-bottom: 25px; }
+            .modal-text-quote-wrapper { padding-left: 16px; margin-bottom: 30px; }
+            .welcome-modal-text { font-size: 0.95rem; }
         }
     </style>
 </head>
@@ -513,12 +543,21 @@
         });
     </script>
 
+    <!-- PERFECT REPLICA LANDING OVERLAY CORE DOM -->
     <div id="newcomer-welcome-modal" class="welcome-modal-overlay">
         <div class="welcome-modal-card">
-            <h2 style="margin-top:0; color:#f8fafc; font-weight:300;">Welcome to the Space</h2>
-            <p class="welcome-modal-card-text welcome-modal-text">
-                This is a quiet corner for reflection, exploring themes of non-duality and pure awareness. Enjoy your stay as you browse the collection.
-            </p>
+            <h1 class="modal-brand-header">Being Walter</h1>
+            <div class="modal-brand-subtitle">Nondual Poetry & Haiku</div>
+            
+            <div class="modal-text-quote-wrapper">
+                <p class="welcome-modal-text">
+                    Welcome. This space is offered simply as a place to share my poetry, haiku and a quiet understanding of nonduality with anyone who feels inclined to look.
+                </p>
+                <p class="welcome-modal-text">
+                    There is nothing to buy, no identity to build, and no destination to reach. Inside, you will find a collection of poems written starting around 2019, alongside audio recordings where you can listen to them read aloud.
+                </p>
+            </div>
+            
             <button class="welcome-modal-btn" onclick="dismissWelcomeModal()">Enter Site</button>
         </div>
     </div>
@@ -585,7 +624,6 @@
             return dateStr;
         }
 
-        // TRIGGER ENGAGEMENT TO EXPEL OVERLAY BOX SYSTEM
         function dismissWelcomeModal() {
             const modal = document.getElementById('newcomer-welcome-modal');
             if (modal) modal.style.display = 'none';
@@ -663,12 +701,10 @@
                     }, 2600);
                 }
 
-                // HIGHLY STRATEGIC PARSING EXTENSION: Evaluates link origin vectors fluidly
                 const urlParams = new URLSearchParams(window.location.search);
                 const searchParam = urlParams.get('search');
-                const sharedParam = urlParams.get('shared'); // Shared check hook parameter
+                const sharedParam = urlParams.get('shared'); 
 
-                // Fire welcoming modal architecture if coming through a fresh shared email click node pipeline
                 if (sharedParam === 'true') {
                     const modalOverlay = document.getElementById('newcomer-welcome-modal');
                     if (modalOverlay) modalOverlay.style.display = 'flex';
@@ -730,7 +766,6 @@
             render();
         }
 
-        // DISPATCH HUB ENGINE FOR FRIEND EMAIL ROUTING LOGIC
         function dispatchFriendShareEmail(titleEncoded) {
             const rootDomainPath = window.location.origin + window.location.pathname;
             const completeTargetShareLink = `${rootDomainPath}?search=${encodeURIComponent(titleEncoded.toLowerCase())}&shared=true`;
@@ -739,8 +774,6 @@
             const messageBody = `Hi!\n\nI was browsing through Walter's poetry collection and read a piece titled "${titleEncoded}" that I thought you might appreciate.\n\nYou can read it directly here:\n${completeTargetShareLink}`;
             
             const mailtoCompositionLink = `mailto:?subject=${encodeURIComponent(subjectLine)}&body=${encodeURIComponent(messageBody)}`;
-            
-            // Safe target trigger pops native window application handler seamlessly
             window.location.href = mailtoCompositionLink;
         }
 
