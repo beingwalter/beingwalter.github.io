@@ -65,37 +65,6 @@
             border-color: #475569;
         }
 
-        .toast-overlay {
-            display: block;
-            margin: 0 auto 15px auto; 
-            background-color: rgba(30, 37, 43, 0.98);
-            color: #cbd5e1;
-            border: 1px solid #334155;
-            padding: 6px 20px;
-            border-radius: 30px;
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            font-size: 0.88rem;
-            letter-spacing: 0.5px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-            max-width: fit-content;
-            text-align: center;
-            opacity: 0;
-            height: 0;
-            padding-top: 0;
-            padding-bottom: 0;
-            margin-bottom: 0;
-            overflow: hidden;
-            pointer-events: none;
-            transition: opacity 0.4s ease, margin 0.4s ease, padding 0.4s ease, height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .toast-overlay.visible {
-            opacity: 1;
-            height: 20px; 
-            padding: 6px 20px;
-            margin-bottom: 15px;
-        }
-
         .home-btn {
             background-color: #1e252b;
             border: 1px solid #334155;
@@ -545,6 +514,7 @@
         </div>
     </div>
 
+    <!-- NATIVE SHARE MODAL WORKSPACE -->
     <div id="native-share-modal" class="welcome-modal-overlay">
         <div class="welcome-modal-card" style="max-width: 460px; padding: 24px 20px;">
             <h2 id="share-modal-title" style="margin-bottom: 10px; font-size: 1.4rem;">Share Poem</h2>
@@ -576,8 +546,6 @@
             <a href="../" class="home-btn" title="Return Home">🏠</a>
         </div>
 
-        <div id="toast-message" class="toast-overlay">Welcome</div>
-
         <div class="search-container">
             <input type="text" id="search-box" class="search-input" placeholder="Search titles..." oninput="handleSearch()">
         </div>
@@ -594,7 +562,7 @@
     <script>
         let allPoems = [];
         let globalCommentsList = []; 
-        let currentMode = 'landing'; // Default track set directly to your onboard workspace
+        let currentMode = 'landing'; 
         let searchQuery = '';
         let currentlyPlayingAudio = null;
         let currentlyPlayingButton = null;
@@ -620,7 +588,7 @@
 
         function parseSortDate(dateStr) {
             const d = new Date(dateStr);
-            return isNaN(d.getTime()) ? "2026-01-01" : d.toISOString().split('T')[0];
+            return isNaN(d.getTime()) ? "2026-01-01" : d.toISOString].split('T')[0];
         }
 
         function parseHumanDate(dateStr) {
@@ -756,7 +724,7 @@
                     searchQuery = decodeURIComponent(searchParam).toLowerCase().trim();
                     if (searchBox) searchBox.value = decodeURIComponent(searchParam);
                 } else {
-                    currentMode = 'landing'; // Locks startup mode strictly to onboarding menu
+                    currentMode = 'landing'; 
                 }
 
                 ['btn-all', 'btn-latest', 'btn-random'].forEach(id => document.getElementById(id).classList.remove('active'));
@@ -766,13 +734,6 @@
 
                 isTypingSearch = false;
                 render();
-                
-                const toast = document.getElementById('toast-message');
-                if (toast) {
-                    toast.innerText = "Welcome";
-                    setTimeout(() => { toast.classList.add('visible'); updateStickyPositions(); }, 400);
-                    setTimeout(() => { toast.classList.remove('visible'); setTimeout(updateStickyPositions, 450); }, 2600);
-                }
             } catch (err) {
                 document.getElementById('poetry-container').innerHTML = `<p style="text-align: center; color: #64748b; font-style: italic;">The collection is resting.</p>`;
             }
@@ -785,7 +746,7 @@
                 const data = await res.json();
                 if (Array.isArray(data)) {
                     globalCommentsList = data;
-                    if (currentMode !== 'landing') render(); // Only dynamic refresh if cards are visible
+                    if (currentMode !== 'landing') render(); 
                 }
             } catch (err) { console.log("Database optimized."); }
         }
@@ -827,23 +788,21 @@
             const urlParams = new URLSearchParams(window.location.search);
             const immediateUrlSearchParam = urlParams.get('search');
 
-            // ==========================================
-            // NEW EXPLICIT INTRODUCTION LANDING WORKSPACE
-            // ==========================================
+            // INTRODUCTORY LANDING WORKSPACE (SPACING OPTIMIZED)
             if (currentMode === 'landing' && !immediateUrlSearchParam && searchQuery === '') {
                 const welcomeCard = document.createElement('div');
                 welcomeCard.className = 'poem-card animate-presence';
                 welcomeCard.innerHTML = `
-                    <div class="poem-header">
+                    <div class="poem-header" style="border-bottom: none;">
                         <h2>Click a button to start</h2>
                         <div class="poem-meta">
                             <div class="control-group">
-                                <button class="play-btn" disabled><span>▶</span> Play</button>
+                                <button class="play-btn" disabled style="visibility: hidden;"><span>▶</span> Play</button>
                             </div>
                             <span class="meta-details"></span>
                         </div>
                     </div>
-                    <div class="poem-text" style="padding: 30px 40px; text-align: left; letter-spacing: 0.3px;">
+                    <div class="poem-text" style="padding: 0px 40px 30px 40px; text-align: left; letter-spacing: 0.3px; margin-top: 0px !important;">
                         <strong>Latest:</strong> the newest poem written<br>
                         <strong>A - Z:</strong> an alphabetical list<br>
                         <strong>Random:</strong> let the universe decide!
@@ -854,7 +813,6 @@
                 return;
             }
 
-            // Fallback parameter binding logic
             if (immediateUrlSearchParam && searchQuery === '') {
                 searchQuery = decodeURIComponent(immediateUrlSearchParam).toLowerCase().trim();
                 currentMode = 'all';
@@ -862,10 +820,15 @@
                 document.getElementById('btn-all').classList.add('active');
             }
 
+            // ADVANCED STAGE LOOKUP ENGINE (Cross-checking clean title substrings and slug arrays)
             let displayList = allPoems.filter(poem => {
-                let lowerPoemTitle = poem.title.toLowerCase().trim();
-                let normalizedSearchQuery = searchQuery.toLowerCase().trim();
-                return lowerPoemTitle.includes(normalizedSearchQuery) || normalizedSearchQuery.includes(lowerPoemTitle);
+                let normalizedSearch = searchQuery.toLowerCase().replace(/%20/g, ' ').replace(/[\s-]+/g, ' ').trim();
+                let cleanTitleString = poem.title.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/[\s-]+/g, ' ').trim();
+                let targetSlugMatch = poem.slug.replace(/-/g, ' ').trim();
+                
+                return cleanTitleString.includes(normalizedSearch) || 
+                       normalizedSearch.includes(cleanTitleString) || 
+                       targetSlugMatch.includes(normalizedSearch);
             });
 
             if (currentMode === 'all' || immediateUrlSearchParam) {
