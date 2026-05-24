@@ -416,7 +416,7 @@
             letter-spacing: 0.5px;
         }
 
-        /* HIGHLY OPTIMIZED LANDING PAGE MIRROR STYLE RULES */
+        /* HOME PAGE BRAND MIRROR STYLES FOR OVERLAY DIALOG */
         .welcome-modal-overlay {
             display: none;
             position: fixed;
@@ -461,7 +461,6 @@
             font-weight: 400;
         }
 
-        /* Left-border structural vertical banner strip copy */
         .modal-text-quote-wrapper {
             border-left: 2px solid #22303d;
             padding-left: 24px;
@@ -524,7 +523,6 @@
             .comments-display-area { margin-bottom: 25px; }
             h2 { font-size: 1.4rem; }
             
-            /* Responsive calibration for cloned layout scale dimensions */
             .modal-brand-header { font-size: 2.2rem; }
             .modal-brand-subtitle { font-size: 1rem; margin-bottom: 25px; }
             .modal-text-quote-wrapper { padding-left: 16px; margin-bottom: 30px; }
@@ -543,7 +541,6 @@
         });
     </script>
 
-    <!-- PERFECT REPLICA LANDING OVERLAY CORE DOM -->
     <div id="newcomer-welcome-modal" class="welcome-modal-overlay">
         <div class="welcome-modal-card">
             <h1 class="modal-brand-header">Being Walter</h1>
@@ -767,11 +764,27 @@
         }
 
         function dispatchFriendShareEmail(titleEncoded) {
+            const sharePayload = {
+                action: "share",
+                poemTitle: titleEncoded
+            };
+
+            try {
+                fetch(DATABASE_API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(sharePayload)
+                });
+            } catch (e) {
+                console.log("Telemetry log buffered.");
+            }
+
             const rootDomainPath = window.location.origin + window.location.pathname;
             const completeTargetShareLink = `${rootDomainPath}?search=${encodeURIComponent(titleEncoded.toLowerCase())}&shared=true`;
             
             const subjectLine = `A poem I wanted to share with you...`;
-            const messageBody = `Hi!\n\nI was browsing through Walter's poetry collection and read a piece titled "${titleEncoded}" that I thought you might appreciate.\n\nYou can read it directly here:\n${completeTargetShareLink}`;
+            const messageBody = `Hi!\n\nI was browsing through the poetry collection on beingwalter.com and read a piece titled "${titleEncoded}" that I thought you might appreciate.\n\nYou can read it directly here:\n${completeTargetShareLink}\n\nWarmly,\nwalter@beingwalter.com`;
             
             const mailtoCompositionLink = `mailto:?subject=${encodeURIComponent(subjectLine)}&body=${encodeURIComponent(messageBody)}`;
             window.location.href = mailtoCompositionLink;
@@ -883,8 +896,17 @@
         async function submitComment(event, poemTitle, stackId, drawerId, btnId) {
             event.preventDefault(); 
             const form = event.target;
+
+            // HONEYPOT SCANNER RULE: Instantly short circuits submission if filled by malicious bots
+            const botTrapValue = form.querySelector('#comment-honeypot-field')?.value;
+            if (botTrapValue && botTrapValue.trim() !== "") {
+                console.log("Automated interaction filtered.");
+                form.reset();
+                return; 
+            }
+
             const textarea = form.querySelector('textarea');
-            const nameInput = form.querySelector('input');
+            const nameInput = form.querySelector('input[type="text"]:not(#comment-honeypot-field)');
             const submitBtn = form.querySelector('button');
             const textContent = textarea.value.trim();
             const authorName = nameInput.value.trim() || "Anonymous";
@@ -1025,6 +1047,11 @@
                     <div id="${commentDrawerId}" class="comment-drawer">
                         <form class="comment-form" onsubmit="submitComment(event, '${safeEscapedTitle}', '${stackId}', '${commentDrawerId}', '${commentBtnId}')">
                             <textarea class="comment-textarea" placeholder="Share a short reflection (max 100 chars)..." rows="2" maxlength="100" required></textarea>
+                            
+                            <div style="display: none !important; visibility: hidden !important;">
+                                <input type="text" id="comment-honeypot-field" name="website_trap_field" autocomplete="off">
+                            </div>
+
                             <div class="comment-row-fields">
                                 <input type="text" class="comment-name-input" placeholder="— Your Name (Max 15)" maxlength="15">
                                 <button type="submit" class="comment-submit-btn">Submit</button>
