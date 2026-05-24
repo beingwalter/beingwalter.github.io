@@ -373,49 +373,6 @@
             100% { opacity: 1; transform: translateY(0); }
         }
 
-        .play-btn, .top-btn, .context-btn {
-            background-color: transparent;
-            color: #64748b;
-            border: 1px solid #334155;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            font-size: 0.75rem;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            transition: all 0.15s ease;
-            white-space: nowrap;
-            text-decoration: none;
-        }
-
-        .play-btn:hover, .top-btn:hover, .context-btn:hover {
-            color: #cbd5e1;
-            border-color: #475569;
-        }
-
-        .play-btn.playing {
-            color: #38bdf8;
-            border-color: #0369a1;
-            background-color: #142430;
-        }
-
-        .context-btn.active-drawer {
-            color: #94a3b8;
-            border-color: #475569;
-            background-color: #1e252b;
-        }
-
-        footer {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 0.8rem;
-            color: #475569;
-            letter-spacing: 0.5px;
-        }
-
         /* OVERLAY MODAL COMMON STRUCTURE */
         .welcome-modal-overlay {
             display: none;
@@ -510,19 +467,36 @@
         }
 
         /* NATIVE OUTBOUND SHARE OVERLAY STYLING */
+        .native-share-field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        
+        .native-share-label {
+            font-family: sans-serif;
+            font-size: 0.8rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: -4px;
+            padding-left: 12px;
+        }
+
         .native-share-input {
             width: 100%;
             background-color: #1e252b;
             color: #f1f5f9;
             border: 1px solid #334155;
-            padding: 12px 20px;
+            padding: 10px 16px;
             border-radius: 25px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             box-sizing: border-box;
             outline: none;
-            text-align: center;
-            margin-bottom: 25px;
             transition: border-color 0.2s;
         }
         .native-share-input:focus {
@@ -588,14 +562,24 @@
         </div>
     </div>
 
-    <!-- NATIVE EMAIL SHARE POPUP OVERLAY ENGINE DOM -->
+    <!-- EXPANDED THREE-BOX NATIVE SHARE MODAL WORKSPACE -->
     <div id="native-share-modal" class="welcome-modal-overlay">
-        <div class="welcome-modal-card" style="max-width: 460px; padding: 20px;">
+        <div class="welcome-modal-card" style="max-width: 460px; padding: 24px 20px;">
             <h2 id="share-modal-title" style="margin-bottom: 10px; font-size: 1.4rem;">Share Poem</h2>
-            <p style="color: #94a3b8; font-size: 0.9rem; margin: 0 0 25px 0; font-family: sans-serif;">Enter your friend's email address below to natively deliver this verse straight to their inbox.</p>
+            <p style="color: #94a3b8; font-size: 0.9rem; margin: 0 0 20px 0; font-family: sans-serif;">Pass this reflection straight to a friend's inbox natively from the site server.</p>
             
             <form id="native-share-form" onsubmit="submitNativeShare(event)">
-                <input type="email" id="share-recipient-email" class="native-share-input" placeholder="friend@example.com" required>
+                <div class="native-share-field-group">
+                    <span class="native-share-label">Friend's Email Address</span>
+                    <input type="email" id="share-recipient-email" class="native-share-input" placeholder="recipient@example.com" required>
+                    
+                    <span class="native-share-label">Your Name (Optional)</span>
+                    <input type="text" id="share-sender-name" class="native-share-input" placeholder="Your name (uses email if blank)" maxlength="25">
+                    
+                    <span class="native-share-label">Your Email Address</span>
+                    <input type="email" id="share-sender-email" class="native-share-input" placeholder="youraddress@example.com" required>
+                </div>
+                
                 <div style="display:flex; justify-content: center; gap: 10px;">
                     <button type="button" class="native-share-btn cancel-style" onclick="closeShareModal()">Cancel</button>
                     <button type="submit" id="share-submit-btn" class="native-share-btn">Send Email</button>
@@ -642,7 +626,8 @@
         let activeCardElement = null;
         let activeSharePoemTitle = ""; 
 
-        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbwkcrjwCpCSATeswAM9GWaosZSFYSCTwpIAzjK7moLIB-1jbRY8QMrYql6F5IVfT2SlCQ/exec";
+        // ⚠️ PASTE YOUR BRAND-NEW WEB APP URL STRING GENERATED IN STEP 1 HERE BETWEEN THE QUOTES:
+        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbyDJ1JN5zs74_riKPgWLSAwwJ9xp5GijFwxDu2yjARAv1P9f8IYoSBD6w-e7BzuAZfLyQ/exec";
 
         function updateStickyPositions() {
             const mainHeader = document.getElementById('page-top');
@@ -676,6 +661,8 @@
             activeSharePoemTitle = poemTitle;
             document.getElementById('share-modal-title').innerText = `Share "${poemTitle}"`;
             document.getElementById('share-recipient-email').value = "";
+            document.getElementById('share-sender-name').value = "";
+            document.getElementById('share-sender-email').value = "";
             document.getElementById('native-share-modal').style.display = 'flex';
         }
 
@@ -686,11 +673,16 @@
 
         async function submitNativeShare(event) {
             event.preventDefault();
-            const emailInput = document.getElementById('share-recipient-email');
+            const recipientInput = document.getElementById('share-recipient-email');
+            const nameInput = document.getElementById('share-sender-name');
+            const emailInput = document.getElementById('share-sender-email');
             const submitBtn = document.getElementById('share-submit-btn');
-            const targetEmail = emailInput.value.trim();
+            
+            const targetEmail = recipientInput.value.trim();
+            const senderNameValue = nameInput.value.trim();
+            const senderEmailValue = emailInput.value.trim();
 
-            if (!targetEmail || !activeSharePoemTitle) return;
+            if (!targetEmail || !senderEmailValue || !activeSharePoemTitle) return;
 
             submitBtn.disabled = true;
             submitBtn.innerText = "Sending...";
@@ -698,7 +690,9 @@
             const sharePayload = {
                 submissionType: "share_form",
                 poemTitle: activeSharePoemTitle,
-                recipientEmail: targetEmail
+                recipientEmail: targetEmail,
+                senderName: senderNameValue,
+                senderEmail: senderEmailValue
             };
 
             try {
@@ -709,7 +703,7 @@
                     body: JSON.stringify(sharePayload)
                 });
                 
-                alert(`"${activeSharePoemTitle}" has been cleanly emailed to ${targetEmail}!`);
+                alert(`"${activeSharePoemTitle}" has been cleanly shared with ${targetEmail}!`);
                 closeShareModal();
             } catch (err) {
                 alert("The background share router is buffering. Please try again in a moment.");
