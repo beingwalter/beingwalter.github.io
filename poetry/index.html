@@ -39,7 +39,6 @@
             margin-bottom: 25px;
         }
 
-        /* Navigation Controls Container */
         .nav-controls {
             margin-bottom: 20px;
             display: flex;
@@ -66,7 +65,6 @@
             border-color: #475569;
         }
 
-        /* DYNAMIC FLASH ANIMATION */
         .nav-btn.flash-active {
             animation: buttonFlash 0.6s ease-in-out 3; 
         }
@@ -85,7 +83,6 @@
             }
         }
 
-        /* WELCOME BUBBLE LAYOUT */
         .toast-overlay {
             display: block;
             margin: 0 auto 15px auto; 
@@ -117,7 +114,6 @@
             margin-bottom: 15px;
         }
 
-        /* Diminutive Home Button Styling */
         .home-btn {
             background-color: #1e252b;
             border: 1px solid #334155;
@@ -137,7 +133,6 @@
             border-color: #475569;
         }
 
-        /* Search Bar Styling */
         .search-container {
             width: 100%;
             max-width: 400px;
@@ -190,7 +185,6 @@
             border-color: #334155;
         }
 
-        /* DYNAMIC INNER-CARD STICKY POEM HEADER */
         .poem-header {
             position: sticky;
             top: 150px; 
@@ -203,24 +197,16 @@
             margin: 0;
         }
 
-        /* Handles the fade-in exclusively when changing button filters */
         .animate-presence {
             animation: emergePresence 0.6s cubic-bezier(0.215, 0.610, 0.355, 1.000) forwards;
             opacity: 0; 
         }
 
         @keyframes emergePresence {
-            0% {
-                opacity: 0;
-                transform: translateY(12px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            0% { opacity: 0; transform: translateY(12px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
 
-        /* Centered Poem Title */
         h2 {
             font-weight: 400;
             font-size: 1.6rem;
@@ -229,7 +215,6 @@
             text-align: center;
         }
 
-        /* Sub-Header Metadata Row */
         .poem-meta {
             display: flex;
             justify-content: space-between;
@@ -248,12 +233,12 @@
             align-items: center;
         }
 
-        /* OPTIMIZED BOTTOM CONTAINER */
         .bottom-control-group {
             display: flex;
             gap: 8px;
             margin-top: 5px; 
             justify-content: flex-start;
+            flex-wrap: wrap;
         }
 
         .meta-details {
@@ -261,7 +246,6 @@
             text-align: right;
         }
 
-        /* Poem Content Block Layout */
         .poem-text {
             font-size: 1.1rem;
             white-space: pre-line;
@@ -277,7 +261,6 @@
             text-align: center;
         }
 
-        /* Context Block Style for Backstories and Explanations */
         .context-block {
             display: none; 
             margin: 0 40px 20px 40px;
@@ -291,7 +274,6 @@
             animation: expandDrawer 0.4s ease-out forwards;
         }
 
-        /* INLINE COMMENT COMPONENT STYLING */
         .comment-drawer {
             display: none;
             margin: 0 40px 20px 40px;
@@ -357,7 +339,6 @@
             background-color: #475569;
         }
 
-        /* SPACE-SAVING INLINE REFLECTION CONTAINER */
         .comments-display-area {
             display: none; 
             margin: 0 40px 40px 40px;
@@ -379,7 +360,6 @@
             animation: expandDrawer 0.3s ease-out forwards;
         }
 
-        /* Styled inline name badge */
         .reflection-author-inline {
             font-size: 0.8rem;
             color: #64748b;
@@ -393,7 +373,6 @@
             100% { opacity: 1; transform: translateY(0); }
         }
 
-        /* Shared Button Style for Minimal Controls */
         .play-btn, .top-btn, .context-btn {
             background-color: transparent;
             color: #64748b;
@@ -437,33 +416,89 @@
             letter-spacing: 0.5px;
         }
 
-        /* Mobile Adjustments */
+        /* NEWCOMER WELCOME FULL SCREEN MODAL INTERFACE OVERLAY */
+        .welcome-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(10, 12, 15, 0.96);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+            backdrop-filter: blur(8px);
+            animation: fadeInOverlay 0.4s ease forwards;
+        }
+
+        .welcome-modal-card {
+            background-color: #1e252b;
+            border: 1px solid #334155;
+            max-width: 500px;
+            width: 100%;
+            border-radius: 16px;
+            padding: 35px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            text-align: center;
+            box-sizing: border-box;
+            transform: scale(0.95);
+            animation: popModalCard 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .welcome-modal-text {
+            color: #cbd5e1;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            margin-bottom: 30px;
+            font-weight: 300;
+            letter-spacing: 0.3px;
+        }
+
+        .welcome-modal-btn {
+            background-color: #0369a1;
+            color: #ffffff;
+            border: 1px solid #0284c7;
+            padding: 10px 24px;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .welcome-modal-btn:hover {
+            background-color: #0284c7;
+            border-color: #0ea5e9;
+            transform: translateY(-1px);
+        }
+
+        @keyframes fadeInOverlay {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes popModalCard {
+            0% { transform: scale(0.92); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
         @media (max-width: 480px) {
-            body {
-                padding: 0 12px 25px 12px;
-            }
-            header {
-                padding-top: 25px; 
-                padding-bottom: 15px;
-            }
-            .poem-header {
-                padding: 20px 20px 12px 20px;
-            }
+            body { padding: 0 12px 25px 12px; }
+            header { padding-top: 25px; padding-bottom: 15px; }
+            .poem-header { padding: 20px 20px 12px 20px; }
             .poem-text {
                 padding: 25px 20px 15px 20px;
                 font-size: clamp(0.95rem, 4vw, 1.1rem) !important;
                 line-height: 1.7;
             }
-            .context-block, .comment-drawer, .comments-display-area {
-                margin-left: 20px;
-                margin-right: 20px;
-            }
-            .comments-display-area {
-                margin-bottom: 25px;
-            }
-            h2 {
-                font-size: 1.4rem;
-            }
+            .context-block, .comment-drawer, .comments-display-area { margin-left: 20px; margin-right: 20px; }
+            .comments-display-area { margin-bottom: 25px; }
+            h2 { font-size: 1.4rem; }
+            .welcome-modal-card { padding: 25px 20px; }
         }
     </style>
 </head>
@@ -477,6 +512,16 @@
             }
         });
     </script>
+
+    <div id="newcomer-welcome-modal" class="welcome-modal-overlay">
+        <div class="welcome-modal-card">
+            <h2 style="margin-top:0; color:#f8fafc; font-weight:300;">Welcome to the Space</h2>
+            <p class="welcome-modal-card-text welcome-modal-text">
+                This is a quiet corner for reflection, exploring themes of non-duality and pure awareness. Enjoy your stay as you browse the collection.
+            </p>
+            <button class="welcome-modal-btn" onclick="dismissWelcomeModal()">Enter Site</button>
+        </div>
+    </div>
 
     <header id="page-top">
         <h1>Walter's nondual poetry</h1>
@@ -520,13 +565,9 @@
         function updateStickyPositions() {
             const mainHeader = document.getElementById('page-top');
             if (!mainHeader) return;
-            
             const headerHeight = mainHeader.offsetHeight;
-            
             const cardHeaders = document.querySelectorAll('.poem-header');
-            cardHeaders.forEach(header => {
-                header.style.top = `${headerHeight}px`;
-            });
+            cardHeaders.forEach(header => { header.style.top = `${headerHeight}px`; });
         }
 
         function cleanSlug(title) {
@@ -540,10 +581,14 @@
 
         function parseHumanDate(dateStr) {
             const parts = dateStr.replace(',', '').split(' ');
-            if (parts.length >= 3) {
-                return `${parts[0].substring(0, 3)} ${parts[2]}`;
-            }
+            if (parts.length >= 3) { return `${parts[0].substring(0, 3)} ${parts[2]}`; }
             return dateStr;
+        }
+
+        // TRIGGER ENGAGEMENT TO EXPEL OVERLAY BOX SYSTEM
+        function dismissWelcomeModal() {
+            const modal = document.getElementById('newcomer-welcome-modal');
+            if (modal) modal.style.display = 'none';
         }
 
         async function loadPoetryData() {
@@ -568,10 +613,7 @@
                     let isCentered = false;
                     if (locationRaw.toLowerCase().includes('centered')) {
                         isCentered = true;
-                        locationRaw = locationRaw
-                            .replace(/[-\s,]*centered[-\s,]*/i, '')
-                            .replace(/^,+|,+$/g, '')
-                            .trim();
+                        locationRaw = locationRaw.replace(/[-\s,]*centered[-\s,]*/i, '').replace(/^,+|,+$/g, '').trim();
                     }
 
                     let bodyLines = rawLines.slice(3);
@@ -607,7 +649,6 @@
                 isTypingSearch = false;
                 render();
                 
-                // INLINE SLIDE ACTIVATION TRIGGER
                 const toast = document.getElementById('toast-message');
                 if (toast) {
                     toast.innerText = "Welcome";
@@ -622,9 +663,17 @@
                     }, 2600);
                 }
 
-                // URL CATCH ENGINE: Listens for incoming focus links arriving from stats dashboard
+                // HIGHLY STRATEGIC PARSING EXTENSION: Evaluates link origin vectors fluidly
                 const urlParams = new URLSearchParams(window.location.search);
                 const searchParam = urlParams.get('search');
+                const sharedParam = urlParams.get('shared'); // Shared check hook parameter
+
+                // Fire welcoming modal architecture if coming through a fresh shared email click node pipeline
+                if (sharedParam === 'true') {
+                    const modalOverlay = document.getElementById('newcomer-welcome-modal');
+                    if (modalOverlay) modalOverlay.style.display = 'flex';
+                }
+
                 if (searchParam) {
                     if (searchBox) {
                         searchBox.value = decodeURIComponent(searchParam);
@@ -632,7 +681,6 @@
                     }
                 }
 
-                // RESET FLASH UTILITY RULE
                 setTimeout(() => {
                     const randBtn = document.getElementById('btn-random');
                     if (randBtn) randBtn.classList.remove('flash-active');
@@ -652,7 +700,6 @@
                 
                 if (Array.isArray(data)) {
                     globalCommentsList = data;
-                    
                     const allStacks = document.querySelectorAll('.comments-display-area');
                     allStacks.forEach(stackEl => {
                         const poemTitle = stackEl.getAttribute('data-poem-title');
@@ -660,7 +707,6 @@
                         
                         if (matchingComments.length > 0) {
                             matchingComments.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-                            
                             let reflectionsHtmlBlock = '';
                             matchingComments.forEach(c => {
                                 const safeName = c.name ? c.name.toString().toUpperCase() : "ANONYMOUS";
@@ -675,9 +721,7 @@
                         }
                     });
                 }
-            } catch (err) {
-                console.log("Database bridge connection optimized.");
-            }
+            } catch (err) { console.log("Database connection optimized."); }
         }
 
         function handleSearch() {
@@ -686,34 +730,38 @@
             render();
         }
 
+        // DISPATCH HUB ENGINE FOR FRIEND EMAIL ROUTING LOGIC
+        function dispatchFriendShareEmail(titleEncoded) {
+            const rootDomainPath = window.location.origin + window.location.pathname;
+            const completeTargetShareLink = `${rootDomainPath}?search=${encodeURIComponent(titleEncoded.toLowerCase())}&shared=true`;
+            
+            const subjectLine = `A poem I wanted to share with you...`;
+            const messageBody = `Hi!\n\nI was browsing through Walter's poetry collection and read a piece titled "${titleEncoded}" that I thought you might appreciate.\n\nYou can read it directly here:\n${completeTargetShareLink}`;
+            
+            const mailtoCompositionLink = `mailto:?subject=${encodeURIComponent(subjectLine)}&body=${encodeURIComponent(messageBody)}`;
+            
+            // Safe target trigger pops native window application handler seamlessly
+            window.location.href = mailtoCompositionLink;
+        }
+
         function handleAudioTimeUpdate(audioElement) {
             if (!isAutoScrollingActive || !activeCardElement || !audioElement.duration) return;
-
             const cardRect = activeCardElement.getBoundingClientRect();
             const bodyElement = activeCardElement.querySelector('.poem-text');
             const bodyHeight = bodyElement ? bodyElement.offsetHeight : cardRect.height;
-            
             const progress = audioElement.currentTime / audioElement.duration;
             const mainHeader = document.getElementById('page-top');
             const headerOffset = mainHeader ? mainHeader.offsetHeight + 20 : 180; 
-
             const currentScrollTop = window.scrollY || document.documentElement.scrollTop;
             const cardAbsoluteTop = cardRect.top + currentScrollTop;
-            
             const targetScrollPosition = cardAbsoluteTop - headerOffset + (bodyHeight * progress * 0.70);
-
-            window.scrollTo({
-                top: targetScrollPosition,
-                behavior: 'smooth'
-            });
+            window.scrollTo({ top: targetScrollPosition, behavior: 'smooth' });
         }
 
         function stopAutoScrollOnInteraction() {
             if (isAutoScrollingActive) {
                 isAutoScrollingActive = false;
-                if (activeCardElement) {
-                    activeCardElement.classList.remove('audio-tracking');
-                }
+                if (activeCardElement) { activeCardElement.classList.remove('audio-tracking'); }
             }
         }
 
@@ -723,7 +771,6 @@
 
         function toggleAudio(audioId, btnElement, cardIndex) {
             if (btnElement.innerText.trim() === 'No audio') return;
-
             const audio = document.getElementById(audioId);
             const card = document.getElementById(`card-${cardIndex}`);
             
@@ -742,7 +789,6 @@
                 activeCardElement = card;
                 isAutoScrollingActive = true;
                 card.classList.add('audio-tracking');
-
                 const mainHeader = document.getElementById('page-top');
                 const headerOffset = mainHeader ? mainHeader.offsetHeight + 20 : 180;
                 const targetInitialTop = card.getBoundingClientRect().top + (window.scrollY || document.documentElement.scrollTop) - headerOffset;
@@ -753,7 +799,6 @@
                 btnElement.innerHTML = `<span>⏸</span> Pause`;
                 currentlyPlayingAudio = audio;
                 currentlyPlayingButton = btnElement;
-                
                 audio.ontimeupdate = () => handleAudioTimeUpdate(audio);
                 
                 audio.onended = () => {
@@ -784,10 +829,7 @@
                 drawer.style.display = 'block';
                 btnElement.classList.add('active-drawer');
                 btnElement.innerHTML = `<span>📕</span> Close context`;
-                
-                setTimeout(() => {
-                    drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }, 80);
+                setTimeout(() => { drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 80);
             }
         }
 
@@ -801,34 +843,24 @@
                 drawer.style.display = 'block';
                 btnElement.classList.add('active-drawer');
                 btnElement.innerHTML = `<span>❌</span> Cancel`;
-                
-                setTimeout(() => {
-                    drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }, 80);
+                setTimeout(() => { drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 80);
             }
         }
 
         async function submitComment(event, poemTitle, stackId, drawerId, btnId) {
             event.preventDefault(); 
-            
             const form = event.target;
             const textarea = form.querySelector('textarea');
             const nameInput = form.querySelector('input');
             const submitBtn = form.querySelector('button');
-            
             const textContent = textarea.value.trim();
             const authorName = nameInput.value.trim() || "Anonymous";
             
             if (!textContent) return;
-
             submitBtn.disabled = true;
             submitBtn.innerText = "Sharing...";
 
-            const payload = {
-                poemTitle: poemTitle,
-                name: authorName,
-                comment: textContent
-            };
+            const payload = { poemTitle: poemTitle, name: authorName, comment: textContent };
 
             try {
                 await fetch(DATABASE_API_URL, {
@@ -841,25 +873,19 @@
                 const displayArea = document.getElementById(stackId);
                 const newReflection = document.createElement('div');
                 newReflection.className = 'single-reflection';
-                
                 const safeName = authorName.toUpperCase();
-                newReflection.innerHTML = `
-                    <span class="reflection-author-inline">${safeName} —</span>${textContent}
-                `;
-                
+                newReflection.innerHTML = `<span class="reflection-author-inline">${safeName} —</span>${textContent}`;
                 displayArea.insertBefore(newReflection, displayArea.firstChild);
                 displayArea.style.display = 'flex';
 
                 textarea.value = "";
                 nameInput.value = "";
-                
                 document.getElementById(drawerId).style.display = 'none';
                 const commentBtn = document.getElementById(btnId);
                 if (commentBtn) {
                     commentBtn.classList.remove('active-drawer');
                     commentBtn.innerHTML = `<span>💬</span> Comment`;
                 }
-
             } catch (err) {
                 alert("The comment framework is currently buffering. Please try again in a moment.");
             } finally {
@@ -871,7 +897,6 @@
         function render() {
             const container = document.getElementById('poetry-container');
             container.innerHTML = "";
-            
             let displayList = allPoems.filter(poem => poem.title.toLowerCase().includes(searchQuery));
 
             if (currentMode === 'all') {
@@ -893,17 +918,10 @@
             displayList.forEach((poem, index) => {
                 const card = document.createElement('div');
                 card.id = `card-${index}`; 
-                
-                if (!isTypingSearch) {
-                    card.className = 'poem-card animate-presence';
-                } else {
-                    card.className = 'poem-card';
-                }
+                card.className = !isTypingSearch ? 'poem-card animate-presence' : 'poem-card';
 
                 let metaText = poem.displayDate;
-                if (poem.location) {
-                    metaText = `${poem.location}  •  ${poem.displayDate}`;
-                }
+                if (poem.location) { metaText = `${poem.location}  •  ${poem.displayDate}`; }
 
                 const audioId = `audio-${index}`;
                 const btnId = `btn-${index}`;
@@ -913,7 +931,6 @@
                 const stackId = `stack-${index}`;
                 const contextBtnId = `ctx-btn-${index}`;
                 const audioUrl = `${poem.slug}.mp3`;
-
                 const alignmentClass = poem.isCentered ? 'poem-text centered-body' : 'poem-text';
 
                 const topButtonHtml = (index === 0) ? '' : `
@@ -926,10 +943,6 @@
                     <button id="${contextBtnId}" class="context-btn" onclick="toggleContext('${drawerId}', this)">
                         <span>📖</span> Learn more
                     </button>
-                `;
-
-                const contextBlockHtml = (!poem.backstory) ? '' : `
-                    <div id="${drawerId}" class="context-block">${poem.backstory}</div>
                 `;
 
                 const matchingComments = globalCommentsList.filter(c => c.poemTitle === poem.title);
@@ -969,9 +982,12 @@
                         <button id="${commentBtnId}" class="context-btn" onclick="toggleCommentDrawer('${commentDrawerId}', this)">
                             <span>💬</span> Comment
                         </button>
+                        <button class="context-btn" onclick="dispatchFriendShareEmail('${safeEscapedTitle}')" title="Email this poem link directly to a friend">
+                            <span>✉️</span> Share with a Friend
+                        </button>
                     </div>
 
-                    ${contextBlockHtml}
+                    ${!poem.backstory ? '' : `<div id="${drawerId}" class="context-block">${poem.backstory}</div>`}
 
                     <div id="${commentDrawerId}" class="comment-drawer">
                         <form class="comment-form" onsubmit="submitComment(event, '${safeEscapedTitle}', '${stackId}', '${commentDrawerId}', '${commentBtnId}')">
@@ -994,20 +1010,14 @@
                 container.appendChild(card);
                 
                 const currentStack = document.getElementById(stackId);
-                const observer = new MutationObserver(() => {
-                    if (currentStack.children.length > 0) {
-                        currentStack.style.display = 'flex';
-                    }
-                });
+                const observer = new MutationObserver(() => { if (currentStack.children.length > 0) { currentStack.style.display = 'flex'; } });
                 observer.observe(currentStack, { childList: true });
 
                 const audioEl = document.getElementById(audioId);
                 if (audioEl) {
                     audioEl.addEventListener('error', () => {
                         const targetBtn = document.getElementById(btnId);
-                        if (targetBtn) {
-                            targetBtn.innerHTML = `No audio`;
-                        }
+                        if (targetBtn) { targetBtn.innerHTML = `No audio`; }
                     }, true);
                 }
             });
@@ -1016,21 +1026,14 @@
         }
 
         function changeMode(mode) {
-            if (currentlyPlayingAudio) {
-                currentlyPlayingAudio.pause();
-                currentlyPlayingAudio = null;
-                currentlyPlayingButton = null;
-            }
+            if (currentlyPlayingAudio) { currentlyPlayingAudio.pause(); currentlyPlayingAudio = null; currentlyPlayingButton = null; }
             stopAutoScrollOnInteraction();
-            
             currentMode = mode;
             ['btn-all', 'btn-latest', 'btn-random'].forEach(id => document.getElementById(id).classList.remove('active'));
             document.getElementById(`btn-${mode}`).classList.add('active');
-            
             document.getElementById('search-box').value = '';
             searchQuery = '';
             isTypingSearch = false;
-            
             window.scrollTo(0, 0);
             render();
         }
