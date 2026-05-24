@@ -606,7 +606,6 @@
         </div>
     </div>
 
-    <!-- NATIVE SHARE MODAL WORKSPACE -->
     <div id="native-share-modal" class="welcome-modal-overlay">
         <div class="welcome-modal-card" style="max-width: 460px; padding: 24px 20px;">
             <h2 id="share-modal-title" style="margin-bottom: 10px; font-size: 1.4rem;">Share Poem</h2>
@@ -696,9 +695,23 @@
             return dateStr;
         }
 
+        // FIXED: Entry modal dismiss checks for URL searches and skips clearing it out
         function dismissWelcomeModal() {
             const modal = document.getElementById('newcomer-welcome-modal');
             if (modal) modal.style.display = 'none';
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchParam = urlParams.get('search');
+            if (searchParam) {
+                // Keep the target parameters intact on confirmation close action
+                currentMode = 'all'; 
+                ['btn-all', 'btn-latest', 'btn-random'].forEach(id => document.getElementById(id).classList.remove('active'));
+                document.getElementById('btn-all').classList.add('active');
+                searchQuery = decodeURIComponent(searchParam).toLowerCase().trim();
+                const searchBox = document.getElementById('search-box');
+                if (searchBox) searchBox.value = decodeURIComponent(searchParam);
+                render();
+            }
         }
 
         function triggerNativeShareModal(poemTitle) {
@@ -812,6 +825,28 @@
                     searchBox.placeholder = `Search ${allPoems.length} titles...`;
                 }
 
+                // FIXED INITIALIZATION PARSING RULES
+                const urlParams = new URLSearchParams(window.location.search);
+                const searchParam = urlParams.get('search');
+                const sharedParam = urlParams.get('shared'); 
+
+                if (sharedParam === 'true') {
+                    const modalOverlay = document.getElementById('newcomer-welcome-modal');
+                    if (modalOverlay) modalOverlay.style.display = 'flex';
+                }
+
+                if (searchParam) {
+                    currentMode = 'all'; // Forces track off random sequence initialization
+                    searchQuery = decodeURIComponent(searchParam).toLowerCase().trim();
+                    if (searchBox) searchBox.value = decodeURIComponent(searchParam);
+                } else {
+                    currentMode = 'random';
+                }
+
+                // Realign control states dynamically
+                ['btn-all', 'btn-latest', 'btn-random'].forEach(id => document.getElementById(id).classList.remove('active'));
+                document.getElementById(`btn-${currentMode}`).classList.add('active');
+
                 isTypingSearch = false;
                 render();
                 
@@ -829,25 +864,9 @@
                     }, 2600);
                 }
 
-                const urlParams = new URLSearchParams(window.location.search);
-                const searchParam = urlParams.get('search');
-                const sharedParam = urlParams.get('shared'); 
-
-                if (sharedParam === 'true') {
-                    const modalOverlay = document.getElementById('newcomer-welcome-modal');
-                    if (modalOverlay) modalOverlay.style.display = 'flex';
-                }
-
-                if (searchParam) {
-                    if (searchBox) {
-                        searchBox.value = decodeURIComponent(searchParam);
-                        handleSearch();
-                    }
-                }
-
                 setTimeout(() => {
                     const randBtn = document.getElementById('btn-random');
-                    if (randBtn) randBtn.classList.remove('flash-active');
+                    if (randBtn && currentMode === 'random') randBtn.classList.remove('flash-active');
                 }, 2000);
 
             } catch (err) {
