@@ -716,7 +716,14 @@
             const urlParams = new URLSearchParams(window.location.search);
             const immediateUrlSearchParam = urlParams.get('search');
 
-            // STREAMLINED DYNAMIC LANDING STATE (NO INTERMEDIATE POP-UP STEPS)
+            // ⏱️ TIMING LOCK GUARD: If URL search parameters are processing, halt rendering 
+            // until the database array compilation is 100% finished.
+            if (immediateUrlSearchParam && allPoems.length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: #64748b; font-style: italic;">Opening reflection...</p>`;
+                return;
+            }
+
+            // DYNAMIC ONBOARD LANDING CARD BLOCK
             if (currentMode === 'landing' && !immediateUrlSearchParam && searchQuery === '') {
                 const welcomeCard = document.createElement('div');
                 welcomeCard.className = 'poem-card animate-presence';
@@ -745,7 +752,7 @@
                 document.getElementById('btn-all').classList.add('active');
             }
 
-            // ROBUST PARAMETER COMPARISON LOOKUP
+            // STABILIZED REGEX SUBSTRING LOOKUP PATTERNS
             let displayList = allPoems.filter(poem => {
                 let normalizedSearch = searchQuery.toLowerCase().replace(/%20/g, ' ').replace(/[\s-]+/g, ' ').trim();
                 let cleanTitleString = poem.title.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/[\s-]+/g, ' ').trim();
@@ -755,6 +762,12 @@
                        normalizedSearch.includes(cleanTitleString) || 
                        targetSlugMatch.includes(normalizedSearch);
             });
+
+            if (displayList.length === 0 && immediateUrlSearchParam) {
+                // Last-tier backup catch for complex characters layout matching
+                let partialKeyword = searchQuery.split(' ')[0];
+                displayList = allPoems.filter(poem => poem.title.toLowerCase().includes(partialKeyword));
+            }
 
             if (currentMode === 'all' || immediateUrlSearchParam) {
                 displayList.sort((a, b) => a.title.localeCompare(b.title));
@@ -809,7 +822,7 @@
                     </div>
                     <div id="${drawerId}" class="context-block">${poem.backstory}</div>
                     <div id="${commentDrawerId}" class="comment-drawer">
-                        <form class="comment-form" onsubmit="submitComment(event, '${poem.title.replace(/'/g, "\\'")}', '${stackId}', '${commentDrawerId}', '${commentBtnId}')">
+                        <form class="comment-form" onsubmit="submitComment(event, '${poem.title.replace(/'/g, "\\'")}', '${stackId}', '${commentDrawerId}', $.id)')">
                             <textarea class="comment-textarea" placeholder="Share a short reflection..." rows="2" maxlength="100" required></textarea>
                             <div class="comment-row-fields">
                                 <input type="text" class="comment-name-input" placeholder="— Your Name" maxlength="15">
