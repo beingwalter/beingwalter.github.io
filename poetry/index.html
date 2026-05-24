@@ -416,7 +416,7 @@
             letter-spacing: 0.5px;
         }
 
-        /* HOME PAGE BRAND MIRROR STYLES FOR OVERLAY DIALOG */
+        /* OVERLAY MODAL COMMON STRUCTURE */
         .welcome-modal-overlay {
             display: none;
             position: fixed;
@@ -481,7 +481,7 @@
             margin-bottom: 0;
         }
 
-        .welcome-modal-btn {
+        .welcome-modal-btn, .native-share-btn {
             background-color: #1e252b;
             color: #cbd5e1;
             border: 1px solid #334155;
@@ -494,10 +494,39 @@
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        .welcome-modal-btn:hover {
+        .welcome-modal-btn:hover, .native-share-btn:hover {
             background-color: #334155;
             border-color: #475569;
             color: #f8fafc;
+        }
+
+        .native-share-btn.cancel-style {
+            background-color: transparent;
+            border-color: transparent;
+            color: #64748b;
+        }
+        .native-share-btn.cancel-style:hover {
+            color: #e2e8f0;
+        }
+
+        /* NATIVE OUTBOUND SHARE OVERLAY STYLING */
+        .native-share-input {
+            width: 100%;
+            background-color: #1e252b;
+            color: #f1f5f9;
+            border: 1px solid #334155;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            box-sizing: border-box;
+            outline: none;
+            text-align: center;
+            margin-bottom: 25px;
+            transition: border-color 0.2s;
+        }
+        .native-share-input:focus {
+            border-color: #64748b;
         }
 
         @keyframes fadeInOverlay {
@@ -559,6 +588,22 @@
         </div>
     </div>
 
+    <!-- NATIVE EMAIL SHARE POPUP OVERLAY ENGINE DOM -->
+    <div id="native-share-modal" class="welcome-modal-overlay">
+        <div class="welcome-modal-card" style="max-width: 460px; padding: 20px;">
+            <h2 id="share-modal-title" style="margin-bottom: 10px; font-size: 1.4rem;">Share Poem</h2>
+            <p style="color: #94a3b8; font-size: 0.9rem; margin: 0 0 25px 0; font-family: sans-serif;">Enter your friend's email address below to natively deliver this verse straight to their inbox.</p>
+            
+            <form id="native-share-form" onsubmit="submitNativeShare(event)">
+                <input type="email" id="share-recipient-email" class="native-share-input" placeholder="friend@example.com" required>
+                <div style="display:flex; justify-content: center; gap: 10px;">
+                    <button type="button" class="native-share-btn cancel-style" onclick="closeShareModal()">Cancel</button>
+                    <button type="submit" id="share-submit-btn" class="native-share-btn">Send Email</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <header id="page-top">
         <h1>Walter's nondual poetry</h1>
         
@@ -595,6 +640,7 @@
         
         let isAutoScrollingActive = false;
         let activeCardElement = null;
+        let activeSharePoemTitle = ""; 
 
         const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycby81aAVsgaf0uieandQPBvUj8uStY6SFhCmDQDJRi_qYnI6dNvfK1pYefyDTfkt_vLXHA/exec";
 
@@ -624,6 +670,53 @@
         function dismissWelcomeModal() {
             const modal = document.getElementById('newcomer-welcome-modal');
             if (modal) modal.style.display = 'none';
+        }
+
+        function triggerNativeShareModal(poemTitle) {
+            activeSharePoemTitle = poemTitle;
+            document.getElementById('share-modal-title').innerText = `Share "${poemTitle}"`;
+            document.getElementById('share-recipient-email').value = "";
+            document.getElementById('native-share-modal').style.display = 'flex';
+        }
+
+        function closeShareModal() {
+            document.getElementById('native-share-modal').style.display = 'none';
+            activeSharePoemTitle = "";
+        }
+
+        async function submitNativeShare(event) {
+            event.preventDefault();
+            const emailInput = document.getElementById('share-recipient-email');
+            const submitBtn = document.getElementById('share-submit-btn');
+            const targetEmail = emailInput.value.trim();
+
+            if (!targetEmail || !activeSharePoemTitle) return;
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Sending...";
+
+            const sharePayload = {
+                submissionType: "share_form",
+                poemTitle: activeSharePoemTitle,
+                recipientEmail: targetEmail
+            };
+
+            try {
+                await fetch(DATABASE_API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(sharePayload)
+                });
+                
+                alert(`"${activeSharePoemTitle}" has been cleanly emailed to ${targetEmail}!`);
+                closeShareModal();
+            } catch (err) {
+                alert("The background share router is buffering. Please try again in a moment.");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Send Email";
+            }
         }
 
         async function loadPoetryData() {
@@ -763,33 +856,6 @@
             render();
         }
 
-        function dispatchFriendShareEmail(titleEncoded) {
-            const sharePayload = {
-                action: "share",
-                poemTitle: titleEncoded
-            };
-
-            try {
-                fetch(DATABASE_API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(sharePayload)
-                });
-            } catch (e) {
-                console.log("Telemetry log buffered.");
-            }
-
-            const rootDomainPath = window.location.origin + window.location.pathname;
-            const completeTargetShareLink = `${rootDomainPath}?search=${encodeURIComponent(titleEncoded.toLowerCase())}&shared=true`;
-            
-            const subjectLine = `A poem I wanted to share with you...`;
-            const messageBody = `Hi!\n\nI was browsing through the poetry collection on beingwalter.com and read a piece titled "${titleEncoded}" that I thought you might appreciate.\n\nYou can read it directly here:\n${completeTargetShareLink}\n\nWarmly,\nwalter@beingwalter.com`;
-            
-            const mailtoCompositionLink = `mailto:?subject=${encodeURIComponent(subjectLine)}&body=${encodeURIComponent(messageBody)}`;
-            window.location.href = mailtoCompositionLink;
-        }
-
         function handleAudioTimeUpdate(audioElement) {
             if (!isAutoScrollingActive || !activeCardElement || !audioElement.duration) return;
             const cardRect = activeCardElement.getBoundingClientRect();
@@ -897,7 +963,6 @@
             event.preventDefault(); 
             const form = event.target;
 
-            // HONEYPOT SCANNER RULE: Instantly short circuits submission if filled by malicious bots
             const botTrapValue = form.querySelector('#comment-honeypot-field')?.value;
             if (botTrapValue && botTrapValue.trim() !== "") {
                 console.log("Automated interaction filtered.");
@@ -915,7 +980,12 @@
             submitBtn.disabled = true;
             submitBtn.innerText = "Sharing...";
 
-            const payload = { poemTitle: poemTitle, name: authorName, comment: textContent };
+            const payload = { 
+                submissionType: "comment_form",
+                poemTitle: poemTitle, 
+                name: authorName, 
+                comment: textContent 
+            };
 
             try {
                 await fetch(DATABASE_API_URL, {
@@ -1037,7 +1107,7 @@
                         <button id="${commentBtnId}" class="context-btn" onclick="toggleCommentDrawer('${commentDrawerId}', this)">
                             <span>💬</span> Comment
                         </button>
-                        <button class="context-btn" onclick="dispatchFriendShareEmail('${safeEscapedTitle}')" title="Email this poem link directly to a friend">
+                        <button class="context-btn" onclick="triggerNativeShareModal('${safeEscapedTitle}')" title="Email this poem natively to a friend without leaving the site">
                             <span>✉️</span> Share with a Friend
                         </button>
                     </div>
