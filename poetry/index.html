@@ -348,13 +348,6 @@
             border-color: #475569;
         }
 
-        .play-btn:disabled {
-            color: #475569 !important;
-            border-color: #222c36 !important;
-            cursor: not-allowed !important;
-            background: transparent !important;
-        }
-
         .welcome-modal-overlay {
             display: none;
             position: fixed;
@@ -382,40 +375,7 @@
             animation: popModalCard 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
-        .modal-brand-header {
-            font-size: 2.8rem;
-            color: #ffffff;
-            margin: 0 0 5px 0;
-            font-weight: 400;
-            letter-spacing: 0.5px;
-        }
-
-        .modal-brand-subtitle {
-            font-style: italic;
-            color: #64748b;
-            font-size: 1.15rem;
-            margin: 0 0 40px 0;
-            letter-spacing: 0.5px;
-            font-weight: 400;
-        }
-
-        .modal-text-quote-wrapper {
-            border-left: 2px solid #22303d;
-            padding-left: 24px;
-            text-align: left;
-            margin-bottom: 40px;
-        }
-
-        .welcome-modal-text {
-            color: #cbd5e1;
-            font-size: 1.05rem;
-            line-height: 1.75;
-            margin: 0 0 25px 0;
-            font-weight: 400;
-            letter-spacing: 0.3px;
-        }
-
-        .welcome-modal-btn, .native-share-btn {
+        .native-share-btn {
             background-color: #1e252b;
             color: #cbd5e1;
             border: 1px solid #334155;
@@ -428,7 +388,7 @@
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        .welcome-modal-btn:hover, .native-share-btn:hover {
+        .native-share-btn:hover {
             background-color: #334155;
             border-color: #475569;
             color: #f8fafc;
@@ -492,27 +452,6 @@
     </style>
 </head>
 <body>
-
-    <script>
-        window.addEventListener('error', function(e) {
-            const container = document.getElementById('poetry-container');
-            if (container) {
-                container.innerHTML = `<p style="color: #ef4444; padding: 20px; text-align: center; font-family: monospace;"><b>Diagnostic Alert:</b><br>${e.message}<br>Line: ${e.lineno}</p>`;
-            }
-        });
-    </script>
-
-    <div id="newcomer-welcome-modal" class="welcome-modal-overlay">
-        <div class="welcome-modal-card">
-            <h1 class="modal-brand-header">Being Walter</h1>
-            <div class="modal-brand-subtitle">Nondual Poetry & Haiku</div>
-            <div class="modal-text-quote-wrapper">
-                <p class="welcome-modal-text">Welcome. This space is offered simply as a place to share my poetry, haiku and a quiet understanding of nonduality with anyone who feels inclined to look.</p>
-                <p class="welcome-modal-text">There is nothing to buy, no identity to build, and no destination to reach. Inside, you will find a collection of poems written starting around 2019, alongside audio recordings where you can listen to them read aloud.</p>
-            </div>
-            <button class="welcome-modal-btn" onclick="dismissWelcomeModal()">Enter Site</button>
-        </div>
-    </div>
 
     <!-- NATIVE SHARE MODAL WORKSPACE -->
     <div id="native-share-modal" class="welcome-modal-overlay">
@@ -588,18 +527,13 @@
 
         function parseSortDate(dateStr) {
             const d = new Date(dateStr);
-            return isNaN(d.getTime()) ? "2026-01-01" : d.toISOString().split('T')[0]; // FIXED REPAIRED LINK REGION
+            return isNaN(d.getTime()) ? "2026-01-01" : d.toISOString().split('T')[0];
         }
 
         function parseHumanDate(dateStr) {
             const parts = dateStr.replace(',', '').split(' ');
             if (parts.length >= 3) { return `${parts[0].substring(0, 3)} ${parts[2]}`; }
             return dateStr;
-        }
-
-        function dismissWelcomeModal() {
-            const modal = document.getElementById('newcomer-welcome-modal');
-            if (modal) modal.style.display = 'none';
         }
 
         function triggerNativeShareModal(poemTitle) {
@@ -712,12 +646,6 @@
 
                 const urlParams = new URLSearchParams(window.location.search);
                 const searchParam = urlParams.get('search');
-                const sharedParam = urlParams.get('shared'); 
-
-                if (sharedParam === 'true') {
-                    const modalOverlay = document.getElementById('newcomer-welcome-modal');
-                    if (modalOverlay) modalOverlay.style.display = 'flex';
-                }
 
                 if (searchParam) {
                     currentMode = 'all'; 
@@ -762,7 +690,7 @@
         }
 
         function toggleAudio(audioId, btnElement, cardIndex) {
-            if (btnElement.innerText.trim() === 'No audio' || btnElement.disabled) return;
+            if (btnElement.innerText.trim() === 'No audio') return;
             const audio = document.getElementById(audioId);
             const card = document.getElementById(`card-${cardIndex}`);
             
@@ -788,21 +716,21 @@
             const urlParams = new URLSearchParams(window.location.search);
             const immediateUrlSearchParam = urlParams.get('search');
 
-            // INTRODUCTORY LANDING WORKSPACE (TOP HOVER CLOSENESS ADJUSTED)
+            // STREAMLINED DYNAMIC LANDING STATE (NO INTERMEDIATE POP-UP STEPS)
             if (currentMode === 'landing' && !immediateUrlSearchParam && searchQuery === '') {
                 const welcomeCard = document.createElement('div');
                 welcomeCard.className = 'poem-card animate-presence';
                 welcomeCard.innerHTML = `
                     <div class="poem-header" style="border-bottom: none; padding-bottom: 0px;">
                         <h2>Click a button to start</h2>
-                        <div class="poem-meta" style="display: none;">
-                            <span class="meta-details"></span>
-                        </div>
                     </div>
-                    <div class="poem-text" style="padding: 10px 40px 30px 40px; text-align: left; letter-spacing: 0.3px; margin-top: 0px !important;">
+                    <div class="poem-text" style="padding: 10px 40px 15px 40px; text-align: left; letter-spacing: 0.3px; margin-top: 0px !important;">
                         <strong>Latest:</strong> the newest poem written<br>
                         <strong>A - Z:</strong> an alphabetical list<br>
                         <strong>Random:</strong> let the universe decide!
+                    </div>
+                    <div class="poem-text" style="padding: 15px 40px 30px 40px; text-align: left; font-size: 0.98rem; line-height: 1.7; color: #94a3b8; border-top: 1px dashed #2d3742;">
+                        Welcome. This space is offered simply as a place to share my poetry, haiku and a quiet understanding of nonduality with anyone who feels inclined to look.<br><br>There is nothing to buy, no identity to build, and no destination to reach. Inside, you will find a collection of poems written starting around 2019, alongside audio recordings where you can listen to them read aloud.<br><br><span style="font-style: italic; color: #64748b;">More poems and audio files are being added weekly.</span>
                     </div>
                 `;
                 container.appendChild(welcomeCard);
@@ -817,7 +745,7 @@
                 document.getElementById('btn-all').classList.add('active');
             }
 
-            // CROSS-MUTATION ALIGNMENT SEARCH LOGIC
+            // ROBUST PARAMETER COMPARISON LOOKUP
             let displayList = allPoems.filter(poem => {
                 let normalizedSearch = searchQuery.toLowerCase().replace(/%20/g, ' ').replace(/[\s-]+/g, ' ').trim();
                 let cleanTitleString = poem.title.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/[\s-]+/g, ' ').trim();
