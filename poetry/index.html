@@ -606,7 +606,6 @@
         </div>
     </div>
 
-    <!-- NATIVE SHARE MODAL WORKSPACE -->
     <div id="native-share-modal" class="welcome-modal-overlay">
         <div class="welcome-modal-card" style="max-width: 460px; padding: 24px 20px;">
             <h2 id="share-modal-title" style="margin-bottom: 10px; font-size: 1.4rem;">Share Poem</h2>
@@ -638,8 +637,7 @@
         <div class="nav-controls">
             <button class="nav-btn" id="btn-latest" onclick="changeMode('latest')">Latest</button>
             <button class="nav-btn" id="btn-all" onclick="changeMode('all')">A - Z</button>
-            <button class="nav-btn active flash-active" id="btn-random" onclick="changeMode('random')">Random</button>
-            <a href="../" class="home-btn" title="Return Home">🏠</a>
+            <button class="nav-btn active" id="btn-random" onclick="changeMode('random')">Random</button>
         </div>
 
         <div id="toast-message" class="toast-overlay">Welcome</div>
@@ -665,13 +663,13 @@
         let currentlyPlayingAudio = null;
         let currentlyPlayingButton = null;
         let isTypingSearch = false;
-        let isUrlSharedStateActive = false; // STOPS COMMENTS REFRESH FROM OVERRIDING SHARE LINKS
         
         let isAutoScrollingActive = false;
         let activeCardElement = null;
         let activeSharePoemTitle = ""; 
 
-        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbw3ubK-6wcnG5Wv4pD5ahntjUOq7UO2DtyA4ZKbVBLrAL8TdkKM-Z9drqNbWLFQOQckqg/exec";
+        // ⚠️ ENTIRE DATABASE CONNECTION CONTROL LINK STRING LOCATION
+        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbyQEF7GLy3YAHvittxH0h0VEEqtyaedpK8i75C4LbhF7H2PiJ5ms6ZrGhRqDA0TIPajtw/exec";
 
         function updateStickyPositions() {
             const mainHeader = document.getElementById('page-top');
@@ -699,19 +697,6 @@
         function dismissWelcomeModal() {
             const modal = document.getElementById('newcomer-welcome-modal');
             if (modal) modal.style.display = 'none';
-            
-            const urlParams = new URLSearchParams(window.location.search);
-            const searchParam = urlParams.get('search');
-            if (searchParam) {
-                isUrlSharedStateActive = true; 
-                currentMode = 'all'; 
-                ['btn-all', 'btn-latest', 'btn-random'].forEach(id => document.getElementById(id).classList.remove('active'));
-                document.getElementById('btn-all').add('active');
-                searchQuery = decodeURIComponent(searchParam).toLowerCase().trim();
-                const searchBox = document.getElementById('search-box');
-                if (searchBox) searchBox.value = decodeURIComponent(searchParam);
-                render();
-            }
         }
 
         function triggerNativeShareModal(poemTitle) {
@@ -825,6 +810,7 @@
                     searchBox.placeholder = `Search ${allPoems.length} titles...`;
                 }
 
+                // CHECK FOR INCOMING LINK PARAMETERS IMMEDIATELY
                 const urlParams = new URLSearchParams(window.location.search);
                 const searchParam = urlParams.get('search');
                 const sharedParam = urlParams.get('shared'); 
@@ -835,14 +821,14 @@
                 }
 
                 if (searchParam) {
-                    isUrlSharedStateActive = true; 
-                    currentMode = 'all'; 
+                    currentMode = 'all'; // Circumvents the default random assignment completely
                     searchQuery = decodeURIComponent(searchParam).toLowerCase().trim();
                     if (searchBox) searchBox.value = decodeURIComponent(searchParam);
                 } else {
                     currentMode = 'random';
                 }
 
+                // Re-align your top sticky header button states highlight
                 ['btn-all', 'btn-latest', 'btn-random'].forEach(id => document.getElementById(id).classList.remove('active'));
                 document.getElementById(`btn-${currentMode}`).classList.add('active');
 
@@ -862,11 +848,6 @@
                         setTimeout(updateStickyPositions, 450); 
                     }, 2600);
                 }
-
-                setTimeout(() => {
-                    const randBtn = document.getElementById('btn-random');
-                    if (randBtn && currentMode === 'random') randBtn.classList.remove('flash-active');
-                }, 2000);
 
             } catch (err) {
                 document.getElementById('poetry-container').innerHTML = 
@@ -907,7 +888,6 @@
         }
 
         function handleSearch() {
-            isUrlSharedStateActive = false; // Manual input breaks freeze layout
             isTypingSearch = true;
             searchQuery = document.getElementById('search-box').value.toLowerCase().trim();
             render();
@@ -1079,9 +1059,22 @@
         function render() {
             const container = document.getElementById('poetry-container');
             container.innerHTML = "";
+            
+            // IRON CLAD SEARCH QUERY ENFORCEMENT:
+            // Checks the URL parameters directly during rendering execution to maintain shared layout locks
+            const urlParams = new URLSearchParams(window.location.search);
+            const immediateUrlSearchParam = urlParams.get('search');
+            
+            if (immediateUrlSearchParam && searchQuery === '') {
+                searchQuery = decodeURIComponent(immediateUrlSearchParam).toLowerCase().trim();
+                currentMode = 'all';
+                ['btn-all', 'btn-latest', 'btn-random'].forEach(id => document.getElementById(id).classList.remove('active'));
+                document.getElementById('btn-all').classList.add('active');
+            }
+
             let displayList = allPoems.filter(poem => poem.title.toLowerCase().includes(searchQuery));
 
-            if (currentMode === 'all' || isUrlSharedStateActive) {
+            if (currentMode === 'all' || immediateUrlSearchParam) {
                 displayList.sort((a, b) => a.title.localeCompare(b.title));
             } else if (currentMode === 'latest') {
                 displayList.sort((a, b) => b.sortDate.localeCompare(a.sortDate));
@@ -1100,7 +1093,7 @@
             displayList.forEach((poem, index) => {
                 const card = document.createElement('div');
                 card.id = `card-${index}`; 
-                card.className = (!isTypingSearch && !isUrlSharedStateActive) ? 'poem-card animate-presence' : 'poem-card';
+                card.className = (!isTypingSearch && !immediateUrlSearchParam) ? 'poem-card animate-presence' : 'poem-card';
 
                 let metaText = poem.displayDate;
                 if (poem.location) { metaText = `${poem.location}  •  ${poem.displayDate}`; }
@@ -1213,7 +1206,12 @@
         }
 
         function changeMode(mode) {
-            isUrlSharedStateActive = false; // Breaking out of shared view manually clears lock
+            // Manually clicking a mode button breaks the URL param filter lock
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('search')) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+            
             if (currentlyPlayingAudio) { currentlyPlayingAudio.pause(); currentlyPlayingAudio = null; currentlyPlayingButton = null; }
             stopAutoScrollOnInteraction();
             currentMode = mode;
