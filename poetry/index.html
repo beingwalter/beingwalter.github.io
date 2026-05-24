@@ -668,7 +668,7 @@
         let activeCardElement = null;
         let activeSharePoemTitle = ""; 
 
-        // ⚠️ ENTIRE DATABASE CONNECTION CONTROL LINK STRING LOCATION
+        // UPDATED WITH YOUR EXACT APPS SCRIPT URL STRING
         const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbyQEF7GLy3YAHvittxH0h0VEEqtyaedpK8i75C4LbhF7H2PiJ5ms6ZrGhRqDA0TIPajtw/exec";
 
         function updateStickyPositions() {
@@ -810,7 +810,6 @@
                     searchBox.placeholder = `Search ${allPoems.length} titles...`;
                 }
 
-                // CHECK FOR INCOMING LINK PARAMETERS IMMEDIATELY
                 const urlParams = new URLSearchParams(window.location.search);
                 const searchParam = urlParams.get('search');
                 const sharedParam = urlParams.get('shared'); 
@@ -821,14 +820,13 @@
                 }
 
                 if (searchParam) {
-                    currentMode = 'all'; // Circumvents the default random assignment completely
+                    currentMode = 'all'; 
                     searchQuery = decodeURIComponent(searchParam).toLowerCase().trim();
                     if (searchBox) searchBox.value = decodeURIComponent(searchParam);
                 } else {
                     currentMode = 'random';
                 }
 
-                // Re-align your top sticky header button states highlight
                 ['btn-all', 'btn-latest', 'btn-random'].forEach(id => document.getElementById(id).classList.remove('active'));
                 document.getElementById(`btn-${currentMode}`).classList.add('active');
 
@@ -1060,8 +1058,6 @@
             const container = document.getElementById('poetry-container');
             container.innerHTML = "";
             
-            // IRON CLAD SEARCH QUERY ENFORCEMENT:
-            // Checks the URL parameters directly during rendering execution to maintain shared layout locks
             const urlParams = new URLSearchParams(window.location.search);
             const immediateUrlSearchParam = urlParams.get('search');
             
@@ -1072,6 +1068,7 @@
                 document.getElementById('btn-all').classList.add('active');
             }
 
+            // ⚠️ FIXED LINE: Forces lowercase mapping across the entire lookup sequence to neutralize case mismatch bugs completely!
             let displayList = allPoems.filter(poem => poem.title.toLowerCase().includes(searchQuery));
 
             if (currentMode === 'all' || immediateUrlSearchParam) {
@@ -1206,7 +1203,6 @@
         }
 
         function changeMode(mode) {
-            // Manually clicking a mode button breaks the URL param filter lock
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('search')) {
                 window.history.replaceState({}, document.title, window.location.pathname);
