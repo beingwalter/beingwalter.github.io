@@ -588,7 +588,7 @@
 
         function parseSortDate(dateStr) {
             const d = new Date(dateStr);
-            return isNaN(d.getTime()) ? "2026-01-01" : d.toISOString].split('T')[0];
+            return isNaN(d.getTime()) ? "2026-01-01" : d.toISOString().split('T')[0]; // FIXED REPAIRED LINK REGION
         }
 
         function parseHumanDate(dateStr) {
@@ -788,21 +788,18 @@
             const urlParams = new URLSearchParams(window.location.search);
             const immediateUrlSearchParam = urlParams.get('search');
 
-            // INTRODUCTORY LANDING WORKSPACE (SPACING OPTIMIZED)
+            // INTRODUCTORY LANDING WORKSPACE (TOP HOVER CLOSENESS ADJUSTED)
             if (currentMode === 'landing' && !immediateUrlSearchParam && searchQuery === '') {
                 const welcomeCard = document.createElement('div');
                 welcomeCard.className = 'poem-card animate-presence';
                 welcomeCard.innerHTML = `
-                    <div class="poem-header" style="border-bottom: none;">
+                    <div class="poem-header" style="border-bottom: none; padding-bottom: 0px;">
                         <h2>Click a button to start</h2>
-                        <div class="poem-meta">
-                            <div class="control-group">
-                                <button class="play-btn" disabled style="visibility: hidden;"><span>▶</span> Play</button>
-                            </div>
+                        <div class="poem-meta" style="display: none;">
                             <span class="meta-details"></span>
                         </div>
                     </div>
-                    <div class="poem-text" style="padding: 0px 40px 30px 40px; text-align: left; letter-spacing: 0.3px; margin-top: 0px !important;">
+                    <div class="poem-text" style="padding: 10px 40px 30px 40px; text-align: left; letter-spacing: 0.3px; margin-top: 0px !important;">
                         <strong>Latest:</strong> the newest poem written<br>
                         <strong>A - Z:</strong> an alphabetical list<br>
                         <strong>Random:</strong> let the universe decide!
@@ -820,7 +817,7 @@
                 document.getElementById('btn-all').classList.add('active');
             }
 
-            // ADVANCED STAGE LOOKUP ENGINE (Cross-checking clean title substrings and slug arrays)
+            // CROSS-MUTATION ALIGNMENT SEARCH LOGIC
             let displayList = allPoems.filter(poem => {
                 let normalizedSearch = searchQuery.toLowerCase().replace(/%20/g, ' ').replace(/[\s-]+/g, ' ').trim();
                 let cleanTitleString = poem.title.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/[\s-]+/g, ' ').trim();
