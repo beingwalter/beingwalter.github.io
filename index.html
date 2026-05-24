@@ -823,7 +823,7 @@
                     </div>
                     <div id="${drawerId}" class="context-block">${poem.backstory}</div>
                     <div id="${commentDrawerId}" class="comment-drawer">
-                        <form class="comment-form" onsubmit="submitComment(event, '${poem.title.replace(/'/g, "\\\\'")}', 'stack-${index}', 'comment-${index}', 'btn-${index}')"
+                        <form class="comment-form" onsubmit="submitComment(event, '${poem.title.replace(/'/g, "\\'")}', '${stackId}', '${commentDrawerId}', '${commentBtnId}')">
                             <textarea class="comment-textarea" placeholder="Share a short reflection..." rows="2" maxlength="100" required></textarea>
                             <div class="comment-row-fields">
                                 <input type="text" class="comment-name-input" placeholder="— Your Name" maxlength="15">
