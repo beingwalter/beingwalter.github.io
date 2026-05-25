@@ -866,27 +866,30 @@
         window.addEventListener('DOMContentLoaded', loadPoetryData);
         window.addEventListener('resize', updateStickyPositions);
         
-        async function submitComment(event, title, drawerId) {
-    event.preventDefault(); // This stops the page from refreshing
+      async function submitComment(event, title, drawerId) {
+    event.preventDefault();
     
-    const formData = new FormData(event.target);
+    const form = event.target;
+    // Explicitly fetching the values to ensure they aren't empty
+    const nameValue = form.querySelector('input[name="name"]').value || "Anonymous";
+    const commentValue = form.querySelector('textarea[name="comment"]').value;
+    
     const payload = { 
         submissionType: "comment_form", 
-        poemTitle: title, 
-        name: formData.get('name'), 
-        comment: formData.get('comment') 
+        PoemTitle: title, // Matches your spreadsheet header exactly
+        name: nameValue, 
+        comment: commentValue 
     };
     
-    // Replace 'YOUR_GOOGLE_SCRIPT_URL' with your actual deployment URL
-    await fetch('https://script.google.com/macros/s/AKfycbwf-G2gUEREkjI9jqYSW61rvrKwXasOP6C48mhlyPHv5d8NIwrrP3h12p-xETPC7WbKlg/exec', { 
+    await fetch('https://script.google.com/macros/s/AKfycbwf-G2gUEREkjI9jqYSW61rvrKwXasOP6C48mhlyPHv5d8NIwrrP3h12p-xETPC7Wbklg/exec', { 
         method: 'POST', 
         mode: 'no-cors', 
         body: JSON.stringify(payload) 
     });
     
     alert("Submitted.");
-    event.target.reset(); // Clears the form
-    document.getElementById(drawerId).style.display = 'none'; // Closes the drawer
+    form.reset();
+    document.getElementById(drawerId).style.display = 'none';
 }
     </script>
 </body>
