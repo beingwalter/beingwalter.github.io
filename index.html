@@ -516,7 +516,7 @@
         let activeCardElement = null;
         let activeSharePoemTitle = ""; 
 
-        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbzRtxElqAS_0U2oXa2zpCaTQx_TNHI7VcrXGrUYGBhS_4iBd_cmlCvBVd7f6e9mOSN8PQ/exec";
+        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbyQEF7GLy3YAHvittxH0h0VEEqtyaedpK8i75C4LbhF7H2PiJ5ms6ZrGhRqDA0TIPajtw/exec";
 
         function updateStickyPositions() {
             const mainHeader = document.getElementById('page-top');
@@ -865,32 +865,6 @@
 
         window.addEventListener('DOMContentLoaded', loadPoetryData);
         window.addEventListener('resize', updateStickyPositions);
-        
-      async function submitComment(event, title, drawerId) {
-    event.preventDefault();
-    
-    const form = event.target;
-    // Explicitly fetching the values to ensure they aren't empty
-    const nameValue = form.querySelector('input[name="name"]').value || "Anonymous";
-    const commentValue = form.querySelector('textarea[name="comment"]').value;
-    
-    const payload = { 
-        submissionType: "comment_form", 
-        PoemTitle: title, // Matches your spreadsheet header exactly
-        name: nameValue, 
-        comment: commentValue 
-    };
-    
-    await fetch('https://script.google.com/macros/s/AKfycbzRtxElqAS_0U2oXa2zpCaTQx_TNHI7VcrXGrUYGBhS_4iBd_cmlCvBVd7f6e9mOSN8PQ/exec', { 
-        method: 'POST', 
-        mode: 'no-cors', 
-        body: JSON.stringify(payload) 
-    });
-    
-    alert("Submitted.");
-    form.reset();
-    document.getElementById(drawerId).style.display = 'none';
-}
     </script>
 </body>
 </html>
