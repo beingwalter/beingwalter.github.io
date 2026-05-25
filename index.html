@@ -516,7 +516,7 @@
         let activeCardElement = null;
         let activeSharePoemTitle = ""; 
 
-        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbzLIOosA8uC7U0i8f3DSqbhQRlq_2jip__dm6Tuym-i2OU6CkymKWzuJv311uR5YzuNgA/exec";
+        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbyvOkaEXEyoOygal4Wkwr0Ia3bzCrq90OuNPxUSTwVaipYAlXSwNGEGvMLPdXsVMaa9QA/exec";
 
         function updateStickyPositions() {
             const mainHeader = document.getElementById('page-top');
@@ -573,10 +573,15 @@
 
             const sharePayload = {
                 submissionType: "share_form",
-                poemTitle: activeSharePoemTitle,
+                recipient_email: targetEmail,
+                sender_email: senderEmailValue,
+                poem_title: activeSharePoemTitle,
+
+                // Compatibility aliases for older backend versions.
                 recipientEmail: targetEmail,
-                senderName: senderNameValue,
-                senderEmail: senderEmailValue
+                senderEmail: senderEmailValue,
+                poemTitle: activeSharePoemTitle,
+                senderName: senderNameValue
             };
 
             try {
@@ -798,7 +803,7 @@
                 const commentDrawerId = `comment-drawer-${index}`, commentBtnId = `comment-btn-${index}`, stackId = `stack-${index}`;
                 const audioUrl = `poetry/${poem.slug}.mp3`, alignmentClass = poem.isCentered ? 'poem-text centered-body' : 'poem-text';
 
-                const matchingComments = globalCommentsList.filter(c => c.poemTitle === poem.title);
+                const matchingComments = globalCommentsList.filter(c => (c.poemTitle || c.PoemTitle) === poem.title);
                 matchingComments.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
                 let reflectionsHtmlBlock = '';
                 matchingComments.forEach(c => {
