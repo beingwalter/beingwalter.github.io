@@ -865,6 +865,29 @@
 
         window.addEventListener('DOMContentLoaded', loadPoetryData);
         window.addEventListener('resize', updateStickyPositions);
+        
+        async function submitComment(event, title, drawerId) {
+    event.preventDefault(); // This stops the page from refreshing
+    
+    const formData = new FormData(event.target);
+    const payload = { 
+        submissionType: "comment_form", 
+        poemTitle: title, 
+        name: formData.get('name'), 
+        comment: formData.get('comment') 
+    };
+    
+    // Replace 'YOUR_GOOGLE_SCRIPT_URL' with your actual deployment URL
+    await fetch('https://script.google.com/macros/s/AKfycbwf-G2gUEREkjI9jqYSW61rvrKwXasOP6C48mhlyPHv5d8NIwrrP3h12p-xETPC7WbKlg/exec', { 
+        method: 'POST', 
+        mode: 'no-cors', 
+        body: JSON.stringify(payload) 
+    });
+    
+    alert("Submitted.");
+    event.target.reset(); // Clears the form
+    document.getElementById(drawerId).style.display = 'none'; // Closes the drawer
+}
     </script>
 </body>
 </html>
