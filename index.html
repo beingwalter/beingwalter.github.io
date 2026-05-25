@@ -644,6 +644,39 @@
                     };
                 }).filter(p => p !== null);
 
+                async function submitComment(event, poemTitle, stackId, drawerId, commentBtnId) {
+    event.preventDefault(); // Prevents the page refresh
+    
+    const form = event.target;
+    const author = form.querySelector('.comment-name-input').value || "Anonymous";
+    const comment = form.querySelector('.comment-textarea').value;
+
+    const payload = {
+        submissionType: "comment_form",
+        poemTitle: poemTitle,
+        name: author,
+        comment: comment
+    };
+
+    try {
+        const response = await fetch(DATABASE_API_URL, {
+            method: 'POST',
+            mode: 'no-cors', // Essential for Google Apps Script webhooks
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        
+        alert("Reflection submitted.");
+        form.reset();
+        document.getElementById(drawerId).style.display = 'none';
+        
+        // Refresh local data to show the new comment
+        fetchCommentsDatabase();
+    } catch (err) {
+        alert("The reflection engine is buffering. Please try again.");
+    }
+}
+
                 const searchBox = document.getElementById('search-box');
                 if (searchBox && allPoems.length > 0) {
                     searchBox.placeholder = `Search ${allPoems.length} titles...`;
