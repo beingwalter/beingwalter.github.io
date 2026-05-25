@@ -516,6 +516,7 @@
         let activeCardElement = null;
         let activeSharePoemTitle = ""; 
         let activeRandomPoemSlug = null;
+        let userHasChosenMode = false;
 
         const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbyvOkaEXEyoOygal4Wkwr0Ia3bzCrq90OuNPxUSTwVaipYAlXSwNGEGvMLPdXsVMaa9QA/exec";
 
@@ -662,7 +663,7 @@
                     currentMode = 'all'; 
                     searchQuery = decodeURIComponent(searchParam).toLowerCase().trim();
                     if (searchBox) searchBox.value = decodeURIComponent(searchParam);
-                } else {
+                } else if (!userHasChosenMode) {
                     currentMode = 'landing'; 
                 }
 
@@ -742,7 +743,7 @@
                         <h2 style="margin-bottom: 4px;">Click a button to start</h2>
                     </div>
                     <div class="poem-text" style="padding: 0px 40px 2px 40px; text-align: left; letter-spacing: 0.3px; line-height: 1.25; margin-top: 0px !important;">
-                        <strong>Latest:</strong> the newest poem written<br>
+                        <strong>Poems listed newest to oldest</strong><br>
                         <strong>A - Z:</strong> an alphabetical list<br>
                         <strong>Random:</strong> let the universe decide!
                     </div>
@@ -863,6 +864,7 @@
         }
 
         function changeMode(mode) {
+            userHasChosenMode = true;
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('search')) window.history.replaceState({}, document.title, window.location.pathname);
             if (currentlyPlayingAudio) { currentlyPlayingAudio.pause(); currentlyPlayingAudio = null; }
