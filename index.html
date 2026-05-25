@@ -36,13 +36,13 @@
             letter-spacing: 1px;
             color: #f8fafc;
             margin-top: 0;
-            margin-bottom: 25px;
+            margin-bottom: 12px;
         }
 
         .nav-controls {
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             display: flex;
-            gap: 10px;
+            gap: 6px;
             flex-wrap: wrap;
             justify-content: center;
             align-items: center;
@@ -517,7 +517,7 @@
         let activeSharePoemTitle = ""; 
         let activeRandomPoemSlug = null;
 
-        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbyvOkaEXEyoOygal4Wkwr0Ia3bzCrq90OuNPxUSTwVaipYAlXSwNGEGvMLPdXsVMaa9QA/exec";
+        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbwIndi3-qM17QbvPBpwwggsquob-GGxOWPABiwgsUbHuYPhR1RQho6KdXzu0JYIJ2w/exec";
 
         function updateStickyPositions() {
             const mainHeader = document.getElementById('page-top');
@@ -738,15 +738,15 @@
                 const welcomeCard = document.createElement('div');
                 welcomeCard.className = 'poem-card animate-presence';
                 welcomeCard.innerHTML = `
-                    <div class="poem-header" style="border-bottom: none; padding-bottom: 0px;">
-                        <h2>Click a button to start</h2>
+                    <div class="poem-header" style="border-bottom: none; padding: 18px 40px 4px 40px;">
+                        <h2 style="margin-bottom: 4px;">Click a button to start</h2>
                     </div>
-                    <div class="poem-text" style="padding: 10px 40px 15px 40px; text-align: left; letter-spacing: 0.3px; margin-top: 0px !important;">
+                    <div class="poem-text" style="padding: 0px 40px 8px 40px; text-align: left; letter-spacing: 0.3px; line-height: 1.35; margin-top: 0px !important;">
                         <strong>Latest:</strong> the newest poem written<br>
                         <strong>A - Z:</strong> an alphabetical list<br>
                         <strong>Random:</strong> let the universe decide!
                     </div>
-                    <div class="poem-text" style="padding: 15px 40px 30px 40px; text-align: left; font-size: 0.98rem; line-height: 1.7; color: #94a3b8; border-top: 1px dashed #2d3742;">
+                    <div class="poem-text" style="padding: 22px 40px 30px 40px; text-align: left; font-size: 0.98rem; line-height: 1.7; color: #94a3b8; border-top: 1px dashed #2d3742;">
                         Welcome. This space is offered simply as a place to share my poetry, haiku and a quiet understanding of nonduality with anyone who feels inclined to look.<br><br>There is nothing to buy, no identity to build, and no destination to reach. Inside, you will find a collection of poems written starting around 2019, alongside audio recordings where you can listen to them read aloud.<br><br><span style="font-style: italic; color: #64748b;">More poems and audio files are being added weekly.</span>
                     </div>
                 `;
@@ -897,8 +897,9 @@
 
             const payload = {
                 submissionType: "comment_form",
-                poemTitle: title,
                 PoemTitle: title,
+                poemTitle: title,
+                poem_title: title,
                 name: nameValue,
                 comment: commentValue
             };
@@ -915,6 +916,17 @@
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
                 });
+
+                // Keep the reflection visible immediately, and also keep it in the in-page
+                // comments list so it survives a local re-render before the next Sheet fetch.
+                const newComment = {
+                    timestamp: new Date().toISOString(),
+                    PoemTitle: title,
+                    poemTitle: title,
+                    name: nameValue,
+                    comment: commentValue
+                };
+                globalCommentsList.unshift(newComment);
 
                 const stack = document.getElementById(stackId);
                 if (stack) {
