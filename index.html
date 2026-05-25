@@ -515,8 +515,9 @@
         let isAutoScrollingActive = false;
         let activeCardElement = null;
         let activeSharePoemTitle = ""; 
+        let activeRandomPoemSlug = null;
 
-        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbyvOkaEXEyoOygal4Wkwr0Ia3bzCrq90OuNPxUSTwVaipYAlXSwNGEGvMLPdXsVMaa9QA/exec";
+        const DATABASE_API_URL = "https://script.google.com/macros/s/AKfycbwIndi3-qM17QbvPBpwwggsquob-GGxOWPABiwgsUbHuYPhR1RQho6KdXzu0JYIJ2w/exec";
 
         function updateStickyPositions() {
             const mainHeader = document.getElementById('page-top');
@@ -691,6 +692,7 @@
 
         function handleSearch() {
             isTypingSearch = true;
+            activeRandomPoemSlug = null;
             searchQuery = document.getElementById('search-box').value.toLowerCase().trim();
             if (currentMode === 'landing' && searchQuery !== '') {
                 currentMode = 'all';
@@ -781,8 +783,13 @@
                 displayList.sort((a, b) => b.sortDate.localeCompare(a.sortDate));
             } else if (currentMode === 'random') {
                 if (searchQuery === '' && displayList.length > 0) {
-                    const randomIndex = Math.floor(Math.random() * displayList.length);
-                    displayList = [displayList[randomIndex]];
+                    if (!activeRandomPoemSlug) {
+                        const randomIndex = Math.floor(Math.random() * displayList.length);
+                        activeRandomPoemSlug = displayList[randomIndex].slug;
+                    }
+
+                    const selectedRandomPoem = displayList.find(poem => poem.slug === activeRandomPoemSlug);
+                    displayList = selectedRandomPoem ? [selectedRandomPoem] : [displayList[0]];
                 }
             }
 
@@ -860,6 +867,7 @@
             if (urlParams.has('search')) window.history.replaceState({}, document.title, window.location.pathname);
             if (currentlyPlayingAudio) { currentlyPlayingAudio.pause(); currentlyPlayingAudio = null; }
             currentMode = mode;
+            activeRandomPoemSlug = null;
             ['btn-all', 'btn-latest', 'btn-random'].forEach(id => document.getElementById(id).classList.remove('active'));
             if (mode !== 'landing') {
                 document.getElementById(`btn-${mode}`).classList.add('active');
