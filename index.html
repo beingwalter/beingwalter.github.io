@@ -121,12 +121,25 @@
             margin-top: 15px; 
         }
 
+        footer {
+            margin-top: 0;
+            padding-top: 0;
+            color: #64748b;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        footer p {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
         .poem-card {
             position: relative;
             background-color: #1e252b;
             padding: 0; 
             border-radius: 12px;
-            margin-bottom: 40px;
+            margin-bottom: 14px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             border: 1px solid #2d3742;
             opacity: 1;
@@ -483,13 +496,10 @@
         <h1>Walter's nondual poetry</h1>
         
         <div class="nav-controls">
-       <div class="nav-controls">
-    <button class="home-btn" id="btn-home" onclick="changeMode('landing')" title="Return to Instructions">🏠</button>
-
-    <button class="nav-btn" id="btn-latest" onclick="changeMode('latest')">Latest</button>
-    <button class="nav-btn" id="btn-all" onclick="changeMode('all')">A - Z</button>
-    <button class="nav-btn" id="btn-random" onclick="changeMode('random')">Random</button>
-</div>
+            <button class="home-btn" id="btn-home" onclick="changeMode('landing')" title="Return to Instructions">🏠</button>
+            <button class="nav-btn" id="btn-latest" onclick="changeMode('latest')">Latest</button>
+            <button class="nav-btn" id="btn-all" onclick="changeMode('all')">A - Z</button>
+            <button class="nav-btn" id="btn-random" onclick="changeMode('random')">Random</button>
         </div>
 
         <div class="search-container">
@@ -595,13 +605,18 @@
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(sharePayload)
                 });
-                alert(`"${activeSharePoemTitle}" has been sent to ${targetEmail}.`);
-                closeShareModal();
+                submitBtn.innerText = "Sent";
+                setTimeout(() => {
+                    closeShareModal();
+                    submitBtn.innerText = "Send Email";
+                }, 900);
             } catch (err) {
-                alert("The share did not send. Please try again in a moment.");
+                submitBtn.innerText = "Try again";
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerText = "Send Email";
+                if (submitBtn.innerText === "Sending...") {
+                    submitBtn.innerText = "Send Email";
+                }
             }
         }
 
@@ -964,7 +979,12 @@ if (audioEl && targetBtn) {
             const commentValue = textarea ? textarea.value.trim() : "";
 
             if (!commentValue) {
-                alert("Please write a short reflection first.");
+                if (submitBtn) {
+                    submitBtn.innerText = "Please write first";
+                    setTimeout(() => {
+                        submitBtn.innerText = "Submit";
+                    }, 1200);
+                }
                 return;
             }
 
@@ -1013,13 +1033,22 @@ if (audioEl && targetBtn) {
                 form.reset();
                 const drawer = document.getElementById(drawerId);
                 if (drawer) drawer.style.display = 'none';
-                alert("Reflection submitted.");
+                if (submitBtn) {
+                    submitBtn.innerText = "Submitted";
+                    setTimeout(() => {
+                        submitBtn.innerText = "Submit";
+                    }, 1200);
+                }
             } catch (err) {
-                alert("The reflection did not send. Please try again in a moment.");
+                if (submitBtn) {
+                    submitBtn.innerText = "Try again";
+                }
             } finally {
                 if (submitBtn) {
                     submitBtn.disabled = false;
-                    submitBtn.innerText = "Submit";
+                    if (submitBtn.innerText === "Sending...") {
+                        submitBtn.innerText = "Submit";
+                    }
                 }
             }
         }
