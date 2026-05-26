@@ -954,7 +954,7 @@ function toggleAudio(audioId, btnElement, cardIndex) {
 
             // Keep the highlighted text comfortably below the sticky site header
             // and the poem's own sticky title/control panel.
-            const comfortableOffset = mainHeaderHeight + poemHeaderHeight + 28;
+            const comfortableOffset = mainHeaderHeight + poemHeaderHeight + 80;
             const desiredY = Math.max(interpolatedY - comfortableOffset, 0);
 
             const distance = desiredY - window.scrollY;
