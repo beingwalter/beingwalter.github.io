@@ -737,36 +737,37 @@
             }
 
             // CORE INTEGRATED INTRO CARD STYLING
-            if (currentMode === 'landing' && !immediateUrlSearchParam && searchQuery === '') {
-                const welcomeCard = document.createElement('div');
-                welcomeCard.className = 'poem-card animate-presence';
-               welcomeCard.innerHTML = `
-    <div class="poem-header" style="border-bottom: none; padding: 18px 40px 4px 40px;">
-        <h2 style="margin-bottom: 4px;">Click a button to start</h2>
-    </div>
+          if (currentMode === 'landing' && !immediateUrlSearchParam && searchQuery === '') {
 
-    <div class="poem-text" style="padding: 0px 40px 2px 40px; text-align: left; letter-spacing: 0.3px; line-height: 1.25; margin-top: 0px !important;">
-        <strong>Latest:</strong> Poems listed newest to oldest<br>
-        <strong>A - Z:</strong> an alphabetical list<br>
-        <strong>Random:</strong> let the universe decide!
-    </div>
+    const welcomeCard = document.createElement('div');
+    welcomeCard.className = 'poem-card animate-presence';
 
-    <div style="padding: 10px 40px 14px 40px; text-align: left; font-size: 0.98rem; line-height: 1.7; color: #94a3b8; border-top: 1px dashed #2d3742; margin-top: 6px;">
-        Welcome. This space is offered simply as a place to share my poetry, haiku and a quiet understanding of nonduality with anyone who feels inclined to look.<br><br>
-        There is nothing to buy, no identity to build, and no destination to reach. Inside, you will find a collection of poems written starting around 2019, alongside audio recordings where you can listen to them read aloud.
-
-        <div style="text-align:center; margin-top:12px; font-style: italic; color: #64748b;">
-            More poems and audio files are being added weekly.
+    welcomeCard.innerHTML = `
+        <div class="poem-header" style="border-bottom:none; padding:18px 40px 4px 40px;">
+            <h2 style="margin-bottom:4px;">Click a button to start</h2>
         </div>
-    </div>
-`;
-                   
-                `;
-                container.appendChild(welcomeCard);
-                updateStickyPositions();
-                return;
-            }
 
+        <div class="poem-text" style="padding:0px 40px 2px 40px; text-align:left; letter-spacing:0.3px; line-height:1.25; margin-top:0px !important;">
+            <strong>Latest:</strong> Poems listed newest to oldest<br>
+            <strong>A - Z:</strong> an alphabetical list<br>
+            <strong>Random:</strong> let the universe decide!
+        </div>
+
+        <div style="padding:10px 40px 14px 40px; text-align:left; font-size:0.98rem; line-height:1.7; color:#94a3b8; border-top:1px dashed #2d3742; margin-top:6px;">
+            Welcome. This space is offered simply as a place to share my poetry, haiku and a quiet understanding of nonduality with anyone who feels inclined to look.<br><br>
+
+            There is nothing to buy, no identity to build, and no destination to reach. Inside, you will find a collection of poems written starting around 2019, alongside audio recordings where you can listen to them read aloud.
+
+            <div style="text-align:center; margin-top:10px; font-style:italic; color:#64748b;">
+                More poems and audio files are being added weekly.
+            </div>
+        </div>
+    `;
+
+    container.appendChild(welcomeCard);
+    updateStickyPositions();
+    return;
+}
             if (immediateUrlSearchParam && searchQuery === '') {
                 searchQuery = decodeURIComponent(immediateUrlSearchParam).toLowerCase().trim();
                 currentMode = 'all';
