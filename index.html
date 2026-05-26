@@ -717,7 +717,7 @@
            if (audio.paused) {
 
     btnElement.disabled = true;
-    btnElement.innerHTML = `⌛ Wait`; }
+    btnElement.innerHTML = `⌛ Wait`;
 
     audio.play()
         .then(() => {
@@ -734,6 +734,7 @@
     currentlyPlayingAudio = null;
     currentlyPlayingButton = null;
 };
+        };
         .catch(() => {
             btnElement.disabled = false;
             btnElement.innerHTML = `<span>▶</span> Play`;
