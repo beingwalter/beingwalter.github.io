@@ -849,16 +849,28 @@
                 `;
                 container.appendChild(card);
                 
-                const audioEl = document.getElementById(audioId);
-                if (audioEl) {
-                    audioEl.addEventListener('error', () => {
-                        const targetBtn = document.getElementById(btnId);
-                        if (targetBtn) {
-                            targetBtn.disabled = true;
-                            targetBtn.innerHTML = `No audio`;
-                        }
-                    }, true);
-                }
+               const audioEl = document.getElementById(audioId);
+const targetBtn = document.getElementById(btnId);
+
+if (audioEl && targetBtn) {
+
+    fetch(audioUrl, { method: 'HEAD' })
+        .then(response => {
+            if (!response.ok) {
+                targetBtn.disabled = true;
+                targetBtn.innerHTML = `No audio`;
+            }
+        })
+        .catch(() => {
+            targetBtn.disabled = true;
+            targetBtn.innerHTML = `No audio`;
+        });
+
+    audioEl.addEventListener('error', () => {
+        targetBtn.disabled = true;
+        targetBtn.innerHTML = `No audio`;
+    }, true);
+}
             });
             updateStickyPositions();
         }
