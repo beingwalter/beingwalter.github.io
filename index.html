@@ -727,7 +727,13 @@
 
             currentlyPlayingAudio = audio;
             currentlyPlayingButton = btnElement;
-        })
+            audio.onended = () => {
+    btnElement.classList.remove('playing');
+    btnElement.innerHTML = `<span>▶</span> Play`;
+
+    currentlyPlayingAudio = null;
+    currentlyPlayingButton = null;
+};
         .catch(() => {
             btnElement.disabled = false;
             btnElement.innerHTML = `<span>▶</span> Play`;
