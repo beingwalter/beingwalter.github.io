@@ -705,12 +705,18 @@
         }
 function toggleAudio(audioId, btnElement, cardIndex) {
 
-    if (btnElement.innerText.trim() === 'No audio' || btnElement.disabled) return;
+    if (btnElement.innerText.trim() === 'No audio' || btnElement.disabled) {
+        return;
+    }
 
     const audio = document.getElementById(audioId);
-    const card = document.getElementById(`card-${cardIndex}`);
+
+    if (!audio) {
+        return;
+    }
 
     if (currentlyPlayingAudio && currentlyPlayingAudio !== audio) {
+
         currentlyPlayingAudio.pause();
         currentlyPlayingAudio.currentTime = 0;
 
@@ -729,6 +735,7 @@ function toggleAudio(audioId, btnElement, cardIndex) {
             .then(() => {
 
                 btnElement.disabled = false;
+
                 btnElement.classList.add('playing');
                 btnElement.innerHTML = `<span>⏸</span> Pause`;
 
@@ -736,6 +743,7 @@ function toggleAudio(audioId, btnElement, cardIndex) {
                 currentlyPlayingButton = btnElement;
 
                 audio.onended = () => {
+
                     btnElement.classList.remove('playing');
                     btnElement.innerHTML = `<span>▶</span> Play`;
 
