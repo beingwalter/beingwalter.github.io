@@ -703,38 +703,65 @@
             }
             render();
         }
+function toggleAudio(audioId, btnElement, cardIndex) {
 
-        function toggleAudio(audioId, btnElement, cardIndex) {
-            if (btnElement.innerText.trim() === 'No audio' || btnElement.disabled) return;
-            const audio = document.getElementById(audioId);
-            const card = document.getElementById(`card-${cardIndex}`);
-            
-            if (currentlyPlayingAudio && currentlyPlayingAudio !== audio) {
-                currentlyPlayingAudio.pause(); currentlyPlayingAudio.currentTime = 0;
-                if (currentlyPlayingButton) { currentlyPlayingButton.classList.remove('playing'); currentlyPlayingButton.innerHTML = `<span>▶</span> Play`; }
-            }
+    if (btnElement.innerText.trim() === 'No audio' || btnElement.disabled) return;
 
-           if (audio.paused) {
+    const audio = document.getElementById(audioId);
+    const card = document.getElementById(`card-${cardIndex}`);
 
-    btnElement.disabled = true;
-    btnElement.innerHTML = `⌛ Wait`;
+    if (currentlyPlayingAudio && currentlyPlayingAudio !== audio) {
+        currentlyPlayingAudio.pause();
+        currentlyPlayingAudio.currentTime = 0;
 
-    audio.play()
-        .then(() => {
-            btnElement.disabled = false;
-            btnElement.classList.add('playing');
-            btnElement.innerHTML = `<span>⏸</span> Pause`;
+        if (currentlyPlayingButton) {
+            currentlyPlayingButton.classList.remove('playing');
+            currentlyPlayingButton.innerHTML = `<span>▶</span> Play`;
+        }
+    }
 
-            currentlyPlayingAudio = audio;
-            currentlyPlayingButton = btnElement;
-            audio.onended = () => {
-    btnElement.classList.remove('playing');
-    btnElement.innerHTML = `<span>▶</span> Play`;
+    if (audio.paused) {
 
-    currentlyPlayingAudio = null;
-    currentlyPlayingButton = null;
-};
-        };
+        btnElement.disabled = true;
+        btnElement.innerHTML = `⌛ Wait`;
+
+        audio.play()
+            .then(() => {
+
+                btnElement.disabled = false;
+                btnElement.classList.add('playing');
+                btnElement.innerHTML = `<span>⏸</span> Pause`;
+
+                currentlyPlayingAudio = audio;
+                currentlyPlayingButton = btnElement;
+
+                audio.onended = () => {
+                    btnElement.classList.remove('playing');
+                    btnElement.innerHTML = `<span>▶</span> Play`;
+
+                    currentlyPlayingAudio = null;
+                    currentlyPlayingButton = null;
+                };
+
+            })
+            .catch(() => {
+
+                btnElement.disabled = false;
+                btnElement.innerHTML = `<span>▶</span> Play`;
+
+            });
+
+    } else {
+
+        audio.pause();
+
+        btnElement.classList.remove('playing');
+        btnElement.innerHTML = `<span>▶</span> Play`;
+
+        currentlyPlayingAudio = null;
+        currentlyPlayingButton = null;
+    }
+}
         .catch(() => {
             btnElement.disabled = false;
             btnElement.innerHTML = `<span>▶</span> Play`;
