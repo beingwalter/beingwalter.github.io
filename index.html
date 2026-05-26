@@ -237,6 +237,7 @@
             margin: 0 -10px 4px -10px;
             border-left: 2px solid transparent;
             border-radius: 6px;
+            scroll-margin-top: 190px;
             transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
         }
 
@@ -877,6 +878,8 @@ function toggleAudio(audioId, btnElement, cardIndex) {
                 audio.removeEventListener('timeupdate', audio._syncHighlightHandler);
             }
 
+            audio._lastSyncedChunkIndex = -1;
+
             const updateHighlight = () => {
                 const currentTime = audio.currentTime;
                 let activeIndex = -1;
@@ -893,11 +896,34 @@ function toggleAudio(audioId, btnElement, cardIndex) {
                     chunk.classList.toggle('active', index === activeIndex);
                     chunk.classList.toggle('past', activeIndex > index);
                 });
+
+                if (activeIndex >= 0 && activeIndex !== audio._lastSyncedChunkIndex) {
+                    audio._lastSyncedChunkIndex = activeIndex;
+                    gentlyScrollToSyncedChunk(chunks[activeIndex]);
+                }
             };
 
             audio._syncHighlightHandler = updateHighlight;
             audio.addEventListener('timeupdate', updateHighlight);
             updateHighlight();
+        }
+
+        function gentlyScrollToSyncedChunk(chunk) {
+            if (!chunk) {
+                return;
+            }
+
+            const mainHeader = document.getElementById('page-top');
+            const headerHeight = mainHeader ? mainHeader.offsetHeight : 150;
+            const viewportComfortOffset = headerHeight + 35;
+            const chunkRect = chunk.getBoundingClientRect();
+
+            const targetY = window.scrollY + chunkRect.top - viewportComfortOffset;
+
+            window.scrollTo({
+                top: Math.max(targetY, 0),
+                behavior: 'smooth'
+            });
         }
 
         function clearSyncedHighlighting(cardIndex) {
@@ -913,6 +939,14 @@ function toggleAudio(audioId, btnElement, cardIndex) {
                 chunk.classList.remove('active');
                 chunk.classList.remove('past');
             });
+
+            const audio = card.querySelector('audio');
+
+            if (audio && audio._syncHighlightHandler) {
+                audio.removeEventListener('timeupdate', audio._syncHighlightHandler);
+                audio._syncHighlightHandler = null;
+                audio._lastSyncedChunkIndex = -1;
+            }
         }
 
         function render() {
