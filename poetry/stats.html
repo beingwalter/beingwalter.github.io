@@ -188,6 +188,12 @@
             color: #fca5a5;
         }
 
+        .btn.btn-timing.active {
+            background-color: #164e63;
+            border-color: #22d3ee;
+            color: #a5f3fc;
+        }
+
         .btn.btn-orphan.active {
             background-color: #d97706;
             border-color: #fbbf24;
@@ -383,10 +389,11 @@
             <div class="filter-group">
                 <button class="btn active" id="filter-all" onclick="resetFilters()">All Rows</button>
                 <button class="btn btn-no-audio" id="filter-audio" onclick="toggleFilter('noAudio')">No Audio</button>
+                <button class="btn btn-timing" id="filter-timing" onclick="toggleFilter('timing')">Has Timing</button>
                 <button class="btn" id="filter-comments" onclick="toggleFilter('comments')">Has Comments</button>
                 <button class="btn" id="filter-learn" onclick="toggleFilter('learn')">Has Learn More</button>
                 <button class="btn" id="filter-source" onclick="toggleFilter('source')">Is Published Book</button>
-                <button class="btn btn-orphan" id="filter-orphan" onclick="toggleOrphanMode()">Orphan MP3 Tracker</button>
+                <button class="btn btn-orphan" id="filter-orphan" onclick="toggleOrphanMode()">Orphan MP3</button>
             </div>
 
             <div id="source-sub-panel" class="source-sub-panel">
@@ -409,6 +416,7 @@
                     <tr>
                         <th id="th-title">Title</th>
                         <th>Audio</th>
+                        <th>Timing</th>
                         <th id="th-source">Source</th>
                         <th>Date</th>
                         <th>Comments</th>
@@ -417,7 +425,7 @@
                 </thead>
                 <tbody id="dashboard-rows">
                     <tr>
-                        <td colspan="6" style="text-align: center; color: #64748b; font-style: italic; padding: 40px;">
+                        <td colspan="7" style="text-align: center; color: #64748b; font-style: italic; padding: 40px;">
                             Reading configuration array...
                         </td>
                     </tr>
@@ -433,6 +441,7 @@
         let currentOrphansList = []; 
         let activeFilters = {
             noAudio: false,
+            timing: false,
             comments: false,
             learn: false,
             source: false
@@ -446,6 +455,15 @@
 
         function cleanSlug(title) {
             return title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/[\s-]+/g, '-').trim();
+        }
+
+        function hasTimingMarkers(text) {
+            return /^\s*\[\d+(?:\.\d+)?\]\s*$/m.test(text);
+        }
+
+        function compactDate(dateStr) {
+            const d = new Date(dateStr);
+            return isNaN(d.getTime()) ? dateStr : d.toISOString().split('T')[0];
         }
 
         async function triggerManualRefresh() {
@@ -507,7 +525,8 @@
                     const combinedRawText = bodyLines.join('\n').trimStart();
                     
                     const hasLearnMore = combinedRawText.includes('===');
-                    const matchComments = Array.isArray(commentsData) ? commentsData.filter(c => c.poemTitle === title) : [];
+                    const hasTiming = hasTimingMarkers(combinedRawText);
+                    const matchComments = Array.isArray(commentsData) ? commentsData.filter(c => c.poemTitle === title || c.PoemTitle === title) : [];
 
                     const d = new Date(dateRaw);
                     const safeISOString = isNaN(d.getTime()) ? "2026-01-01" : d.toISOString().split('T')[0];
@@ -516,9 +535,10 @@
                         title: title,
                         source: detectedSource,
                         sortDate: safeISOString,
-                        displayDate: dateRaw,
+                        displayDate: compactDate(dateRaw),
                         slug: cleanSlug(title),
                         hasLearnMore: hasLearnMore,
+                        hasTiming: hasTiming,
                         commentCount: matchComments.length,
                         hasAudio: false 
                     };
@@ -550,7 +570,7 @@
 
             } catch (err) {
                 document.getElementById('dashboard-rows').innerHTML = 
-                    `<tr><td colspan="6" style="text-align: center; color: #f87171; font-style: italic; padding: 40px;">Pipeline Interrupted: ${err.message}</td></tr>`;
+                    `<tr><td colspan="7" style="text-align: center; color: #f87171; font-style: italic; padding: 40px;">Pipeline Interrupted: ${err.message}</td></tr>`;
             }
         }
 
@@ -565,8 +585,8 @@
             isOrphanModeActive = !isOrphanModeActive;
             
             if (isOrphanModeActive) {
-                activeFilters = { noAudio: false, comments: false, learn: false, source: false };
-                ['filter-audio', 'filter-comments', 'filter-learn', 'filter-source'].forEach(id => {
+                activeFilters = { noAudio: false, timing: false, comments: false, learn: false, source: false };
+                ['filter-audio', 'filter-timing', 'filter-comments', 'filter-learn', 'filter-source'].forEach(id => {
                     document.getElementById(id).classList.remove('active');
                 });
                 document.getElementById('source-sub-panel').style.display = 'none';
@@ -615,10 +635,10 @@
 
         function resetFilters() {
             isOrphanModeActive = false;
-            activeFilters = { noAudio: false, comments: false, learn: false, source: false };
+            activeFilters = { noAudio: false, timing: false, comments: false, learn: false, source: false };
             activeSourceSubFilter = 'any';
             
-            ['filter-audio', 'filter-comments', 'filter-learn', 'filter-source', 'filter-orphan'].forEach(id => {
+            ['filter-audio', 'filter-timing', 'filter-comments', 'filter-learn', 'filter-source', 'filter-orphan'].forEach(id => {
                 document.getElementById(id).classList.remove('active');
             });
             document.getElementById('source-sub-panel').style.display = 'none';
@@ -654,6 +674,7 @@
             let processed = [...allPoems];
 
             if (activeFilters.noAudio) processed = processed.filter(p => !p.hasAudio);
+            if (activeFilters.timing) processed = processed.filter(p => p.hasTiming);
             if (activeFilters.comments) processed = processed.filter(p => p.commentCount > 0);
             if (activeFilters.learn) processed = processed.filter(p => p.hasLearnMore);
             
@@ -690,7 +711,7 @@
 
             if (dataset.length === 0) {
                 const clearMsg = isOrphanData ? "All audio files are perfectly linked. Zero orphans found!" : "No registered poems match the criteria.";
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b; font-style: italic; padding: 30px;">${clearMsg}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #64748b; font-style: italic; padding: 30px;">${clearMsg}</td></tr>`;
                 document.getElementById('summary-text').innerText = "Showing 0 metrics";
                 return;
             }
@@ -703,6 +724,7 @@
                     tr.innerHTML = `
                         <td style="font-family: monospace; color: #fbbf24; font-weight: 500;">${item}</td>
                         <td><span class="status-badge badge-orphan">ORPHAN</span></td>
+                        <td style="color: #475569;">—</td>
                         <td class="source-orphan-note">Check for poem titled: <b>"${cleanBaseName}"</b></td>
                         <td style="color: #475569;">—</td>
                         <td style="color: #475569;">—</td>
@@ -713,6 +735,10 @@
                         ? `<span class="status-badge badge-yes">YES</span>` 
                         : `<span class="status-badge badge-no">NO</span>`;
                         
+                    const timingBadge = item.hasTiming
+                        ? `<span class="status-badge badge-yes">YES</span>`
+                        : `<span class="status-badge badge-no">NO</span>`;
+
                     const learnBadge = item.hasLearnMore 
                         ? `<span class="status-badge badge-yes">YES</span>` 
                         : `<span class="status-badge badge-no">NO</span>`;
@@ -727,6 +753,7 @@
                             </a>
                         </td>
                         <td>${audioBadge}</td>
+                        <td>${timingBadge}</td>
                         <td class="${sourceClass}">${item.source}</td>
                         <td style="font-family: monospace; font-size: 0.85rem;">${item.displayDate}</td>
                         <td style="font-weight: ${item.commentCount > 0 ? 'bold' : 'normal'}; color: ${item.commentCount > 0 ? '#38bdf8' : '#64748b'};">
