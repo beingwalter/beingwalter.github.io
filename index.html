@@ -226,6 +226,30 @@
             text-align: center;
         }
 
+        .synced-poem-text {
+            white-space: normal;
+        }
+
+        .synced-chunk {
+            display: block;
+            white-space: pre-line;
+            padding: 6px 10px;
+            margin: 0 -10px 4px -10px;
+            border-left: 2px solid transparent;
+            border-radius: 6px;
+            transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
+        }
+
+        .synced-chunk.active {
+            color: #f8fafc;
+            background-color: rgba(148, 163, 184, 0.09);
+            border-left-color: #64748b;
+        }
+
+        .synced-chunk.past {
+            color: #94a3b8;
+        }
+
         .context-block {
             display: none; 
             margin: 0 40px 20px 40px;
@@ -757,10 +781,14 @@ function toggleAudio(audioId, btnElement, cardIndex) {
                 currentlyPlayingAudio = audio;
                 currentlyPlayingButton = btnElement;
 
+                setupSyncedHighlighting(audio, cardIndex);
+
                 audio.onended = () => {
 
                     btnElement.classList.remove('playing');
                     btnElement.innerHTML = `<span>▶</span> Play`;
+
+                    clearSyncedHighlighting(cardIndex);
 
                     currentlyPlayingAudio = null;
                     currentlyPlayingButton = null;
@@ -781,10 +809,111 @@ function toggleAudio(audioId, btnElement, cardIndex) {
         btnElement.classList.remove('playing');
         btnElement.innerHTML = `<span>▶</span> Play`;
 
+        clearSyncedHighlighting(cardIndex);
+
         currentlyPlayingAudio = null;
         currentlyPlayingButton = null;
     }
 }
+
+        function parseSyncedPoemText(rawText) {
+            const markerPattern = /^\s*\[(\d+(?:\.\d+)?)\]\s*$/gm;
+            const markers = [];
+            let match;
+
+            while ((match = markerPattern.exec(rawText)) !== null) {
+                markers.push({
+                    time: parseFloat(match[1]),
+                    markerStart: match.index,
+                    markerEnd: markerPattern.lastIndex
+                });
+            }
+
+            if (markers.length === 0) {
+                return {
+                    hasSync: false,
+                    html: escapeHtml(rawText)
+                };
+            }
+
+            const chunks = [];
+
+            markers.forEach((marker, index) => {
+                const nextMarker = markers[index + 1];
+                const textStart = marker.markerEnd;
+                const textEnd = nextMarker ? nextMarker.markerStart : rawText.length;
+                const chunkText = rawText.slice(textStart, textEnd).trim();
+
+                if (chunkText) {
+                    chunks.push({
+                        time: marker.time,
+                        text: chunkText
+                    });
+                }
+            });
+
+            return {
+                hasSync: true,
+                html: chunks.map((chunk, index) => {
+                    return `<span class="synced-chunk" data-sync-time="${chunk.time}" data-sync-index="${index}">${escapeHtml(chunk.text)}</span>`;
+                }).join('')
+            };
+        }
+
+        function setupSyncedHighlighting(audio, cardIndex) {
+            const card = document.getElementById(`card-${cardIndex}`);
+
+            if (!card) {
+                return;
+            }
+
+            const chunks = Array.from(card.querySelectorAll('.synced-chunk'));
+
+            if (chunks.length === 0) {
+                return;
+            }
+
+            if (audio._syncHighlightHandler) {
+                audio.removeEventListener('timeupdate', audio._syncHighlightHandler);
+            }
+
+            const updateHighlight = () => {
+                const currentTime = audio.currentTime;
+                let activeIndex = -1;
+
+                chunks.forEach((chunk, index) => {
+                    const chunkTime = parseFloat(chunk.dataset.syncTime);
+
+                    if (!isNaN(chunkTime) && currentTime >= chunkTime) {
+                        activeIndex = index;
+                    }
+                });
+
+                chunks.forEach((chunk, index) => {
+                    chunk.classList.toggle('active', index === activeIndex);
+                    chunk.classList.toggle('past', activeIndex > index);
+                });
+            };
+
+            audio._syncHighlightHandler = updateHighlight;
+            audio.addEventListener('timeupdate', updateHighlight);
+            updateHighlight();
+        }
+
+        function clearSyncedHighlighting(cardIndex) {
+            const card = document.getElementById(`card-${cardIndex}`);
+
+            if (!card) {
+                return;
+            }
+
+            const chunks = card.querySelectorAll('.synced-chunk');
+
+            chunks.forEach(chunk => {
+                chunk.classList.remove('active');
+                chunk.classList.remove('past');
+            });
+        }
 
         function render() {
             const container = document.getElementById('poetry-container');
@@ -821,7 +950,7 @@ function toggleAudio(audioId, btnElement, cardIndex) {
             There is nothing to buy, no identity to build, and no destination to reach. Inside, you will find a collection of poems written starting around 2019, alongside audio recordings where you can listen to them read aloud.
 
             <div style="text-align:center; margin-top:10px; font-style:italic; color:#64748b;">
-                More poems and audio files are being added weekly.
+                Poems and audio files are being added weekly.
             </div>
         </div>
     `;
@@ -883,7 +1012,10 @@ function toggleAudio(audioId, btnElement, cardIndex) {
 
                 const audioId = `audio-${index}`, btnId = `btn-${index}`, drawerId = `drawer-${index}`;
                 const commentDrawerId = `comment-drawer-${index}`, commentBtnId = `comment-btn-${index}`, stackId = `stack-${index}`;
-                const audioUrl = `poetry/${poem.slug}.mp3`, alignmentClass = poem.isCentered ? 'poem-text centered-body' : 'poem-text';
+                const audioUrl = `poetry/${poem.slug}.mp3`;
+                const syncedText = parseSyncedPoemText(poem.text);
+                const alignmentClass = poem.isCentered ? 'poem-text centered-body' : 'poem-text';
+                const syncClass = syncedText.hasSync ? ' synced-poem-text' : '';
 
                 const matchingComments = globalCommentsList.filter(c => (c.poemTitle || c.PoemTitle) === poem.title);
                 matchingComments.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -902,7 +1034,7 @@ function toggleAudio(audioId, btnElement, cardIndex) {
                             <span class="meta-details">${metaText}</span>
                         </div>
                     </div>
-                    <p class="${alignmentClass}">${poem.text}</p>
+                    <div class="${alignmentClass}${syncClass}">${syncedText.html}</div>
                     <div class="bottom-control-group" style="padding: 0 40px 15px 40px;">
                         ${!poem.backstory ? '' : `<button class="context-btn" onclick="document.getElementById('${drawerId}').style.display = (document.getElementById('${drawerId}').style.display === 'block') ? 'none' : 'block'"><span>📖</span> Learn more</button>`}
                         <button id="${commentBtnId}" class="context-btn" onclick="document.getElementById('${commentDrawerId}').style.display = (document.getElementById('${commentDrawerId}').style.display === 'block') ? 'none' : 'block'"><span>💬</span> Comment</button>
