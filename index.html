@@ -180,6 +180,25 @@
             text-align: center;
         }
 
+        .poem-title-flash {
+            animation: poemTitleFlash 1.15s ease-out;
+        }
+
+        @keyframes poemTitleFlash {
+            0% {
+                color: #f8fafc;
+                text-shadow: 0 0 0 rgba(226, 232, 240, 0);
+            }
+            22% {
+                color: #ffffff;
+                text-shadow: 0 0 18px rgba(226, 232, 240, 0.45);
+            }
+            100% {
+                color: #f1f5f9;
+                text-shadow: 0 0 0 rgba(226, 232, 240, 0);
+            }
+        }
+
         .poem-meta {
             display: flex;
             justify-content: space-between;
@@ -749,6 +768,7 @@ function toggleAudio(audioId, btnElement, cardIndex) {
     }
 
     const audio = document.getElementById(audioId);
+    const card = document.getElementById(`card-${cardIndex}`);
 
     if (!audio) {
         return;
@@ -766,6 +786,13 @@ function toggleAudio(audioId, btnElement, cardIndex) {
     }
 
     if (audio.paused) {
+
+        const shouldReturnToTitle = audio.currentTime < 0.25 || audio.ended;
+
+        if (shouldReturnToTitle && card) {
+            gentlyReturnToPoemTitle(card);
+            softlyFlashPoemTitle(card);
+        }
 
         btnElement.disabled = true;
         btnElement.innerHTML = `⌛ Wait`;
@@ -815,6 +842,53 @@ function toggleAudio(audioId, btnElement, cardIndex) {
         currentlyPlayingButton = null;
     }
 }
+
+        function gentlyReturnToPoemTitle(card) {
+            if (!card) {
+                return;
+            }
+
+            const mainHeader = document.getElementById('page-top');
+            const mainHeaderHeight = mainHeader ? mainHeader.offsetHeight : 150;
+            const cardTop = window.scrollY + card.getBoundingClientRect().top;
+            const desiredY = Math.max(cardTop - mainHeaderHeight - 12, 0);
+            const distance = Math.abs(window.scrollY - desiredY);
+
+            // If already near the title, don't create unnecessary movement.
+            if (distance < 24) {
+                return;
+            }
+
+            setTimeout(() => {
+                window.scrollTo({
+                    top: desiredY,
+                    behavior: 'smooth'
+                });
+            }, 120);
+        }
+
+        function softlyFlashPoemTitle(card) {
+            if (!card) {
+                return;
+            }
+
+            const title = card.querySelector('.poem-header h2');
+
+            if (!title) {
+                return;
+            }
+
+            title.classList.remove('poem-title-flash');
+
+            // Force animation restart even if the same title was just flashed.
+            void title.offsetWidth;
+
+            title.classList.add('poem-title-flash');
+
+            setTimeout(() => {
+                title.classList.remove('poem-title-flash');
+            }, 1250);
+        }
 
         function parseSyncedPoemText(rawText) {
             const markerPattern = /^\s*\[(\d+(?:\.\d+)?)\]\s*$/gm;
