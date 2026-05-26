@@ -714,11 +714,25 @@
                 if (currentlyPlayingButton) { currentlyPlayingButton.classList.remove('playing'); currentlyPlayingButton.innerHTML = `<span>▶</span> Play`; }
             }
 
-            if (audio.paused) {
-                audio.play().catch(() => {});
-                btnElement.classList.add('playing'); btnElement.innerHTML = `<span>⏸</span> Pause`;
-                currentlyPlayingAudio = audio; currentlyPlayingButton = btnElement;
-            } else {
+           if (audio.paused) {
+
+    btnElement.disabled = true;
+    btnElement.innerHTML = `⌛ Wait`;
+
+    audio.play()
+        .then(() => {
+            btnElement.disabled = false;
+            btnElement.classList.add('playing');
+            btnElement.innerHTML = `<span>⏸</span> Pause`;
+
+            currentlyPlayingAudio = audio;
+            currentlyPlayingButton = btnElement;
+        })
+        .catch(() => {
+            btnElement.disabled = false;
+            btnElement.innerHTML = `<span>▶</span> Play`;
+        });
+} else {
                 audio.pause(); btnElement.classList.remove('playing'); btnElement.innerHTML = `<span>▶</span> Play`;
                 currentlyPlayingAudio = null; currentlyPlayingButton = null;
             }
