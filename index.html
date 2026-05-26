@@ -237,7 +237,6 @@
             margin: 0 -10px 4px -10px;
             border-left: 2px solid transparent;
             border-radius: 6px;
-            scroll-margin-top: 190px;
             transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
         }
 
@@ -878,7 +877,10 @@ function toggleAudio(audioId, btnElement, cardIndex) {
                 audio.removeEventListener('timeupdate', audio._syncHighlightHandler);
             }
 
-            audio._lastSyncedChunkIndex = -1;
+            if (audio._syncScrollFrame) {
+                cancelAnimationFrame(audio._syncScrollFrame);
+                audio._syncScrollFrame = null;
+            }
 
             const updateHighlight = () => {
                 const currentTime = audio.currentTime;
@@ -897,33 +899,74 @@ function toggleAudio(audioId, btnElement, cardIndex) {
                     chunk.classList.toggle('past', activeIndex > index);
                 });
 
-                if (activeIndex >= 0 && activeIndex !== audio._lastSyncedChunkIndex) {
-                    audio._lastSyncedChunkIndex = activeIndex;
-                    gentlyScrollToSyncedChunk(chunks[activeIndex]);
+                return activeIndex;
+            };
+
+            const followReadingPosition = () => {
+                if (audio.paused || audio.ended) {
+                    audio._syncScrollFrame = null;
+                    return;
                 }
+
+                const activeIndex = updateHighlight();
+
+                if (activeIndex >= 0) {
+                    gentlyFollowSyncedChunk(audio, chunks, activeIndex, card);
+                }
+
+                audio._syncScrollFrame = requestAnimationFrame(followReadingPosition);
             };
 
             audio._syncHighlightHandler = updateHighlight;
             audio.addEventListener('timeupdate', updateHighlight);
+
             updateHighlight();
+            audio._syncScrollFrame = requestAnimationFrame(followReadingPosition);
         }
 
-        function gentlyScrollToSyncedChunk(chunk) {
-            if (!chunk) {
+        function gentlyFollowSyncedChunk(audio, chunks, activeIndex, card) {
+            const activeChunk = chunks[activeIndex];
+
+            if (!activeChunk) {
                 return;
             }
 
+            const nextChunk = chunks[activeIndex + 1] || activeChunk;
+            const activeTime = parseFloat(activeChunk.dataset.syncTime);
+            const nextTime = parseFloat(nextChunk.dataset.syncTime);
+
+            let progress = 0;
+
+            if (!isNaN(activeTime) && !isNaN(nextTime) && nextTime > activeTime) {
+                progress = (audio.currentTime - activeTime) / (nextTime - activeTime);
+                progress = Math.max(0, Math.min(progress, 1));
+            }
+
+            const activeY = window.scrollY + activeChunk.getBoundingClientRect().top;
+            const nextY = window.scrollY + nextChunk.getBoundingClientRect().top;
+            const interpolatedY = activeY + ((nextY - activeY) * progress);
+
             const mainHeader = document.getElementById('page-top');
-            const headerHeight = mainHeader ? mainHeader.offsetHeight : 150;
-            const viewportComfortOffset = headerHeight + 35;
-            const chunkRect = chunk.getBoundingClientRect();
+            const poemHeader = card ? card.querySelector('.poem-header') : null;
 
-            const targetY = window.scrollY + chunkRect.top - viewportComfortOffset;
+            const mainHeaderHeight = mainHeader ? mainHeader.offsetHeight : 150;
+            const poemHeaderHeight = poemHeader ? poemHeader.offsetHeight : 110;
 
-            window.scrollTo({
-                top: Math.max(targetY, 0),
-                behavior: 'smooth'
-            });
+            // Keep the highlighted text comfortably below the sticky site header
+            // and the poem's own sticky title/control panel.
+            const comfortableOffset = mainHeaderHeight + poemHeaderHeight + 28;
+            const desiredY = Math.max(interpolatedY - comfortableOffset, 0);
+
+            const distance = desiredY - window.scrollY;
+
+            // Small easing steps prevent sudden jumps while still allowing the page
+            // to keep up with longer poems.
+            if (Math.abs(distance) > 1) {
+                window.scrollTo({
+                    top: window.scrollY + (distance * 0.045),
+                    behavior: 'auto'
+                });
+            }
         }
 
         function clearSyncedHighlighting(cardIndex) {
@@ -945,7 +988,11 @@ function toggleAudio(audioId, btnElement, cardIndex) {
             if (audio && audio._syncHighlightHandler) {
                 audio.removeEventListener('timeupdate', audio._syncHighlightHandler);
                 audio._syncHighlightHandler = null;
-                audio._lastSyncedChunkIndex = -1;
+            }
+
+            if (audio && audio._syncScrollFrame) {
+                cancelAnimationFrame(audio._syncScrollFrame);
+                audio._syncScrollFrame = null;
             }
         }
 
