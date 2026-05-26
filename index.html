@@ -770,14 +770,6 @@ function toggleAudio(audioId, btnElement, cardIndex) {
         currentlyPlayingButton = null;
     }
 }
-        .catch(() => {
-            btnElement.disabled = false;
-            btnElement.innerHTML = `<span>▶</span> Play`;
-        });
-} else {
-                audio.pause(); btnElement.classList.remove('playing'); btnElement.innerHTML = `<span>▶</span> Play`;
-                currentlyPlayingAudio = null; currentlyPlayingButton = null;
-            }
         }
 
         function render() {
